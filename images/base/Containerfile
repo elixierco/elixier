@@ -1,0 +1,205 @@
+FROM fedora:37 AS base
+
+COPY dnf.conf /etc/dnf/dnf.conf
+
+RUN dnf install dnf-plugins-core  -y && \
+    dnf install -y bash iputils glibc-langpack-en net-tools \
+        nmap bind-utils hostname nss pam wget \
+        procps-ng vim-enhanced && \
+    dnf clean all
+
+RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && \
+    install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+ENV LC_ALL=en_US.utf8 \
+    LANG=en_US.utf8 \
+    PYTHONUNBUFFERED=1
+
+FROM base AS spark
+
+ENV JAVA_VERSION=1.8.0 \
+    HADOOP_VERSION=3.2.3 \
+    HADOOP_MINOR_VERSION=3.2 \
+    SPARK3_VERSION=3.2.0 \
+    PYTHON_VERSION=3.8
+
+RUN set -ex && \
+    dnf install -y \
+        java-${JAVA_VERSION}-openjdk-headless \
+        freetds freetds-libs mariadb-connector-c \
+        passwd git patch /usr/bin/python${PYTHON_VERSION} \
+        "pkgconfig(python-${PYTHON_VERSION})" \
+        postgresql-devel mysql-devel \
+        gcc-c++ cyrus-sasl-devel \
+        perl-interpreter findutils \
+        unixODBC-devel libev-devel \
+        krb5-devel openldap-devel \
+        libffi krb5-libs openldap-clients openldap \
+        postgresql-libs postgresql \
+        git npm texlive-tcolorbox texlive-parskip texlive-upquote \
+        texlive-eurosym texlive-adjustbox \
+        texlive-titling texlive-ulem texlive-jknapltx \
+        "tex(rsfs10.tfm)" \
+        /usr/bin/xelatex /usr/bin/mf /usr/bin/bibtex \
+        && \
+    dnf clean all
+
+ENV JAVA_HOME=/usr/lib/jvm/jre-${JAVA_VERSION}/ \
+    TINI_VERSION=0.19.0
+
+ADD https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini /root/tini
+
+RUN mkdir -p /opt/apache/ && mkdir -p /opt/elixier/ && \
+    install -o root -g root -m 0755 /root/tini /usr/bin/tini
+
+COPY libldap_r.so /usr/lib64/libldap_r.so
+
+ADD packages/hadoop-${HADOOP_VERSION}.tar.gz /opt/apache/
+ADD packages/spark-${SPARK3_VERSION}-bin-hadoop${HADOOP_MINOR_VERSION}.tgz /opt/apache/
+
+
+
+RUN /usr/sbin/groupadd -r user --gid 1000 && \
+     /usr/sbin/useradd -r -g user --uid 1000 \
+     -m -d /home/user \
+     -s /sbin/nologin user
+
+WORKDIR /opt/apache/
+RUN ln -s ./hadoop-${HADOOP_VERSION} hadoop && \
+    ln -s ./spark-${SPARK3_VERSION}-bin-hadoop${HADOOP_MINOR_VERSION} spark3 
+
+WORKDIR /opt/elixier/
+RUN /usr/bin/python${PYTHON_VERSION} -m venv spark3-python && \
+    ./spark3-python/bin/pip install numpy scikit-learn pandas dask ipykernel findspark 
+
+COPY jars/* spark3/jars/
+
+COPY noop.py /opt/noop.py
+
+ENV PYSPARK_PYTHON=/opt/elixier/spark3-python/bin/python \
+    SPARK_CONF_DIR=/etc/spark3 \
+    SPARK_NO_DAEMONIZE=true \
+    SPARK_HOME=/opt/apache/spark3 \
+    HADOOP_HOME=/opt/apache/hadoop \
+    SPARK_DIST_CLASSPATH="/opt/apache/hadoop//etc/hadoop:/opt/apache/hadoop//share/hadoop/common/lib/*:/opt/apache/hadoop//share/hadoop/common/*:/opt/apache/hadoop//share/hadoop/hdfs:/opt/apache/hadoop//share/hadoop/hdfs/lib/*:/opt/apache/hadoop//share/hadoop/hdfs/*:/opt/apache/hadoop//share/hadoop/mapreduce/lib/*:/opt/apache/hadoop//share/hadoop/mapreduce/*:/opt/apache/hadoop//share/hadoop/yarn:/opt/apache/hadoop//share/hadoop/yarn/lib/*:/opt/apache/hadoop//share/hadoop/yarn/*:/opt/apache/hadoop/share/hadoop/tools/lib/*"
+
+ADD https://repo1.maven.org/maven2/org/apache/spark/spark-hadoop-cloud_2.12/3.2.0/spark-hadoop-cloud_2.12-3.2.0.jar /opt/apache/spark3/jars/
+ADD https://download.oracle.com/otn-pub/otn_software/jdbc/217/ojdbc8.jar /opt/apache/spark3/jars/
+RUN chown -R root:root /opt/apache/spark3/jars/ && chmod a+r -R /opt/apache/spark3/jars/
+
+USER user
+
+RUN /opt/apache/spark3/bin/spark-submit \
+    --packages graphframes:graphframes:0.8.2-spark3.2-s_2.12,\
+org.apache.iceberg:iceberg-spark-runtime-3.2_2.12:0.14.0,\
+io.openlineage:openlineage-spark:0.3.+ \
+    /opt/noop.py 
+
+USER root
+RUN cp /home/user/.ivy2/jars/* /opt/apache/spark3/jars/ && \
+    rm -rf /home/user/.ivy2/
+
+# -- install aiflow --
+
+ENV AIRFLOW_VERSION=2.2.5
+
+RUN /usr/bin/python${PYTHON_VERSION} -m venv /opt/elixier/airflow/ && \
+    /opt/elixier/airflow/bin/pip install "apache-airflow[celery,async,postgres,mysql,odbc,apache.druid,apache.spark,apache.webhdfs,rabbitmq,redis,ftp,grpc,http,imap,jdbc,papermill,kerberos,ldap,sftp,sqlite,ssh,amazon,virtualenv]"==${AIRFLOW_VERSION} \
+    apache-airflow-providers-amazon \
+    apache-airflow-providers-airbyte[http] \
+    apache-airflow-providers-alibaba \
+    apache-airflow-providers-neo4j \
+    apache-airflow-providers-trino \
+    apache-airflow-providers-dbt-cloud \
+    apache-airflow-providers-common-sql \
+    apache-airflow-providers-microsoft-mssql \
+    apache-airflow-providers-oracle \
+    apache-airflow-providers-mongo \
+    openlineage-airflow \
+    oracledb \
+    dag-factory \
+    --constraint https://raw.githubusercontent.com/apache/airflow/constraints-${AIRFLOW_VERSION}/constraints-${PYTHON_VERSION}.txt
+
+RUN ln -s /opt/elixier/airflow/bin/airflow /usr/local/bin/airflow
+
+# -- install jupyterhub --
+
+ENV JUPYTERHUB_VERSION=2.0.2 \
+    JUPYTERLAB_VERSION=3.2.8
+
+ADD packages/mc /usr/local/bin/mc
+
+RUN /usr/bin/python${PYTHON_VERSION} -m venv /opt/elixier/jupyterhub/ && \
+    /opt/elixier/jupyterhub/bin/pip install "jupyterhub==$JUPYTERHUB_VERSION" "jupyterlab==$JUPYTERLAB_VERSION" jupyter-server-proxy \
+    jupyterlab-git jupyterlab_latex jupyterlab-fasta \
+    jupyterlab-geojson jupyterlab-katex  jupyterlab-mathjax3 jupyterlab-vega2 \
+    jupyterlab-vega3 jupyterlab_widgets sudospawner keycloakauthenticator \
+    jupyterhub-nativeauthenticator jupyterhub-kubespawner \
+    psycopg2-binary pymssql oracledb && \
+    mkdir /opt/elixier/jupyterhub/share/jupyter/kernels/pyspark/ && \
+    mkdir /workdir/ && \
+    /opt/elixier/spark3-python/bin/pip install matplotlib \
+       pandas-profiling[notebook,html] pydot \
+       bokeh altair vega-datasets
+
+WORKDIR /opt/elixier/jupyterhub/
+RUN npm install configurable-http-proxy && \
+    chmod a+x ./node_modules/.bin/configurable-http-proxy && \
+    chmod a+x ./node_modules/configurable-http-proxy/bin/configurable-http-proxy && \
+    ln -s /opt/elixier/jupyterhub/node_modules/.bin/configurable-http-proxy /usr/local/bin/configurable-http-proxy && \
+    ln -s /opt/elixier/jupyterhub/bin/jupyterhub /usr/local/bin/jupyterhub && \
+    ln -s /opt/elixier/jupyterhub/bin/jupyterhub-singleuser /usr/local/bin/jupyterhub-singleuser
+
+ENV PATH="${PATH}:/opt/apache/spark3/bin:/opt/apache/spark3-python/bin/:/opt/apache/hadoop/bin/" 
+
+COPY entrypoints/airflow.sh /opt/elixier/airflow/bin/entrypoint.sh
+COPY entrypoints/jupyterhub.sh /opt/elixier/jupyterhub/bin/entrypoint.sh
+
+ADD jupyterhub/pyspark-kernel/* /opt/elixier/jupyterhub/share/jupyter/kernels/pyspark/
+ADD jupyterhub/page_config.json /opt/elixier/jupyterhub/etc/jupyter/labconfig/page_config.json
+ADD jupyterhub/pod_hostname.patch /opt/elixier/jupyterhub/
+WORKDIR /opt/elixier/jupyterhub/lib/python${PYTHON_VERSION}/site-packages/kubespawner
+RUN patch -p 8 -i /opt/elixier/jupyterhub/pod_hostname.patch
+
+WORKDIR /workdir/
+
+ENV AIRFLOW_HOME=/etc/airflow/ 
+
+ENTRYPOINT ["/opt/apache/spark3/kubernetes/dockerfiles/spark/entrypoint.sh"]
+
+FROM spark AS airflow
+
+ENTRYPOINT ["/opt/elixier/airflow/bin/entrypoint.sh"]
+
+FROM spark AS jupyterhub
+
+ENTRYPOINT ["/opt/elixier/jupyterhub/bin/entrypoint.sh"]
+
+FROM spark AS toolbox
+
+ENV NAME=elixier-toolbox VERSION=20221127
+LABEL com.github.containers.toolbox="true" \
+      com.redhat.component="$NAME" \
+      name="$NAME" \
+      version="$VERSION" \
+      usage="This image is meant to be used with the toolbox command" \
+      summary="Base image for creating Elixier toolbox containers" \
+      maintainer="Izhar Firdaus <izhar@abyres.net>"
+
+#COPY README.md /
+USER root
+RUN mkdir -p /opt/elixier/toolbox
+COPY toolbox/missing-docs /opt/elixier/toolbox
+COPY toolbox/extra-packages /opt/elixier/toolbox
+
+RUN sed -i '/tsflags=nodocs/d' /etc/dnf/dnf.conf && \
+    dnf -y swap coreutils-single coreutils-full && \
+    dnf -y reinstall $(</opt/elixier/toolbox/missing-docs) && \
+    dnf -y install $(</opt/elixier/toolbox/extra-packages) && \
+    dnf clean all
+
+COPY toolbox/spark-defaults.conf /etc/spark3/spark-defaults.conf
+RUN sed -i 's|%IMAGE%|registry.gitlab.com/abyres/releases/elixier-toolbox|g' /etc/spark3/spark-defaults.conf
+
+ENTRYPOINT []
+
