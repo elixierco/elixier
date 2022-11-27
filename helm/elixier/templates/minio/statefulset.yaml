@@ -1,0 +1,114 @@
+{{- include "require" . -}}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "elixier.fullname" . }}-minio
+  labels:
+    {{- include "elixier.labels" . | nindent 4 }}
+    component: minio
+spec:
+  replicas: {{ .Values.replicaCount }}
+  serviceName: {{ include "elixier.fullname" . }}
+  selector:
+    matchLabels:
+      {{- include "elixier.selectorLabels" . | nindent 6 }}
+      component: minio
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "elixier.selectorLabels" . | nindent 8 }}
+        component: minio
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "elixier.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: main
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.minio_image.repository }}:{{ .Values.minio_image.tag }}"
+          imagePullPolicy: {{ .Values.minio_image.pullPolicy }}
+          {{ if gt (int .Values.replicaCount) 1 -}}
+          args: ["server", "--console-address", ":9001", 'http://{{ include "elixier.fullname" . }}-{0...{{ sub .Values.replicaCount 1 }}}.{{ include "elixier.fullname" . }}:9000/data0']
+          {{- else -}}
+          args: ["server", "--console-address", ":9001", "/data0"]
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: 9000
+              protocol: TCP
+            - name: console
+              containerPort: 9001
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: console
+          readinessProbe:
+            httpGet:
+              path: /
+              port: console
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: {{ include "elixier.fullname" . }}-datadir0
+              mountPath: "/data0"
+          env:
+            - name: MINIO_ROOT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "elixier.fullname" . }}-secrets
+                  key: minio_root_user
+            - name: MINIO_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "elixier.fullname" . }}-secrets
+                  key: minio_root_password
+            - name: MINIO_BROWSER_REDIRECT_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "elixier.fullname" . }}-secrets
+                  key: minio_console_url
+
+
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/name
+                      operator: In
+                      values:
+                        - {{ include "elixier.name" . }}
+                topologyKey: "kubernetes.io/hostname"
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ include "elixier.fullname" . }}-datadir0
+      spec:
+        accessModes:
+          - {{ .Values.storageAccessMode | default "ReadWriteMany" }}
+        {{ if .Values.storageClass -}}
+        storageClassName: {{ quote .Values.storageClass }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.minio.instance_storage }}
+

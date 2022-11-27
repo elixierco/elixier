@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "elixier.fullname" . }}-minio
+  labels:
+    {{- include "elixier.labels" . | nindent 4 }}
+    component: minio
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9000
+      targetPort: http
+      protocol: TCP
+      name: http
+    - port: 9001
+      targetPort: console
+      protocol: TCP
+      name: console
+
+  selector:
+    {{- include "elixier.selectorLabels" . | nindent 4 }}
+    component: minio
+

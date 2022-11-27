@@ -94,7 +94,7 @@ if args.release or args.force_release:
         build += 1
         conf['build'] = build
 
-def build(args, stag, repo_url, target=None):
+def build_image(args, stag, repo_url, target=None):
     tags = []   
     if args.release or args.force_release:
         tags.append('%s:latest' % repo_url)
@@ -137,11 +137,11 @@ def build(args, stag, repo_url, target=None):
             print(_c('okgreen', 'Pushed %s' % t))
     
 if repo:
-    build(args, stag, repo, target)
+    build_image(args, stag, repo, target)
 
 if repos:
     for r in repos:
-        build(args, stag, r['url'], r.get('target', None))
+        build_image(args, stag, r['url'], r.get('target', None))
 
 with open(args.repofile, 'w') as f:
     yaml.safe_dump(conf, f)

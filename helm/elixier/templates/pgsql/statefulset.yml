@@ -1,0 +1,101 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "elixier.fullname" . }}-db
+  labels:
+    {{- include "elixier.selectorLabels" . | nindent 4 }}
+    component: database
+spec:
+  serviceName: {{ include "elixier.fullname" . }}-db
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "elixier.selectorLabels" . | nindent 6 }}
+      component: database
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "elixier.selectorLabels" . | nindent 8 }}
+        component: database
+    spec:
+      setHostnameAsFQDN: true
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "elixier.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: init
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.pgsql_image.repository }}:{{ .Values.pgsql_image.tag }}"
+          imagePullPolicy: {{ .Values.pgsql_image.pullPolicy }}
+          args: ["initdb"]
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: {{ include "elixier.fullname" . }}-db-datadir
+              mountPath: {{ .Values.pgsql.volume_path }}
+          env:
+            - name: PGDATA
+              value: {{ .Values.pgsql.volume_path }}/{{ .Values.pgsql.pg_version }}
+      containers:
+        - name: db
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.pgsql_image.repository }}:{{ .Values.pgsql_image.tag }}"
+          imagePullPolicy: {{ .Values.pgsql_image.pullPolicy }}
+          args: ['start']
+          env:
+            - name: PGDATA
+              value: {{ .Values.pgsql.volume_path }}/{{ .Values.pgsql.pg_version }}
+          ports:
+            - name: pgsql
+              containerPort: 5432
+              protocol: TCP
+          livenessProbe:
+            tcpSocket:
+              port: 5432
+            initialDelaySeconds: 15
+            periodSeconds: 30
+          readinessProbe:
+            tcpSocket:
+              port: 5432
+            initialDelaySeconds: 5
+            periodSeconds: 15
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: {{ include "elixier.fullname" . }}-db-datadir
+              mountPath: {{ .Values.pgsql.volume_path }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ include "elixier.fullname" . }}-db-datadir
+      spec:
+        {{ if .Values.storageClass -}}
+        storageClassName: {{ quote .Values.storageClass }}
+        {{- end }}
+        accessModes: 
+          - {{ .Values.storageAccessMode | default "ReadWriteMany" }}
+        resources:
+          requests:
+            storage: {{ .Values.pgsql.pvc_size | required "pgsql.pvc_size is required" }}
+

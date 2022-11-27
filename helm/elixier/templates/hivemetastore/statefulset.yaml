@@ -1,0 +1,108 @@
+{{- include "require" . -}}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "elixier.fullname" . }}-hms
+  labels:
+    {{- include "elixier.labels" . | nindent 4 }}
+    component: metastore
+spec:
+  serviceName: {{ include "elixier.fullname" . }}-hms
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "elixier.selectorLabels" . | nindent 6 }}
+      component: metastore
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "elixier.selectorLabels" . | nindent 8 }}
+        component: metastore
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "elixier.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      setHostnameAsFQDN: true
+      volumes:
+        - name: {{ include "elixier.fullname" . }}-hms-config
+          secret:
+            secretName: {{ include "elixier.fullname" . }}-hms-config
+        - name: {{ include "elixier.fullname" . }}-datadir
+          emptyDir: {}
+      initContainers:
+        {{- include "elixier.db-wait" . | nindent 8 }}
+        - name: init
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.hms_image.repository }}:{{ .Values.hms_image.tag }}"
+          imagePullPolicy: {{ .Values.hms_image.pullPolicy }}
+          env:
+            - name: DB_TYPE
+              value: {{ .Values.hive.metastore_db_type }}
+            - name: HIVE_CONF_DIR
+              value: "/etc/hive"
+            {{- if .Values.hive.metastore_java_options }}
+            - name: HADOOP_CLIENT_OPTS
+              value: {{ .Values.hive.metastore_java_options }}
+            {{- end }}
+          args: ["schematool", "-initSchema"]
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: {{ include "elixier.fullname" . }}-hms-config
+              mountPath: "/etc/hive/"
+            - name: {{ include "elixier.fullname" . }}-datadir
+              mountPath: "/opt/apache/hive/work-dir"
+      containers:
+        - name: hms
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.hms_image.repository }}:{{ .Values.hms_image.tag }}"
+          imagePullPolicy: {{ .Values.hms_image.pullPolicy }}
+          args: ["metastore", "-p", {{ .Values.hive.metastore_port | default "9083" | quote }}]
+          env:
+            - name: HIVE_CONF_DIR
+              value: "/etc/hive"
+          ports:
+            - name: metastore
+              containerPort: {{ .Values.hive.metastore_port | default "9083" }}
+              protocol: TCP
+          livenessProbe:
+            tcpSocket:
+              port: {{ .Values.hive.metastore_port | default "9083" }}
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          readinessProbe:
+            tcpSocket: 
+              port: {{ .Values.hive.metastore_port | default "9083" }}
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          volumeMounts:
+            - name: {{ include "elixier.fullname" . }}-hms-config
+              mountPath: "/etc/hive/"
+            - name: {{ include "elixier.fullname" . }}-datadir
+              mountPath: "/opt/apache/hive/work-dir"
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

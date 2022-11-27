@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "elixier.fullname" . }}-hms
+  labels:
+    {{- include "elixier.labels" . | nindent 4 }}
+    component: metastore
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9083
+      targetPort: metastore
+      protocol: TCP
+      name: metastore
+  selector:
+    {{- include "elixier.selectorLabels" . | nindent 4 }}
+    component: metastore
