@@ -159,21 +159,14 @@ ADD jupyterhub/pyspark-kernel/* /opt/elixier/jupyterhub/share/jupyter/kernels/py
 ADD jupyterhub/page_config.json /opt/elixier/jupyterhub/etc/jupyter/labconfig/page_config.json
 ADD jupyterhub/pod_hostname.patch /opt/elixier/jupyterhub/
 WORKDIR /opt/elixier/jupyterhub/lib/python${PYTHON_VERSION}/site-packages/kubespawner
-RUN patch -p 8 -i /opt/elixier/jupyterhub/pod_hostname.patch
+RUN patch -p 8 -i /opt/elixier/jupyterhub/pod_hostname.patch && echo 1
 
 WORKDIR /workdir/
 
-ENV AIRFLOW_HOME=/etc/airflow/ 
+ENV AIRFLOW_HOME=/etc/airflow/ \
+    HIVE_CONF_DIR=/etc/spark3/
 
 ENTRYPOINT ["/opt/apache/spark3/kubernetes/dockerfiles/spark/entrypoint.sh"]
-
-FROM spark AS airflow
-
-ENTRYPOINT ["/opt/elixier/airflow/bin/entrypoint.sh"]
-
-FROM spark AS jupyterhub
-
-ENTRYPOINT ["/opt/elixier/jupyterhub/bin/entrypoint.sh"]
 
 FROM spark AS toolbox
 

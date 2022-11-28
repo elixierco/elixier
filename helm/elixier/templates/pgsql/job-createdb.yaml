@@ -11,7 +11,7 @@ spec:
     spec:
       serviceAccountName: {{ include "elixier.serviceAccountName" . }}
       initContainers:
-        {{- include "elixier.db-wait" . | nindent 8 }}
+        {{- include "elixier.wait-db" . | nindent 8 }}
       containers:
         - name: createdb-metastore
           image: "{{ .Values.pgsql_image.repository }}:{{ .Values.pgsql_image.tag }}"

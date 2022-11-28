@@ -40,7 +40,8 @@ spec:
         - name: {{ include "elixier.fullname" . }}-datadir
           emptyDir: {}
       initContainers:
-        {{- include "elixier.db-wait" . | nindent 8 }}
+        {{- include "elixier.wait-db" . | nindent 8 }}
+        {{- include "elixier.wait-minio" . | nindent 8 }}
         - name: init
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}

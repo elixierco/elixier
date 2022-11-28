@@ -11,12 +11,12 @@ spec:
     spec:
       serviceAccountName: {{ include "elixier.serviceAccountName" . }}
       initContainers:
-        {{- include "elixier.minio-wait" . | nindent 8 }}
+        {{- include "elixier.wait-minio" . | nindent 8 }}
       containers:
         - name: createbucket 
           image: "{{ .Values.mc_image.repository }}:{{ .Values.mc_image.tag }}"
           imagePullPolicy: {{ .Values.mc_image.pullPolicy }}
-          command: ["mc", "mb", "minio/warehouse"]
+          command: ["mc", "mb", "-p", "minio/warehouse", "minio/warehouse/tablespace", "minio/warehouse/event_log"]
           env:
             - name: MC_HOST_minio
               value: 'http://{{ .Values.minio.root_user }}:{{ .Values.minio.root_password }}@{{ include "elixier.fullname" . }}-minio:9000'

@@ -1,0 +1,83 @@
+{{- include "require" . -}}
+{{- if .Values.spark.deploy_thrift -}}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "elixier.fullname" . }}-sparksql
+  labels:
+    {{- include "elixier.labels" . | nindent 4 }}
+    component: sparksql
+spec:
+  serviceName: {{ include "elixier.fullname" . }}
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "elixier.selectorLabels" . | nindent 6 }}
+      component: sparksql
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "elixier.selectorLabels" . | nindent 8 }}
+        component: sparksql
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "elixier.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      volumes:
+        {{- include "elixier.volumes" . | nindent 8 }}
+      setHostnameAsFQDN: true
+      initContainers:
+        {{- include "elixier.wait-hms" . | nindent 8 }}
+      containers:
+        - name: main
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.spark_image.repository }}:{{ .Values.spark_image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.spark_image.pullPolicy }}
+          args: ["/opt/apache/spark3/sbin/start-thriftserver.sh"] 
+#          args: ['tail','-f','/dev/null']
+          ports:
+            - name: hiveserver2
+              containerPort: 10000
+              protocol: TCP
+            - name: http
+              containerPort: 4040
+              protocol: TCP
+          livenessProbe:
+            tcpSocket:
+              port: 10000
+            initialDelaySeconds: 60
+            periodSeconds: 10
+          readinessProbe:
+            tcpSocket: 
+              port: 10000
+            initialDelaySeconds: 60
+            periodSeconds: 10
+          volumeMounts:
+            {{- include "elixier.volume-mounts" . | nindent 12 }}
+          env:
+            {{- include "elixier.env" . | nindent 12 }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
+

@@ -6,14 +6,6 @@
                 <value>{{ include "elixier.hive.metastore_uri" . }}</value>
         </property>
         <property>
-                <name>beeline.hs2.jdbc.url.default</name>
-                <value>cluster</value>
-        </property>
-        <property>
-                <name>beeline.hs2.jdbc.url.cluster</name>
-                <value>jdbc:hive2://{{ include "elixier.fullname" . }}-hs2:10000</value>
-        </property>
-        <property>
                 <name>javax.jdo.option.ConnectionURL</name>
                 <value>{{ include "elixier.hive.metastore_db_url" . }}</value>
         </property>

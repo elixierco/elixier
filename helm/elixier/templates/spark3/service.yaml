@@ -1,0 +1,26 @@
+{{- if .Values.spark.deploy_thrift -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "elixier.fullname" . }}-sparksql
+  labels:
+    {{- include "elixier.labels" . | nindent 4 }}
+    component: sparksql
+spec:
+  type: ClusterIP
+  ports:
+    - port: 10000
+      targetPort: hiveserver2
+      protocol: TCP
+      name: hiveserver2
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+
+  selector:
+    {{- include "elixier.selectorLabels" . | nindent 4 }}
+    component: sparksql
+
+{{- end }}
+

@@ -3,7 +3,7 @@
 {{- end -}}
 
 {{- define "elixier.hive.metastore_uri" -}}
-    {{ .Values.hive.metastore_uri | default (printf "thrift://%s-hms:%s" (include "elixier.fullname" .) .Values.hive.metastore_port) }}
+    {{ .Values.hive.metastore_uri | default (printf "thrift://%s-hms:%d" (include "elixier.fullname" .) (.Values.hive.metastore_port | int)) }}
 {{- end -}}
 
 {{- define "elixier.s3a.endpoint" -}}

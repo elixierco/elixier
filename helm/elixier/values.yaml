@@ -11,9 +11,8 @@ kubectl_image:
   tag: "latest"
 
 spark_image:
-  repository: registry.gitlab.com/abyres/releases/elixier-spark
+  repository: registry.gitlab.com/abyres/releases/elixier
   pullPolicy: Always
-  # Overrides the image tag whose default is the chart appVersion.
   tag: "development"
 
 pgsql_image:
@@ -125,7 +124,7 @@ spark:
   executor_memory: 2g
   executor_instances: 1
   deploy_cluster: false
-  deploy_thrift: false
+  deploy_thrift: true
   memory_overhead_factor: 0.4
   int96_rebase: CORRECTED
 
