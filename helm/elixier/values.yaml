@@ -35,6 +35,11 @@ mc_image:
   pullPolicy: Always
   tag: "latest"
 
+presto_image:
+  repository: registry.gitlab.com/abyres/releases/presto
+  pullPolicy: Always
+  tag: "0.277-2"
+
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""

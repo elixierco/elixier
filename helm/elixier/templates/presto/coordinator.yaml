@@ -1,0 +1,93 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "elixier.fullname" . }}-presto-coord
+  labels:
+    {{- include "elixier.labels" . | nindent 4 }}
+    component: presto
+    subcomponent: coordinator
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "elixier.selectorLabels" . | nindent 6 }}
+      component: presto
+      subcomponent: coordinator
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "elixier.selectorLabels" . | nindent 8 }}
+        component: presto
+        subcomponent: coordinator
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "elixier.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        {{- include "elixier.wait-hms" . | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.presto_image.repository }}:{{ .Values.presto_image.tag }}"
+          imagePullPolicy: {{ .Values.presto_image.pullPolicy }}
+          args: ["run"]
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: config
+              mountPath: "/opt/presto/etc/config.properties"
+              subPath: coordinator-config.properties
+            - name: jvm-config
+              mountPath: "/opt/presto/etc/jvm.config"
+              subPath: jvm.config
+            - name: data
+              mountPath: "/data"
+            - name: catalog
+              mountPath: "/opt/presto/etc/catalog"
+      volumes:
+        - name: config
+          secret:
+            secretName: {{ include "elixier.fullname" . }}-presto-cfg
+        - name: jvm-config
+          secret:
+            secretName: {{ include "elixier.fullname" . }}-presto-cfg
+        - name: data
+          emptyDir: {}
+        - name: catalog
+          secret:
+            secretName: {{ include "elixier.fullname" . }}-presto-catalogs
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
