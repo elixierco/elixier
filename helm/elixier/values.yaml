@@ -10,7 +10,7 @@ kubectl_image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
 
-spark_image:
+core_image:
   repository: registry.gitlab.com/abyres/releases/elixier
   pullPolicy: Always
   tag: "development"
@@ -38,7 +38,7 @@ mc_image:
 presto_image:
   repository: registry.gitlab.com/abyres/releases/presto
   pullPolicy: Always
-  tag: "0.277-2"
+  tag: "0.277-3"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -55,8 +55,10 @@ serviceAccount:
 
 podAnnotations: {}
 
-podSecurityContext: {}
-  # fsGroup: 2000
+podSecurityContext: 
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
 
 securityContext: {}
   # capabilities:
@@ -148,4 +150,8 @@ minio:
   root_password: miniopassword
   instance_storage: 1G
   console_url: https://minio/
+
+jupyterhub:
+  instance_storage: 1G
+  db_uri: 'sqlite:////workdir/jupyterhub.sqlite'
 

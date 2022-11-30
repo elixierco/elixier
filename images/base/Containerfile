@@ -1,8 +1,11 @@
 FROM fedora:37 AS base
 
+LABEL co.elixier.rev="0.0.1-1"
+
 COPY dnf.conf /etc/dnf/dnf.conf
 
 RUN dnf install dnf-plugins-core  -y && \
+    dnf update -y && \
     dnf install -y bash iputils glibc-langpack-en net-tools \
         nmap bind-utils hostname nss pam wget \
         procps-ng vim-enhanced && \
@@ -159,7 +162,7 @@ ADD jupyterhub/pyspark-kernel/* /opt/elixier/jupyterhub/share/jupyter/kernels/py
 ADD jupyterhub/page_config.json /opt/elixier/jupyterhub/etc/jupyter/labconfig/page_config.json
 ADD jupyterhub/pod_hostname.patch /opt/elixier/jupyterhub/
 WORKDIR /opt/elixier/jupyterhub/lib/python${PYTHON_VERSION}/site-packages/kubespawner
-RUN patch -p 8 -i /opt/elixier/jupyterhub/pod_hostname.patch && echo 1
+RUN patch -p 8 -i /opt/elixier/jupyterhub/pod_hostname.patch && chmod a+x /opt/elixier/airflow/bin/entrypoint.sh /opt/elixier/jupyterhub/bin/entrypoint.sh 
 
 WORKDIR /workdir/
 
@@ -170,7 +173,7 @@ ENTRYPOINT ["/opt/apache/spark3/kubernetes/dockerfiles/spark/entrypoint.sh"]
 
 FROM spark AS toolbox
 
-ENV NAME=elixier-toolbox VERSION=20221127
+ENV NAME=elixier-toolbox VERSION=0.0.1
 LABEL com.github.containers.toolbox="true" \
       com.redhat.component="$NAME" \
       name="$NAME" \

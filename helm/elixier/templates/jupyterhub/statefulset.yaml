@@ -1,0 +1,118 @@
+{{- include "require" . -}}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "elixier.fullname" . }}-jupyterhub
+  labels:
+    {{- include "elixier.labels" . | nindent 4 }}
+    component: jupyterhub
+    subcomponent: hub
+spec:
+  serviceName: {{ include "elixier.fullname" . }}
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "elixier.selectorLabels" . | nindent 6 }}
+      component: jupyterhub
+      subcomponent: hub
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "elixier.selectorLabels" . | nindent 8 }}
+        component: jupyterhub
+        subcomponent: hub
+    spec:
+      setHostnameAsFQDN: true
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "elixier.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      volumes:
+        - name: {{ include "elixier.fullname" . }}-jupyterhub-config
+          secret:
+            secretName: {{ include "elixier.fullname" . }}-jupyterhub-config
+        - name: {{ include "elixier.fullname" . }}-spark-config
+          secret:
+            secretName: {{ include "elixier.fullname" . }}-spark-config
+#        - name: {{ include "elixier.fullname" . }}-airflow-config
+#          secret:
+#            secretName: {{ include "elixier.fullname" . }}-airflow-config
+    
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.core_image.repository }}:{{ .Values.core_image.tag }}"
+          imagePullPolicy: {{ .Values.core_image.pullPolicy }}
+          args: ['/opt/elixier/jupyterhub/bin/entrypoint.sh', 'hub', '-f', '/etc/jupyterhub/jupyterhub_config.py']
+          env:
+            - name: K8S_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: K8S_POD_UID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.uid
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          livenessProbe:
+            tcpSocket:
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 30
+          readinessProbe:
+            tcpSocket:
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 15
+          volumeMounts:
+            - name: {{ include "elixier.fullname" . }}-jupyterhub-config
+              mountPath: "/etc/jupyterhub/"
+            - name: {{ include "elixier.fullname" . }}-spark-config
+              mountPath: "/etc/spark3/"
+            - name: {{ include "elixier.fullname" . }}-spark-config
+              mountPath: "/opt/apache/spark3/conf/"
+#            - name: {{ include "elixier.fullname" . }}-airflow-config
+#              mountPath: "/etc/airflow/"
+            - name: {{ include "elixier.fullname" . }}-datadir
+              mountPath: "/var/lib/jupyterhub"
+            - name: {{ include "elixier.fullname" . }}-datadir
+              mountPath: "/workdir"
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ include "elixier.fullname" . }}-datadir
+      spec:
+        accessModes:
+          - {{ .Values.storageAccessMode | default "ReadWriteMany" }}
+        {{ if .Values.storageClass -}}
+        storageClassName: {{ quote .Values.storageClass }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.jupyterhub.instance_storage  | quote }}
+

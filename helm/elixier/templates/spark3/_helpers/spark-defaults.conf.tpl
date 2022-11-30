@@ -33,8 +33,8 @@ spark.sql.sources.commitProtocolClass org.apache.spark.internal.io.cloud.PathOut
 spark.sql.parquet.output.committer.class     org.apache.spark.internal.io.cloud.BindingParquetOutputCommitter
 
 
-spark.kubernetes.container.image {{ .Values.spark_image.repository }}:{{ .Values.spark_image.tag }}
-spark.kubernetes.container.image.pullPolicy {{ .Values.spark_image.pullPolicy }}
+spark.kubernetes.container.image {{ .Values.core_image.repository }}:{{ .Values.core_image.tag }}
+spark.kubernetes.container.image.pullPolicy {{ .Values.core_image.pullPolicy }}
 spark.blockManager.port {{ .Values.spark.blockmanager_port | default "2044" }}
 spark.executor.cores {{ .Values.spark.executor_cores }}
 spark.executor.memory {{ .Values.spark.executor_memory }}

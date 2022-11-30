@@ -11,7 +11,7 @@ elif [ "$1" == "lab" ];then
     /opt/jupyterhub/bin/jupyter lab --ip 0.0.0.0 --port 8000 --NotebookApp.token="${TOKEN}"
 elif [ "$1" == "jupyterhub-singleuser" ];then
     export K8S_POD_NAME=`hostname -s`
-    userdel -f jupyter
+    userdel -f user
     groupadd ${JUPYTERHUB_USER} -g 1000
     useradd ${JUPYTERHUB_USER} -u 1000 -g 1000
     cd /home/${JUPYTERHUB_USER}

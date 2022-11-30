@@ -65,6 +65,8 @@ spec:
               subPath: jvm.config
             - name: data
               mountPath: "/data"
+            - name: var
+              mountPath: "/opt/presto/var"
             - name: catalog
               mountPath: "/opt/presto/etc/catalog"
       volumes:
@@ -75,6 +77,8 @@ spec:
           secret:
             secretName: {{ include "elixier.fullname" . }}-presto-cfg
         - name: data
+          emptyDir: {}
+        - name: var
           emptyDir: {}
         - name: catalog
           secret:

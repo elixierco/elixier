@@ -40,8 +40,8 @@ spec:
         - name: main
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.spark_image.repository }}:{{ .Values.spark_image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.spark_image.pullPolicy }}
+          image: "{{ .Values.core_image.repository }}:{{ .Values.core_image.tag }}"
+          imagePullPolicy: {{ .Values.core_image.pullPolicy }}
           args: ["/opt/apache/spark3/sbin/start-thriftserver.sh"] 
 #          args: ['tail','-f','/dev/null']
           ports:
