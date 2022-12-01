@@ -37,8 +37,18 @@ mc_image:
 
 presto_image:
   repository: registry.gitlab.com/abyres/releases/presto
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
   tag: "0.277-3"
+
+redis_image:
+  repository: registry.gitlab.com/abyres/releases/redis
+  pullPolicy: IfNotPresent
+  tag: "5.0.3-1"
+
+gitsync_image:
+  repository: k8s.gcr.io/git-sync
+  pullPolicy: Always
+  tag: "v3.0.1"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -155,3 +165,5 @@ jupyterhub:
   instance_storage: 1G
   db_uri: 'sqlite:////workdir/jupyterhub.sqlite'
 
+redis:
+  instance_storage: 1G
