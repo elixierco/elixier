@@ -1,21 +1,18 @@
-{{- include "require" . -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "elixier.fullname" . }}-aflow-f
+  name: {{ include "elixier.fullname" . }}-aflow-gs
   labels:
     {{- include "elixier.labels" . | nindent 4 }}
     component: airflow
-    subcomponent: web
+    subcomponent: gitsync
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.web_instances }}
-  {{- end }}
+  replicas: 1
   selector:
     matchLabels:
       {{- include "elixier.selectorLabels" . | nindent 6 }}
       component: airflow
-      subcomponent: web
+      subcomponent: gitsync
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -25,7 +22,7 @@ spec:
       labels:
         {{- include "elixier.selectorLabels" . | nindent 8 }}
         component: airflow
-        subcomponent: web
+        subcomponent: gitsync
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -37,33 +34,40 @@ spec:
       volumes:
         {{- include "elixier.volumes" . | nindent 8 }}
       initContainers:
-        {{- include "elixier.wait-db" . | nindent 8 }}
-        {{- include "elixier.airflow.wait-scheduler" . | nindent 8 }}
+        {{- include "elixier.wait-gitweb" . | nindent 8 }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.core_image.repository }}:{{ .Values.core_image.tag }}"
-          imagePullPolicy: {{ .Values.core_image.pullPolicy }}
-          args: ["/opt/elixier/airflow/bin/entrypoint.sh", "start"]
-          ports:
-            - name: http
-              containerPort: 8080
-              protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
+          image: "{{ .Values.gitsync_image.repository }}:{{ .Values.gitsync_image.tag }}"
+          imagePullPolicy: {{ .Values.gitsync_image.pullPolicy }}
+          args: ['--repo={{ include "elixier.airflow.dag_git_repository" . }}',
+                 "--branch={{ .Values.airflow.dag_git_branch }}",
+                 "--root=/var/lib/airflow/git",
+                 "--dest=project", 
+                 "--wait={{ .Values.airflow.dag_git_sync_wait | default 60 }}"]
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
             {{- include "elixier.volume-mounts" . | nindent 12 }}
           env:
             {{- include "elixier.env" . | nindent 12 }}
+            - name: GIT_SYNC_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "elixier.fullname" . }}-secrets
+                  key: git-username
+            - name: GIT_SYNC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "elixier.fullname" . }}-secrets
+                  key: git-password
+            - name: GIT_SYNC_BRANCH
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "elixier.fullname" . }}-secrets
+                  key: git-branch
+
 
       {{- with .Values.nodeSelector }}
       nodeSelector:

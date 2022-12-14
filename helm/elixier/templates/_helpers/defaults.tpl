@@ -15,7 +15,7 @@
 {{- end -}}
 
 {{- define "elixier.airflow.dag_git_repository" -}}
-    {{ .Values.airflow.dag_git_repository | default (printf "%s/%s" (include "elixier.git.gitweb_baseurl" .) .Values.git.project_name) }}
+    {{ .Values.airflow.dag_git_repository | default (printf "%s/%s" (include "elixier.gitweb.baseurl" .) .Values.git.project_name) }}
 {{- end -}}
 
 {{- define "elixier.airflow.db_uri" -}}
