@@ -11,4 +11,11 @@
   valueFrom:
     fieldRef:
       fieldPath: metadata.name
+- name: AIRFLOW__CORE__FERNET_KEY
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "elixier.fullname" . }}-secrets
+      key: fernet-key
+- name: CELERY_WORKERS
+  value: "2"
 {{- end }}

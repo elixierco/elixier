@@ -50,6 +50,12 @@ gitsync_image:
   pullPolicy: Always
   tag: "v3.0.1"
 
+gitweb_image:
+  repository: registry.gitlab.com/abyres/releases/gitserver
+  pullPolicy: Always
+  tag: "2.31.1-6"
+
+
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -123,6 +129,10 @@ tolerations: []
 
 affinity: {}
 
+secrets:
+  fernet_key: KsyyWSqLD-CqiyTCE8nfCrIE7YaUtQMj5-3_N9_BnX4=
+  secret_key: MumVafdisAwk_orlObwuvadShyralfyifkidcinWakCuefyids
+
 hive:
   metastore_uri: 
   metastore_port: 9083
@@ -144,6 +154,36 @@ spark:
   deploy_thrift: true
   memory_overhead_factor: 0.4
   int96_rebase: CORRECTED
+
+
+airflow:
+  default_timezone:
+  db_uri:
+  db_name: airflow
+  db_user: airflow
+  db_password: aiflow
+  dag_git_repository: 
+  dag_git_username: user
+  dag_git_password: password
+  dag_git_branch: master
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+  data_storage: 5Gi
+
+
+smtp:
+  enabled: false
+  host: ""
+  port: "25"
+  username: ""
+  password: ""
+  from: ""
+  use_ssl: false
+  use_tls: false
+
 
 s3a:
   endpoint: 
@@ -167,3 +207,9 @@ jupyterhub:
 
 redis:
   instance_storage: 1G
+
+git:
+  project_name: project
+  pvc_size: 1Gi
+  gitweb_password: password
+  gitweb_user: user

@@ -1,0 +1,89 @@
+{{- include "require" . -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "elixier.fullname" . }}-airflow-worker
+  labels:
+    {{- include "elixier.labels" . | nindent 4 }}
+    component: airflow
+    subcomponent: worker
+spec:
+  clusterIP: None
+  selector:
+    {{- include "elixier.selectorLabels" . | nindent 4 }}
+    component: airflow
+    subcomponent: worker
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "elixier.fullname" . }}-aflow-w
+  labels:
+    {{- include "elixier.labels" . | nindent 4 }}
+    component: airflow
+    subcomponent: worker
+spec:
+  serviceName: {{ include "elixier.fullname" . }}-aflow-w
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.worker_instances }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "elixier.selectorLabels" . | nindent 6 }}
+      component: airflow
+      subcomponent: worker
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "elixier.selectorLabels" . | nindent 8 }}
+        component: airflow
+        subcomponent: worker
+    spec:
+      setHostnameAsFQDN: true
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "elixier.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      volumes:
+        {{- include "elixier.volumes" . | nindent 8 }}
+      initContainers:
+        {{- include "elixier.wait-db" . | nindent 8 }}
+        {{- include "elixier.airflow.wait-scheduler" . | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.core_image.repository }}:{{ .Values.core_image.tag }}"
+          imagePullPolicy: {{ .Values.core_image.pullPolicy }}
+          args: ["/opt/elixier/airflow/bin/entrypoint.sh", "worker"]
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            {{- include "elixier.volume-mounts" . | nindent 12 }}
+          env:
+            {{- include "elixier.env" . | nindent 12 }}
+          securityContext:
+            capabilities:
+              add: ["NET_BIND_SERVICE", "NET_ADMIN"]
+
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+

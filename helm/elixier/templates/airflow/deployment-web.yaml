@@ -1,20 +1,21 @@
+{{- include "require" . -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "elixier.fullname" . }}-presto-c
+  name: {{ include "elixier.fullname" . }}-aflow-web
   labels:
     {{- include "elixier.labels" . | nindent 4 }}
-    component: presto
-    subcomponent: coordinator
+    component: airflow
+    subcomponent: web
 spec:
   {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.web_instances }}
   {{- end }}
   selector:
     matchLabels:
       {{- include "elixier.selectorLabels" . | nindent 6 }}
-      component: presto
-      subcomponent: coordinator
+      component: airflow
+      subcomponent: web
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -23,8 +24,8 @@ spec:
       {{- end }}
       labels:
         {{- include "elixier.selectorLabels" . | nindent 8 }}
-        component: presto
-        subcomponent: coordinator
+        component: airflow
+        subcomponent: web
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -33,15 +34,18 @@ spec:
       serviceAccountName: {{ include "elixier.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      volumes:
+        {{- include "elixier.volumes" . | nindent 8 }}
       initContainers:
-        {{- include "elixier.wait-hms" . | nindent 8 }}
+        {{- include "elixier.wait-db" . | nindent 8 }}
+        {{- include "elixier.airflow.wait-scheduler" . | nindent 8 }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.presto_image.repository }}:{{ .Values.presto_image.tag }}"
-          imagePullPolicy: {{ .Values.presto_image.pullPolicy }}
-          args: ["run"]
+          image: "{{ .Values.core_image.repository }}:{{ .Values.core_image.tag }}"
+          imagePullPolicy: {{ .Values.core_image.pullPolicy }}
+          args: ["/opt/elixier/airflow/bin/entrypoint.sh", "start"]
           ports:
             - name: http
               containerPort: 8080
@@ -57,32 +61,10 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
-            - name: config
-              mountPath: "/opt/presto/etc/config.properties"
-              subPath: coordinator-config.properties
-            - name: jvm-config
-              mountPath: "/opt/presto/etc/jvm.config"
-              subPath: jvm.config
-            - name: data
-              mountPath: "/data"
-            - name: var
-              mountPath: "/opt/presto/var"
-            - name: catalog
-              mountPath: "/opt/presto/etc/catalog"
-      volumes:
-        - name: config
-          secret:
-            secretName: {{ include "elixier.fullname" . }}-presto-cfg
-        - name: jvm-config
-          secret:
-            secretName: {{ include "elixier.fullname" . }}-presto-cfg
-        - name: data
-          emptyDir: {}
-        - name: var
-          emptyDir: {}
-        - name: catalog
-          secret:
-            secretName: {{ include "elixier.fullname" . }}-presto-catalogs
+            {{- include "elixier.volume-mounts" . | nindent 12 }}
+          env:
+            {{- include "elixier.env" . | nindent 12 }}
+
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -95,3 +77,4 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+

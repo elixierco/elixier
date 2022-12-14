@@ -10,3 +10,16 @@
     {{ .Values.s3a.endpoint | default (printf "http://%s-minio:9000" (include "elixier.fullname" .)) }}
 {{- end -}}
 
+{{- define "elixier.gitweb.baseurl" -}}
+    {{ .Values.git.gitweb_baseurl | default (printf "http://%s-gitweb/repo" (include "elixier.fullname" .)) }}
+{{- end -}}
+
+{{- define "elixier.airflow.dag_git_repository" -}}
+    {{ .Values.airflow.dag_git_repository | default (printf "%s/%s" (include "elixier.git.gitweb_baseurl" .) .Values.git.project_name) }}
+{{- end -}}
+
+{{- define "elixier.airflow.db_uri" -}}
+    {{ .Values.airflow.db_uri | default (printf "postgresql+psycopg2://%s:%s@%s-db/%s" .Values.airflow.db_user .Values.airflow.db_password (include "elixier.fullname" .) .Values.airflow.db_name) }}
+{{- end -}}
+
+

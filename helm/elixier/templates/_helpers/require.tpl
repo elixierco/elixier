@@ -18,5 +18,8 @@
 
     {{- $s3a_access_key := .Values.s3a.access_key | required "s3a.access_key is required" -}}
     {{- $s3a_secret_key := .Values.s3a.secret_key | required "s3a.secret_key is required" -}}
+    {{- with .Values.git -}}
+        {{- $gitweb_password := .gitweb_password | required "git.gitweb_password is required" -}}
+    {{- end -}}
 {{- end -}}
 

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "elixier.fullname" . }}-git
+spec:
+  {{- if .Values.storageClass }}
+  storageClassName: {{ .Values.storageClass }}
+  {{- end }}
+  volumeMode: Filesystem
+  accessModes:
+    - {{ .Values.storageAccessMode | default "ReadWriteMany" }}
+  resources:
+    requests:
+      storage: {{ .Values.git.pvc_size | required "git.pvc_size is required" }}
+

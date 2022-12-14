@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "elixier.fullname" . }}-presto-worker
+  name: {{ include "elixier.fullname" . }}-presto-w
   labels:
     {{- include "elixier.labels" . | nindent 4 }}
     component: presto
