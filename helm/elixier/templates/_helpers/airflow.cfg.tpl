@@ -4,7 +4,7 @@
 {{- define "airflow-config" -}}
 [core]
 dags_folder = /var/lib/airflow/git/project/dags/
-default_timezone = {{ .Values.airflow.default_timezone }}
+default_timezone = {{ .Values.timezone }}
 executor = CeleryExecutor
 sql_alchemy_conn = {{ include "elixier.airflow.db_uri" . }}
 sql_engine_encoding = utf-8
@@ -38,7 +38,7 @@ base_url = https://{{ .Values.ingress.host }}
 {{- else }}
 base_url = http://{{ .Values.ingress.host }}
 {{- end }}
-default_ui_timezone = {{ .Values.airflow.default_timezone }}
+default_ui_timezone = {{ .Values.timezone }}
 web_server_host = 0.0.0.0
 web_server_port = 8080
 secret_key = {{ .Values.secrets.secret_key }}

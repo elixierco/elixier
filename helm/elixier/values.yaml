@@ -47,14 +47,18 @@ redis_image:
 
 gitsync_image:
   repository: k8s.gcr.io/git-sync
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
   tag: "v3.0.1"
 
 gitweb_image:
   repository: registry.gitlab.com/abyres/releases/gitserver
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
   tag: "2.31.1-6"
 
+hue_image:
+  repository: registry.gitlab.com/abyres/releases/hue
+  pullPolicy: Always
+  tag: "development"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -129,6 +133,8 @@ tolerations: []
 
 affinity: {}
 
+timezone: Asia/Kuala_Lumpur
+
 secrets:
   fernet_key: KsyyWSqLD-CqiyTCE8nfCrIE7YaUtQMj5-3_N9_BnX4=
   secret_key: MumVafdisAwk_orlObwuvadShyralfyifkidcinWakCuefyids
@@ -155,9 +161,7 @@ spark:
   memory_overhead_factor: 0.4
   int96_rebase: CORRECTED
 
-
 airflow:
-  default_timezone:
   db_uri:
   db_name: airflow
   db_user: airflow
@@ -203,7 +207,9 @@ minio:
 
 jupyterhub:
   instance_storage: 1G
-  db_uri: 'sqlite:////workdir/jupyterhub.sqlite'
+  db_name: jupyterhub
+  db_user: jupyterhub
+  db_password: jupyterhub
 
 redis:
   instance_storage: 1G
@@ -213,3 +219,8 @@ git:
   pvc_size: 1Gi
   gitweb_password: password
   gitweb_user: user
+
+hue:
+  db_name: hue
+  db_user: hue
+  db_password: hue

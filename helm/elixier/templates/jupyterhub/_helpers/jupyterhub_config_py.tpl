@@ -5,7 +5,7 @@ import socket
 from kubespawner.objects import make_owner_reference
 import json
 
-c.JupyterHub.db_url = "{{ .Values.jupyterhub.db_uri }}"
+c.JupyterHub.db_url = '{{ include "elixier.jupyterhub.db_uri" . }}'
 c.JupyterHub.authenticator_class = 'nativeauthenticator.NativeAuthenticator'
 c.JupyterHub.template_paths = [os.path.join(
     os.path.dirname(nativeauthenticator.__file__), '/templates/')]

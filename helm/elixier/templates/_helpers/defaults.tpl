@@ -10,6 +10,14 @@
     {{ .Values.s3a.endpoint | default (printf "http://%s-minio:9000" (include "elixier.fullname" .)) }}
 {{- end -}}
 
+{{- define "elixier.s3a.host" -}}
+    {{ .Values.s3a.host | default (printf "%s-minio:9000" (include "elixier.fullname" .)) }}
+{{- end -}}
+
+{{- define "elixier.hue.bucket" -}}
+    {{ .Values.hue.bucket | default "filesystem" }}
+{{- end -}}
+
 {{- define "elixier.gitweb.baseurl" -}}
     {{ .Values.git.gitweb_baseurl | default (printf "http://%s-gitweb/repo" (include "elixier.fullname" .)) }}
 {{- end -}}
@@ -20,6 +28,14 @@
 
 {{- define "elixier.airflow.db_uri" -}}
     {{ .Values.airflow.db_uri | default (printf "postgresql+psycopg2://%s:%s@%s-db/%s" .Values.airflow.db_user .Values.airflow.db_password (include "elixier.fullname" .) .Values.airflow.db_name) }}
+{{- end -}}
+
+{{- define "elixier.jupyterhub.db_uri" -}}
+    {{ .Values.jupyterhub.db_uri | default (printf "postgresql+psycopg2://%s:%s@%s-db/%s" .Values.jupyterhub.db_user .Values.jupyterhub.db_password (include "elixier.fullname" .) .Values.jupyterhub.db_name) }}
+{{- end -}}
+
+{{- define "elixier.hue.db_host" -}}
+    {{ .Values.hue.db_host | default (printf "%s-db" (include "elixier.fullname" .)) }}
 {{- end -}}
 
 

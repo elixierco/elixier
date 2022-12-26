@@ -12,6 +12,9 @@
     claimName: {{ include "elixier.fullname" . }}-airflow-datadir
 - name: {{ include "elixier.fullname" . }}-airflow-logdir
   emptyDir: {}
+- name: {{ include "elixier.fullname" . }}-hadoop-config
+  secret:
+    secretName: {{ include "elixier.fullname" . }}-hadoop-config
 {{- end }}
 
 {{- define "elixier.volume-mounts" }}
@@ -27,6 +30,12 @@
   mountPath: "/var/lib/airflow"
 - name: {{ include "elixier.fullname" . }}-airflow-logdir
   mountPath: "/var/log/airflow"
+- name: {{ include "elixier.fullname" . }}-hadoop-config
+  mountPath: "/opt/apache/hadoop/etc/hadoop/core-site.xml"
+  subPath: "core-site.xml"
+- name: {{ include "elixier.fullname" . }}-hadoop-config
+  mountPath: "/opt/apache/hadoop/etc/hadoop/httpfs-site.xml"
+  subPath: "httpfs-site.xml"
 
 {{- end }}
 

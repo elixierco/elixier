@@ -164,6 +164,8 @@ ADD jupyterhub/pod_hostname.patch /opt/elixier/jupyterhub/
 WORKDIR /opt/elixier/jupyterhub/lib/python${PYTHON_VERSION}/site-packages/kubespawner
 RUN patch -p 8 -i /opt/elixier/jupyterhub/pod_hostname.patch && chmod a+x /opt/elixier/airflow/bin/entrypoint.sh /opt/elixier/jupyterhub/bin/entrypoint.sh 
 
+ADD hadoop-jars/*.jar /opt/apache/hadoop/share/hadoop/common/lib/
+
 WORKDIR /workdir/
 
 ENV AIRFLOW_HOME=/etc/airflow/ \

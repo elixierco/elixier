@@ -25,6 +25,21 @@ spec:
           args: ["kubectl", "exec", "-ti", '{{ include "elixier.fullname" . }}-db-0', "--",
                  "createdb_with_user.sh", "-d", "{{ .Values.airflow.db_name }}", 
                  "-u", "{{ .Values.airflow.db_user }}", "-p", "{{ .Values.airflow.db_password }}"]
+        - name: createdb-hue
+          image: "{{ .Values.pgsql_image.repository }}:{{ .Values.pgsql_image.tag }}"
+          imagePullPolicy: {{ .Values.pgsql_image.pullPolicy }}
+          args: ["kubectl", "exec", "-ti", '{{ include "elixier.fullname" . }}-db-0', "--",
+                 "createdb_with_user.sh", "-d", "{{ .Values.hue.db_name }}", 
+                 "-u", "{{ .Values.hue.db_user }}", "-p", "{{ .Values.hue.db_password }}"]
+        - name: createdb-jupyterhub
+          image: "{{ .Values.pgsql_image.repository }}:{{ .Values.pgsql_image.tag }}"
+          imagePullPolicy: {{ .Values.pgsql_image.pullPolicy }}
+          args: ["kubectl", "exec", "-ti", '{{ include "elixier.fullname" . }}-db-0', "--",
+                 "createdb_with_user.sh", "-d", "{{ .Values.jupyterhub.db_name }}", 
+                 "-u", "{{ .Values.jupyterhub.db_user }}", "-p", "{{ .Values.jupyterhub.db_password }}"]
+
+
+
 
 
       restartPolicy: Never

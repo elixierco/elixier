@@ -16,7 +16,7 @@ spec:
         - name: createbucket 
           image: "{{ .Values.mc_image.repository }}:{{ .Values.mc_image.tag }}"
           imagePullPolicy: {{ .Values.mc_image.pullPolicy }}
-          command: ["mc", "mb", "-p", "minio/warehouse", "minio/warehouse/tablespace", "minio/warehouse/event_log"]
+          command: ["mc", "mb", "-p", "minio/warehouse", "minio/warehouse/tablespace", "minio/warehouse/event_log", "minio/filesystem"]
           env:
             - name: MC_HOST_minio
               value: 'http://{{ .Values.minio.root_user }}:{{ .Values.minio.root_password }}@{{ include "elixier.fullname" . }}-minio:9000'
