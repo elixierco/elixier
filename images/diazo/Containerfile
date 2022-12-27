@@ -1,0 +1,55 @@
+FROM fedora:37 AS base
+
+LABEL co.elixier.rev="0.0.1-1"
+
+COPY dnf.conf /etc/dnf/dnf.conf
+
+RUN dnf install dnf-plugins-core  -y && \
+    dnf update -y && \
+    dnf install -y bash iputils glibc-langpack-en net-tools \
+        nmap bind-utils hostname nss pam wget \
+        procps-ng vim-enhanced && \
+        dnf clean all
+
+RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && \
+    install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+ENV LC_ALL=en_US.utf8 \
+    LANG=en_US.utf8 \
+    PYTHONUNBUFFERED=1
+
+FROM base AS diazo
+
+ENV PYTHON_VERSION=3.8 \
+    DIAZO_VERSION=1.5.0
+
+RUN /usr/sbin/groupadd -r user --gid 1000 && \
+     /usr/sbin/useradd -r -g user --uid 1000 \
+     -m -d /home/user \
+     -s /sbin/nologin user
+
+RUN dnf update -y && \
+    dnf install -y \
+        findutils git \
+        "pkgconfig(python-${PYTHON_VERSION})" \
+        /usr/bin/python${PYTHON_VERSION} && \
+        dnf clean all
+
+ADD entrypoint.sh /usr/bin/entrypoint.sh
+RUN /usr/bin/python${PYTHON_VERSION} -m venv /opt/elixier/diazo/ && \
+    /opt/elixier/diazo/bin/pip install "diazo[wsgi]"==${DIAZO_VERSION} gunicorn \
+    Paste PasteDeploy gevent && \
+    mkdir -p /opt/theme/ && \
+    chmod a+x /usr/bin/entrypoint.sh
+
+USER user
+
+ADD demotheme /opt/theme
+
+ENV PATH="/opt/elixier/diazo/bin/:${PATH}" \
+    WEB_WORKERS=4 \
+    WEB_LISTEN_ADDRESS="0.0.0.0:5000" \
+    DIAZO_PASTE_INI=/opt/theme/paste.ini \
+    DIAZO_PROJECT_DIR=/opt/theme/
+
+ENTRYPOINT ["/usr/bin/entrypoint.sh"]
