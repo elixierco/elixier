@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "elixier.fullname" . }}-superset-datadir
+  labels:
+    {{- include "elixier.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - {{ .Values.storageAccessMode | default "ReadWriteMany" }}
+  {{- if .Values.storageClass }}
+  storageClassName: {{ .Values.storageClass }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.superset.data_storage | default "1Gi" }}
+

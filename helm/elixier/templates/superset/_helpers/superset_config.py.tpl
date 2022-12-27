@@ -62,6 +62,27 @@ THUMBNAIL_CACHE_CONFIG = {
     'CACHE_REDIS_URL': 'redis://{{ include "elixier.fullname" . }}-redis:6379/6',
 }
 
+DATA_CACHE_CONFIG = {
+    'CACHE_TYPE': 'redis',
+    'CACHE_DEFAULT_TIMEOUT': 60 * 60 * 24,
+    'CACHE_KEY_PREFIX': 'superset_datacache',
+    'CACHE_REDIS_URL': 'redis://{{ include "elixier.fullname" . }}-redis:6379/6',
+}
+
+FILTER_STATE_CACHE_CONFIG = {
+    'CACHE_TYPE': 'redis',
+    'CACHE_DEFAULT_TIMEOUT': 60 * 60 * 24,
+    'CACHE_KEY_PREFIX': 'superset_filterstate',
+    'CACHE_REDIS_URL': 'redis://{{ include "elixier.fullname" . }}-redis:6379/6',
+}
+
+EXPLORE_FORM_DATA_CACHE_CONFIG = {
+    'CACHE_TYPE': 'redis',
+    'CACHE_DEFAULT_TIMEOUT': 60 * 60 * 24,
+    'CACHE_KEY_PREFIX': 'superset_exploreform',
+    'CACHE_REDIS_URL': 'redis://{{ include "elixier.fullname" . }}-redis:6379/6',
+}
+
 {{ if .Values.smtp.enabled }}
 # smtp server configuration
 EMAIL_NOTIFICATIONS = True  # all the emails are sent using dryrun

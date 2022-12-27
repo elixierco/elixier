@@ -3,7 +3,8 @@
   secret:
     secretName: {{ include "elixier.fullname" . }}-superset-config
 - name: {{ include "elixier.fullname" . }}-superset-datadir
-  emptyDir: {}
+  persistentVolumeClaim:
+    claimName: {{ include "elixier.fullname" . }}-superset-datadir
 - name: {{ include "elixier.fullname" . }}-superset-logdir
   emptyDir: {}
 {{- end }}

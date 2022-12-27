@@ -36,7 +36,7 @@ RUN dnf update -y && \
         perl-interpreter findutils git \
         "pkgconfig(python-${PYTHON_VERSION})" \
         /usr/bin/python${PYTHON_VERSION} \
-        openldap-devel \
+        openldap-devel chromedriver \
         chromium && \
     dnf clean all
 

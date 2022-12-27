@@ -19,8 +19,11 @@ elif [ "$1" == "scheduler" ];then
     /opt/elixier/superset/bin/celery --app=superset.tasks.celery_app:app beat
 elif [ "$1" == "first-init" ];then
     /opt/elixier/superset/bin/superset db upgrade
-    /opt/elixier/superset/bin/superset fab create-admin --username $DEFAULT_ADMIN --firstname $DEFAULT_ADMIN --lastname $DEFAULT_ADMIN --email $DEFAULT_ADMIN_EMAIL --password $DEFAULT_ADMIN_PASSWORD
-    /opt/elixier/superset/bin/superset init
+    if [ ! -f "/var/lib/superset/initialized" ];then
+        /opt/elixier/superset/bin/superset fab create-admin --username $DEFAULT_ADMIN --firstname $DEFAULT_ADMIN --lastname $DEFAULT_ADMIN --email $DEFAULT_ADMIN_EMAIL --password $DEFAULT_ADMIN_PASSWORD
+        /opt/elixier/superset/bin/superset init
+        touch /var/lib/superset/initialized
+    fi
 else
     "$@"
 fi
