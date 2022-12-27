@@ -1,0 +1,24 @@
+--- /usr/share/hue/desktop/libs/notebook/src/notebook/dashboard_api.py	2022-12-25 14:06:06.798383886 +0000
++++ /usr/share/hue/desktop/libs/notebook/src/notebook/dashboard_api.py	2022-12-25 14:06:21.973621369 +0000
+@@ -57,7 +57,7 @@
+     super(SQLDashboardApi, self).__init__(user, cluster)
+     self.engine = engine
+     self.source = source
+-    self.backticks = '"' if engine in ['postgresql', 'athena'] else '`'
++    self.backticks = '"' if engine in ['postgresql', 'athena', 'presto'] else '`'
+ 
+ 
+   def query(self, dashboard, query, facet=None):
+
+--- /usr/share/hue/desktop/libs/notebook/src/notebook/connectors/sql_alchemy.py	2022-12-25 14:05:20.742663142 +0000
++++ /usr/share/hue/desktop/libs/notebook/src/notebook/connectors/sql_alchemy.py	2022-12-25 14:05:45.456049891 +0000
+@@ -127,7 +127,7 @@
+     if interpreter.get('dialect_properties'):
+       self.backticks = interpreter['dialect_properties']['sql_identifier_quote']
+     else:
+-      self.backticks = '"' if re.match('^(postgresql://|awsathena|elasticsearch|phoenix)', self.options.get('url', '')) else '`'
++      self.backticks = '"' if re.match('^(postgresql://|awsathena|elasticsearch|phoenix|presto)', self.options.get('url', '')) else '`'
+ 
+   def _get_engine_key(self):
+     return ENGINE_KEY % {
+

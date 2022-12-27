@@ -1,0 +1,18 @@
+FROM docker.io/gethue/hue:4.10.0
+
+USER root
+
+ADD presto-backticks.patch /opt/presto-backticks.patch
+RUN patch -p 4 -u -i /opt/presto-backticks.patch 
+
+RUN apt-get update && \
+    apt install vim default-jre -y && \
+    apt-get clean all && \
+    mkdir /opt/classpath/
+
+ADD https://repo1.maven.org/maven2/com/facebook/presto/presto-jdbc/0.278.1/presto-jdbc-0.278.1.jar /opt/classpath/presto-jdbc.jar
+ENV CLASSPATH=/opt/classpath/*
+
+USER hue
+CMD ["./startup.sh"]
+

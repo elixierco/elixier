@@ -1,0 +1,80 @@
+{{- include "require" . -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "elixier.fullname" . }}-supers-f
+  labels:
+    {{- include "elixier.labels" . | nindent 4 }}
+    component: superset
+    subcomponent: web
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.web_instances }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "elixier.selectorLabels" . | nindent 6 }}
+      component: superset
+      subcomponent: web
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "elixier.selectorLabels" . | nindent 8 }}
+        component: superset
+        subcomponent: web
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "elixier.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      volumes:
+        {{- include "elixier.superset.volumes" . | nindent 8 }}
+      initContainers:
+        {{- include "elixier.wait-db" . | nindent 8 }}
+        {{- include "elixier.superset.wait-scheduler" . | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.superset_image.repository }}:{{ .Values.superset_image.tag }}"
+          imagePullPolicy: {{ .Values.superset_image.pullPolicy }}
+          args: ["start"]
+          ports:
+            - name: http
+              containerPort: 8088
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            {{- include "elixier.superset.volume-mounts" . | nindent 12 }}
+          env:
+            {{- include "elixier.superset.env" . | nindent 12 }}
+            
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+

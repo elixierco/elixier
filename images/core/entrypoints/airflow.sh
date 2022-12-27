@@ -11,7 +11,7 @@ elif [ "$1" == "scheduler" ];then
     /opt/elixier/airflow/bin/airflow scheduler --pid /tmp/airflow-scheduler.pid
 elif [ "$1" == "first-init" ];then
     /opt/elixier/airflow/bin/airflow db upgrade
-    /opt/elixier/airflow/bin/airflow users create --username admin --firstname admin --lastname user --email admin@localhost.local --password admin --role Admin
+    /opt/elixier/airflow/bin/airflow users create --username $DEFAULT_ADMIN --firstname $DEFAULT_ADMIN --lastname $DEFAULT_ADMIN --email $DEFAULT_ADMIN_EMAIL --password $DEFAULT_ADMIN_PASSWORD --role Admin
 else
     /opt/elixier/airflow/bin/airflow "$@"
 fi

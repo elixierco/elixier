@@ -169,7 +169,11 @@ ADD hadoop-jars/*.jar /opt/apache/hadoop/share/hadoop/common/lib/
 WORKDIR /workdir/
 
 ENV AIRFLOW_HOME=/etc/airflow/ \
-    HIVE_CONF_DIR=/etc/spark3/
+    HIVE_CONF_DIR=/etc/spark3/ \
+    DEFAULT_ADMIN="admin" \
+    DEFAULT_ADMIN_PASSWORD="admin" \
+    DEFAULT_ADMIN_EMAIL="admin@localhost.local"
+
 
 ENTRYPOINT ["/opt/apache/spark3/kubernetes/dockerfiles/spark/entrypoint.sh"]
 

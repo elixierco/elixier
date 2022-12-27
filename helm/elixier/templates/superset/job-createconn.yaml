@@ -1,0 +1,24 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "elixier.fullname" . }}-supers-createconn
+  labels:
+    {{- include "elixier.selectorLabels" . | nindent 4 }}
+    component: superset
+    subcomponent: create-connection
+spec:
+  completions: 1
+  template:
+    spec:
+      serviceAccountName: {{ include "elixier.serviceAccountName" . }}
+      initContainers:
+        {{- include "elixier.superset.wait-scheduler" . | nindent 8 }}
+      containers:
+        - name: createconn-presto
+          image: "{{ .Values.kubectl_image.repository }}:{{ .Values.kubectl_image.tag }}"
+          imagePullPolicy: {{ .Values.kubectl_image.pullPolicy }}
+          args: ["exec", "-ti", '{{ include "elixier.fullname" . }}-supers-s-0', "--",
+                 "superset", "set-database-uri", "-d", "Presto", "-u", 
+                 'presto://{{ include "elixier.fullname" . }}-presto:8080/default/default']
+      restartPolicy: Never
+  backoffLimit: 10

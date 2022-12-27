@@ -38,4 +38,8 @@
     {{ .Values.hue.db_host | default (printf "%s-db" (include "elixier.fullname" .)) }}
 {{- end -}}
 
+{{- define "elixier.superset.db_uri" -}}
+    {{ .Values.superset.db_uri | default (printf "postgresql+psycopg2://%s:%s@%s-db/%s" .Values.superset.db_user .Values.superset.db_password (include "elixier.fullname" .) .Values.superset.db_name) }}
+{{- end -}}
+
 

@@ -60,6 +60,13 @@ hue_image:
   pullPolicy: Always
   tag: "development"
 
+superset_image:
+  repository: registry.gitlab.com/abyres/releases/superset
+  pullPolicy: Always
+  tag: "development"
+
+
+
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -138,6 +145,7 @@ timezone: Asia/Kuala_Lumpur
 secrets:
   fernet_key: KsyyWSqLD-CqiyTCE8nfCrIE7YaUtQMj5-3_N9_BnX4=
   secret_key: MumVafdisAwk_orlObwuvadShyralfyifkidcinWakCuefyids
+  previous_secret_key: ''
 
 hive:
   metastore_uri: 
@@ -224,3 +232,9 @@ hue:
   db_name: hue
   db_user: hue
   db_password: hue
+
+superset:
+  db_name: superset
+  db_user: superset
+  db_password: superset
+
