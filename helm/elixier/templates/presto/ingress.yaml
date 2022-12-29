@@ -1,0 +1,21 @@
+{{ if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    {{- include "elixier.labels" . | nindent 4 }}
+    component: presto
+  name: {{ include "elixier.fullname" . }}-presto
+spec:
+  rules:
+  - host: presto.{{ .Values.ingress.domain }}
+    http:
+      paths:
+      - backend:
+          service:
+            name: {{ include "elixier.fullname" . }}-presto
+            port:
+              number: 8080
+        path: /
+        pathType: Prefix
+{{- end }}
