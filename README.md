@@ -33,7 +33,7 @@ Installation
 2. Install helm:
 
    ```bash
-   https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | sh -
+   curl -sfL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | sh -
    ```
 
 3. Clone:
