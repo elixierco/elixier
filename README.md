@@ -13,6 +13,8 @@ Dependencies
 
 - You need at least 100GB free space, preferably SSD
 
+- At least 8 vCore with 16GB RAM is recommended, or you might face issue where kubernetes unable to allocate resources for the services.
+
 Installation
 --------------
 
@@ -46,7 +48,7 @@ Installation
 5. Configure hosts
 
    Edit your hosts file (`/etc/hosts` in Linux, `C:\Windows\System32\drivers\etc\hosts` in Windows), add the 
-   following entry (replace `<ip-address>` with thee IP address of the k3s server:
+   following entry (replace `<ip-address>` with the IP address of the k3s server:
 
    ```
    <ip-address> airflow.elixier.lan gitweb.elixier.lan jupyterhub.elixier.lan minio.elixier.lan minio-console.elixier.lan presto.elixier.lan superset.elixier.lan 
