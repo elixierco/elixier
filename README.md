@@ -9,7 +9,13 @@ Quickstart
 Dependencies
 -------------
 
-- Some knowledge on Kubernetes, `kubectl` and `k3s` (https://docs.k3s.io/quick-start) (https://docs.k3s.io/cluster-access)
+- Some knowledge on Kubernetes, `kubectl`, `helm` and `k3s` 
+
+  - https://docs.k3s.io/quick-start
+
+  - https://docs.k3s.io/cluster-access
+
+  - https://helm.sh/docs/intro/quickstart/
 
 - You need at least 100GB free space, preferably SSD
 
