@@ -13,16 +13,20 @@ Pending features / capabilities
 
 - LetsEncrypt support for ingress TLS/SSL.
 
-- DataHub (https://datahubproject.io/)  and its dependencies.
+- DataHub (https://datahubproject.io/) and its dependencies.
 
-- DataHub integration in Spark, Airflow, Superset, HiveMetastore.
+- DataHub integration in Spark, Airflow, Superset, HiveMetastore, MinIO.
 
 - High availability deployment mode for internal PgSQL database. 
  
-- High availability deployment mode for Redis.
+- High availability deployment mode for internal Redis.
 
 - Grafana based internal monitoring.
 
-- OpenSearch based Centralized log management.
+- OpenSearch based centralized log management.
 
 - Celery Flower component for monitoring Celery queues in Redis. 
+
+- Ranger integration for ACL.
+
+- NiFi helm chart, separate from elixier core to support edge ingestion use-case.
