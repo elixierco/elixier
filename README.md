@@ -1,3 +1,8 @@
+Introduction
+=============
+
+Elixier is a data platform stack on Kubernetes.
+
 Quickstart
 =============
 
