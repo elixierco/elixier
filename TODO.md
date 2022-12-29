@@ -11,6 +11,8 @@ Pending features / capabilities
 
 - Superset web & worker auto scaling (probably working, but need testing).
 
+- OpenVSCode Server component to help with ETL development.
+
 - TLS/SSL for internal service communications, possibly with internal CA and certificate management.
 
 - LetsEncrypt support for ingress TLS/SSL.
