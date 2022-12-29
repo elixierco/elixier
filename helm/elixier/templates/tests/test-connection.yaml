@@ -11,5 +11,5 @@ spec:
     - name: wget
       image: busybox
       command: ['wget']
-      args: ['{{ include "elixier.fullname" . }}:{{ .Values.service.port }}']
+      args: ['http://{{ include "elixier.fullname" . }}-superset']
   restartPolicy: Never
