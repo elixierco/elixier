@@ -3,6 +3,8 @@ Pending features / capabilities
 
 - LDAP/AD integration.
 
+- Presto authentication. 
+
 - Presto worker auto scaling.
 
 - Airflow web & worker auto scaling (probably working, but need testing).
