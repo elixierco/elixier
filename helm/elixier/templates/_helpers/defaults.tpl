@@ -42,4 +42,8 @@
     {{ .Values.superset.db_uri | default (printf "postgresql+psycopg2://%s:%s@%s-db/%s" .Values.superset.db_user .Values.superset.db_password (include "elixier.fullname" .) .Values.superset.db_name) }}
 {{- end -}}
 
+{{- define "elixier.minio.console_url" -}}
+    {{ .Values.minio.console_url | default (printf "http://minio-console.%s" .Values.ingress.domain) }}
+{{- end -}}
+
 

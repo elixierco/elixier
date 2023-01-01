@@ -65,6 +65,11 @@ superset_image:
   pullPolicy: Always
   tag: "development"
 
+opensearch_image:
+  repository: opensearchproject/opensearch
+  pullPolicy: IfNotPresent
+  tag: "2.4.1"
+
 
 
 imagePullSecrets: []
@@ -225,5 +230,9 @@ superset:
   db_name: superset
   db_user: superset
   db_password: superset
+
+opensearch:
+  env: {}
+  replicas: 1
 
 containerWaitTimeout: 3600s
