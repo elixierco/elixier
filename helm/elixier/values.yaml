@@ -70,6 +70,11 @@ opensearch_image:
   pullPolicy: IfNotPresent
   tag: "2.4.1"
 
+kafka_image:
+  repository: registry.gitlab.com/abyres/releases/kafka
+  pullPolicy: Always
+  tag: "development"
+
 
 
 imagePullSecrets: []
@@ -196,7 +201,6 @@ s3a:
   secret_key: miniopassword
 
 pgsql:
-  volume_path: /var/lib/pgsql
   pg_version: 14
   pvc_size: 5Gi
 
@@ -233,6 +237,10 @@ superset:
 
 opensearch:
   env: {}
+  replicas: 1
+
+kafka:
+  cluster_id: bwx_CqkkQp64WNqQNNC-Qg
   replicas: 1
 
 containerWaitTimeout: 3600s
