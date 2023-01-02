@@ -41,10 +41,10 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
             - name: {{ include "elixier.fullname" . }}-db-datadir
-              mountPath: {{ .Values.pgsql.volume_path }}
+              mountPath: {{ include "elixier.pgsql.volume_path" . }}
           env:
             - name: PGDATA
-              value: {{ .Values.pgsql.volume_path }}/{{ .Values.pgsql.pg_version }}
+              value: {{ include "elixier.pgsql.volume_path" . }}/{{ .Values.pgsql.pg_version }}
       containers:
         - name: db
           securityContext:
@@ -54,7 +54,7 @@ spec:
           args: ['start']
           env:
             - name: PGDATA
-              value: {{ .Values.pgsql.volume_path }}/{{ .Values.pgsql.pg_version }}
+              value: {{ include "elixier.pgsql.volume_path" . }}/{{ .Values.pgsql.pg_version }}
           ports:
             - name: pgsql
               containerPort: 5432
@@ -73,7 +73,9 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
             - name: {{ include "elixier.fullname" . }}-db-datadir
-              mountPath: {{ .Values.pgsql.volume_path }}
+              mountPath: {{ include "elixier.pgsql.volume_path" . }}
+      terminationGracePeriodSeconds: {{ .Values.pgsql.termination_grace_period | default "120" }}
+
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
