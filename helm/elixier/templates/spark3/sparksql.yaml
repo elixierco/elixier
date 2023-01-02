@@ -1,5 +1,5 @@
 {{- include "require" . -}}
-{{- if .Values.spark.deploy_thrift -}}
+{{- if .Values.spark.deploy_thrift | default false -}}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
