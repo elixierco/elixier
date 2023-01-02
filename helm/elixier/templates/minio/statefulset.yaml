@@ -77,7 +77,7 @@ spec:
                 secretKeyRef:
                   name: {{ include "elixier.fullname" . }}-secrets
                   key: minio_console_url
-
+      terminationGracePeriodSeconds: {{ .Values.minio.termination_grace_period | default "120" }}
 
       {{- with .Values.nodeSelector }}
       nodeSelector:
