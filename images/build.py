@@ -67,7 +67,7 @@ else:
 os.chdir(args.directory)
 
 if not os.path.exists(args.repofile):
-    print(_c('fail', "% not found" % args.repofile))
+    print(_c('fail', "%s not found" % args.repofile))
     sys.exit(2)
 
 with open(args.repofile, 'r') as f:
