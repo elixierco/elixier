@@ -1,0 +1,18 @@
+FROM registry.gitlab.com/abyres/releases/centos8:8-1
+
+ENV KAFKA_VERSION=3.3.1 SCALA_VERSION=2.12 JAVA_VERSION=1.8.0
+
+RUN dnf install java-${JAVA_VERSION}-openjdk-headless -y && \
+    dnf clean all && \
+    mkdir -p /opt/apache
+
+ENV JAVA_HOME=/usr/lib/jvm/jre-${JAVA_VERSION}/
+
+ADD packages/kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz /opt/apache
+
+WORKDIR /opt/apache
+
+RUN ln -s kafka_${SCALA_VERSION}-${KAFKA_VERSION} kafka
+ADD entrypoint.sh /opt/entrypoint.sh
+
+ENTRYPOINT ["/opt/entrypoint.sh"]
