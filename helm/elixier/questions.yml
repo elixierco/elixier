@@ -1,0 +1,25 @@
+questions:
+  - variable: ingress.domain
+    label: Ingress Domain
+    default: elixier.lan
+    type: string
+    group: General
+    description: "Domain for use with ingress. Apps will be deployed as subdomains of this domain"
+  - variable: storageClass
+    label: Default Storage Class
+    default: ""
+    type: storageclass
+    group: General
+  - variable: storageAccessMode
+    label: Default Storage Access Mode
+    type: enum
+    options:
+      - ReadWriteMany
+      - ReadWriteOnce
+    group: General
+    description: "Default storage access mode for distributed service"
+  - variable: timezone
+    label: Timezone
+    type: string
+    default: Asia/Kuala_Lumpur
+    group: General
