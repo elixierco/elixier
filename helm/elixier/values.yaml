@@ -18,7 +18,7 @@ core_image:
 pgsql_image:
   repository: registry.gitlab.com/abyres/releases/pgsql-citus
   pullPolicy: Always
-  tag: "pgsql14-1.0.2-4"
+  tag: "pgsql14-1.0.2-6"
 
 hms_image:
   repository: registry.gitlab.com/abyres/releases/hive
