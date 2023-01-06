@@ -4,6 +4,12 @@ RUN /usr/sbin/groupadd -r postgres --gid 1000 && \
      /usr/sbin/useradd -r -g postgres --uid 1000 \
      -s /sbin/nologin postgres
 
+ENV TINI_VERSION=0.19.0
+
+ADD https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini /root/tini
+
+RUN install -o root -g root -m 0755 /root/tini /usr/bin/tini
+
 RUN set -ex && \
     dnf install https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm -y && \
     wget 'https://repos.citusdata.com/community/config_file.repo?os=RHEL&dist=8&source=script' -O /etc/yum.repos.d/citus_community.repo && \
@@ -28,4 +34,4 @@ RUN chown postgres:postgres /etc/pg_hba.conf && \
     rm -rf /var/lib/pgsql/*
 USER postgres
 
-ENTRYPOINT [ "/opt/entrypoint.sh" ]
+ENTRYPOINT ["/usr/bin/tini", "/opt/entrypoint.sh" ]
