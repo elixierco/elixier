@@ -64,7 +64,7 @@ Installation
    kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/master/deploy/longhorn.yaml
    ```
 
-   To check for deployment status, run `watch kubectl get pods --namespace=longhorn-system`
+   To check for deployment status, run `watch kubectl get pods --namespace=longhorn-system`. Wait until all longhorn services are operational.
 
 5. Clone:
 
