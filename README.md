@@ -24,34 +24,65 @@ Dependencies
 Installation
 --------------
 
-1. Install K3S:
+1. Prepare the OS:
+
+   Install OS dependencies. Assuming you are on CentOS/RHEL:
+
+   ```bash
+   dnf install iscsi-initiator-utils nfs-utils tar git -y
+   ```
+
+   disable firewalld as it will interfere with container networking:
+
+   ```bash
+   systemctl stop firewalld
+   systemctl disable firewalld 
+   ```
+
+   set `vm.max_map_count` for opensearch:
+
+   ```bash
+   echo vm.max_map_count=262144 > /etc/sysctl.d/00-vm-max-map-count.conf
+   sysctl --system
+   ```
+
+2. Install K3S:
 
    ```bash
    curl -sfL https://get.k3s.io | sh -
    ```
 
-2. Install helm:
+3. Install helm:
 
    ```bash
    curl -sfL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | sh -
    ```
 
-3. Clone:
+4. Install longhorn:
+
+   ```bash
+   kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/master/deploy/longhorn.yaml
+   ```
+
+   To check for deployment status, run `watch kubectl get pods --namespace=longhorn-system`
+
+5. Clone:
 
    ```bash
    git clone https://github.com/elixierdata/helm elixier
    ```
 
-4. Install
+6. Install
 
    ```bash
+   export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
    cd elixier/helm/elixier 
-   helm install --set storageAccessMode=ReadWriteOnce elixier .
+   helm install --set storageClass=longhorn elixier .
    ```
 
    To check for deployment status, run  `watch kubectl get pods`. 
 
-5. Configure hosts
+7. Configure hosts
 
    Edit your hosts file (`/etc/hosts` in Linux, `C:\Windows\System32\drivers\etc\hosts` in Windows), add the 
    following entry (replace `<ip-address>` with the IP address of the k3s server:
