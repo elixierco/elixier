@@ -205,7 +205,7 @@ pgsql:
 minio:
   root_user: minio
   root_password: miniopassword
-  instance_storage: 1G
+  instance_storage: 2G
   console_url: https://minio/
 
 jupyterhub:
