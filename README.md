@@ -96,7 +96,7 @@ Accessing Services
 
 - Airflow (http://airflow.elixier.lan/). Default user: `admin`. Default password: `admin`.
 
-- Gitweb (http://gitweb.elixier.lan/). Default user: `user`. Default password: `password`.
+- Gitweb (http://gitweb.elixier.lan/git/). Default user: `user`. Default password: `password`.
 
 - Jupyterhub (http://jupyterhub.elixier.lan/). Sign up user `admin` to set default password.
 
