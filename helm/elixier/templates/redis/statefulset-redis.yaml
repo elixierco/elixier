@@ -83,6 +83,9 @@ spec:
       spec:
         accessModes: 
           - {{ .Values.storageAccessMode | default "ReadWriteMany" }}
+        {{ if .Values.storageClass -}}
+        storageClassName: {{ quote .Values.storageClass }}
+        {{- end }}
         resources:
           requests:
             storage: {{ .Values.redis.instance_storage }}
