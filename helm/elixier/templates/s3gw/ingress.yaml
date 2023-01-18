@@ -1,0 +1,38 @@
+{{ if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  labels:
+    {{- include "elixier.labels" . | nindent 4 }}
+    component: s3gw
+  annotations:
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: '*'
+    nginx.ingress.kubernetes.io/cors-allow-headers: 'DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,pragma,x-amz-user-agent,x-amz-date'
+  {{- with .Values.ingress.annotations }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  name: {{ include "elixier.fullname" . }}-s3gw
+spec:
+  rules:
+  - host: s3.{{ .Values.ingress.domain }}
+    http:
+      paths:
+      - backend:
+          service:
+            name: {{ include "elixier.fullname" . }}-s3gw
+            port:
+              number: 7480
+        path: /
+        pathType: Prefix
+  - host: s3ui.{{ .Values.ingress.domain }}
+    http:
+      paths:
+      - backend:
+          service:
+            name: {{ include "elixier.fullname" . }}-s3gw-ui
+            port:
+              number: 8080
+        path: /
+        pathType: Prefix
+{{- end }}

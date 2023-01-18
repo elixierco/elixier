@@ -46,4 +46,8 @@
     {{ .Values.minio.console_url | default (printf "http://minio-console.%s" .Values.ingress.domain) }}
 {{- end -}}
 
+{{- define "elixier.s3gw.gw_hostname" -}}
+    {{ .Values.s3gw.gw_hostname | default (printf "s3.%s" .Values.ingress.domain) }}
+{{- end -}}
+
 

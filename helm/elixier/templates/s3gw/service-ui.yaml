@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "elixier.fullname" . }}-s3gw-ui
+  labels:
+    {{- include "elixier.labels" . | nindent 4 }}
+    component: s3gw
+    subcomponent: ui
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "elixier.selectorLabels" . | nindent 4 }}
+    component: s3gw
+    subcomponent: ui

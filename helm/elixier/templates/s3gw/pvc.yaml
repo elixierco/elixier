@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "elixier.fullname" . }}-s3-datadir
+  annotations:
+    helm.sh/resource-policy: keep
+spec:
+  {{- if .Values.storageClass }}
+  storageClassName: {{ .Values.storageClass }}
+  {{- end }}
+  volumeMode: Filesystem
+  accessModes:
+    - {{ .Values.storageAccessMode | default "ReadWriteMany" }}
+  resources:
+    requests:
+      storage: {{ .Values.s3gw.pvc_size | required "s3gw.pvc_size is required" }}
+

@@ -1,0 +1,86 @@
+{{- include "require" . -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "elixier.fullname" . }}-s3gw-ui
+  labels:
+    {{- include "elixier.labels" . | nindent 4 }}
+    component: s3gw
+    subcomponent: ui
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.web_instances }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "elixier.selectorLabels" . | nindent 6 }}
+      component: s3gw
+      subcomponent: ui
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "elixier.selectorLabels" . | nindent 8 }}
+        component: s3gw
+        subcomponent: ui
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "elixier.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      volumes:
+        {{- include "elixier.s3gw.volumes" . | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.s3gwui_image.repository }}:{{ .Values.s3gwui_image.tag }}"
+          imagePullPolicy: {{ .Values.core_image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          env:
+            - name: RGW_SERVICE_URL
+              value: http://{{ include "elixier.s3gw.gw_hostname" . }}
+            - name: RGW_DEFAULT_USER_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "elixier.fullname" . }}-secrets
+                  key: minio_root_user
+            - name: RGW_DEFAULT_USER_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "elixier.fullname" . }}-secrets
+                  key: minio_root_password
+
+
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
