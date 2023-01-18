@@ -53,7 +53,7 @@ gitsync_image:
 gitweb_image:
   repository: registry.gitlab.com/abyres/releases/gitserver
   pullPolicy: IfNotPresent
-  tag: "2.31.1-6"
+  tag: "2.31.1-8"
 
 hue_image:
   repository: registry.gitlab.com/abyres/releases/hue
@@ -72,10 +72,18 @@ opensearch_image:
 
 kafka_image:
   repository: registry.gitlab.com/abyres/releases/kafka
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
   tag: "3.3.1-2"
 
+s3gw_image:
+  repository: quay.io/s3gw/s3gw
+  pullPolicy: IfNotPresent
+  tag: "latest"
 
+s3gwui_image:
+  repository: registry.gitlab.com/abyres/releases/s3gw-ui
+  pullPolicy: IfNotPresent
+  tag: "0.10.0-2"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -240,5 +248,8 @@ opensearch:
 kafka:
   cluster_id: bwx_CqkkQp64WNqQNNC-Qg
   replicas: 1
+
+s3gw:
+  pvc_size: 5Gi
 
 containerWaitTimeout: 3600s
