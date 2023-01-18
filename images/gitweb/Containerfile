@@ -19,8 +19,12 @@ RUN chmod a+rx /opt/entrypoint.sh && \
     mkdir /srv/git && \
     chown -R git:git /srv/git
 
+ENV TINI_VERSION=0.19.0
+ADD https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini /root/tini
+RUN install -o root -g root -m 0755 /root/tini /usr/bin/tini
+
 EXPOSE 22
 EXPOSE 80
 VOLUME /srv/git/
 
-ENTRYPOINT ["sudo", "-E", "/opt/entrypoint.sh"]
+ENTRYPOINT ["/usr/bin/tini", "--", "sudo", "-E", "/opt/entrypoint.sh"]
