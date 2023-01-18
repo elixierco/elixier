@@ -4,6 +4,8 @@ metadata:
   name: {{ include "elixier.fullname" . }}-airflow-datadir
   labels:
     {{- include "elixier.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/resource-policy: keep
 spec:
   accessModes:
     - {{ .Values.storageAccessMode | default "ReadWriteMany" }}
