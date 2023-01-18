@@ -37,8 +37,8 @@ c.KubeSpawner.image_pull_secrets "{{- toYaml . -}}"
 c.KubeSpawner.storage_access_modes = ['{{ .Values.storageAccessMode | default "ReadWriteMany" }}']
 c.KubeSpawner.storage_capacity = '{{ .Values.jupyterhub.nb_storage_capacity | default "1Gi" }}'
 c.KubeSpawner.fs_gid = 1000
-{{- if .Values.jupyterhub.nb_storage_class }}
-c.KubeSpawner.storage_class = "{{ .Values.jupyterhub.nb_storage_class }}"
+{{- if .Values.storageClass }}
+c.KubeSpawner.storage_class = "{{ .Values.storageClass }}"
 {{- end }}
 c.KubeSpawner.pvc_name_template = 'pvc-{{ include "elixier.fullname" . }}-{username}'
 c.KubeSpawner.storage_pvc_ensure = True
