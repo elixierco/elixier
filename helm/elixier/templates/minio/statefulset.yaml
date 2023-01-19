@@ -66,12 +66,12 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ include "elixier.fullname" . }}-secrets
-                  key: minio_root_user
+                  key: s3a_access_key
             - name: MINIO_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ include "elixier.fullname" . }}-secrets
-                  key: minio_root_password
+                  key: s3a_secret_key
             - name: MINIO_BROWSER_REDIRECT_URL
               valueFrom:
                 secretKeyRef:

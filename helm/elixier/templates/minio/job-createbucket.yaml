@@ -19,6 +19,6 @@ spec:
           command: ["mc", "mb", "-p", "minio/warehouse", "minio/warehouse/tablespace", "minio/warehouse/event_log", "minio/filesystem"]
           env:
             - name: MC_HOST_minio
-              value: 'http://{{ .Values.minio.root_user }}:{{ .Values.minio.root_password }}@{{ include "elixier.fullname" . }}-minio:9000'
+              value: 'http://{{ .Values.s3a.access_key }}:{{ .Values.s3a.secret_key }}@{{ include "elixier.fullname" . }}-minio:9000'
       restartPolicy: Never
   backoffLimit: 10
