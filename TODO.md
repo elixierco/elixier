@@ -7,7 +7,7 @@ Pending features / capabilities
 
 - Presto worker auto scaling.
 
-- replace MinIO with S3GW. Longhorn already handle replication, which makes running MinIO suboptimal.
+- replace MinIO with S3GW. Longhorn already handle replication, which makes running MinIO suboptimal. (update, this can't work. S3GW implementation is incomplete. Put this towards latter stage)
 
 - Airflow web & worker auto scaling (probably working, but need testing).
 
