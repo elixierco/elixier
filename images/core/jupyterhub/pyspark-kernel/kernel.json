@@ -14,6 +14,7 @@
         "HADOOP_HOME": "/opt/apache/hadoop/",
         "JAVA_HOME": "/usr/lib/jvm/jre-1.8.0/",
         "PYSPARK_PYTHON": "/opt/elixier/spark3-python/bin/python",
-        "PYSPARK_DRIVER_PYTHON": "/opt/elixier/spark3-python/bin/python"
+        "PYSPARK_DRIVER_PYTHON": "/opt/elixier/spark3-python/bin/python",
+        "PYTHONSTARTUP": "/opt/elixier/spark3-python/pythonrc.py"
     }
 }

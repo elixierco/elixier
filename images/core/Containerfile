@@ -160,6 +160,8 @@ COPY entrypoints/airflow.sh /opt/elixier/airflow/bin/entrypoint.sh
 COPY entrypoints/jupyterhub.sh /opt/elixier/jupyterhub/bin/entrypoint.sh
 
 ADD jupyterhub/pyspark-kernel/* /opt/elixier/jupyterhub/share/jupyter/kernels/pyspark/
+ADD jupyterhub/python-kernel/kernel.json /opt/elixier/jupyterhub/share/jupyter/kernels/python3/kernel.json
+ADD pythonrc.py /opt/elixier/spark3-python/pythonrc.py
 ADD jupyterhub/page_config.json /opt/elixier/jupyterhub/etc/jupyter/labconfig/page_config.json
 ADD jupyterhub/pod_hostname.patch /opt/elixier/jupyterhub/
 WORKDIR /opt/elixier/jupyterhub/lib/python${PYTHON_VERSION}/site-packages/kubespawner

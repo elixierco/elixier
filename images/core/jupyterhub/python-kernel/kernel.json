@@ -1,6 +1,6 @@
 {
  "argv": [
-  "/usr/bin/python",
+  "/opt/elixier/spark3-python/bin/python",
   "-m",
   "ipykernel_launcher",
   "-f",
