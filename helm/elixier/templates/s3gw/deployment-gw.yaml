@@ -43,7 +43,7 @@ spec:
           image: "{{ .Values.s3gw_image.repository }}:{{ .Values.s3gw_image.tag }}"
           imagePullPolicy: {{ .Values.core_image.pullPolicy }}
           args: ["--rgw-dns-name", 
-                '{{ include "elixier.s3gw.gw_hostname" . }},{{ include "elixier.fullname" . }}-s3gw.{{ .Release.Namespace }}.svc.cluster.local',
+                '{{ include "elixier.s3gw.gw_hostname" . }},{{ include "elixier.fullname" . }}-s3gw.{{ .Release.Namespace }}.svc.cluster.local,{{ include "elixier.fullname" . }}-s3gw',
                 "--rgw-backend-store",
                 "sfs",
                 "--debug-rgw", "INFO",
@@ -74,12 +74,14 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ include "elixier.fullname" . }}-secrets
-                  key: minio_root_user
+                  key: s3a_access_key
             - name: RGW_DEFAULT_USER_SECRET_KEY
               valueFrom:
                 secretKeyRef:
                   name: {{ include "elixier.fullname" . }}-secrets
-                  key: minio_root_password
+                  key: s3a_secret_key
+            - name: RGW_DEFAULT_USER_ID
+              value: admin
 
 
       {{- with .Values.nodeSelector }}

@@ -63,12 +63,15 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ include "elixier.fullname" . }}-secrets
-                  key: minio_root_user
+                  key: s3a_access_key
             - name: RGW_DEFAULT_USER_SECRET_KEY
               valueFrom:
                 secretKeyRef:
                   name: {{ include "elixier.fullname" . }}-secrets
-                  key: minio_root_password
+                  key: s3a_secret_key
+            - name: RGW_DEFAULT_USER_ID
+              value: admin
+
 
 
       {{- with .Values.nodeSelector }}

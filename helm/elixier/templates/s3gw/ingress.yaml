@@ -25,6 +25,16 @@ spec:
               number: 7480
         path: /
         pathType: Prefix
+  - host: '*.s3.{{ .Values.ingress.domain }}'
+    http:
+      paths:
+      - backend:
+          service:
+            name: {{ include "elixier.fullname" . }}-s3gw
+            port:
+              number: 7480
+        path: /
+        pathType: Prefix
   - host: s3ui.{{ .Values.ingress.domain }}
     http:
       paths:
