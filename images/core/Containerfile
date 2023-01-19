@@ -75,7 +75,7 @@ WORKDIR /opt/elixier/
 RUN /usr/bin/python${PYTHON_VERSION} -m venv spark3-python && \
     ./spark3-python/bin/pip install numpy scikit-learn pandas dask ipykernel findspark 
 
-COPY jars/* spark3/jars/
+COPY jars/* /opt/apache/spark3/jars/
 
 COPY noop.py /opt/noop.py
 
@@ -131,6 +131,7 @@ ENV JUPYTERHUB_VERSION=2.0.2 \
     JUPYTERLAB_VERSION=3.2.8
 
 ADD packages/mc /usr/local/bin/mc
+RUN chmod a+rx /usr/local/bin/mc
 
 RUN /usr/bin/python${PYTHON_VERSION} -m venv /opt/elixier/jupyterhub/ && \
     /opt/elixier/jupyterhub/bin/pip install "jupyterhub==$JUPYTERHUB_VERSION" "jupyterlab==$JUPYTERLAB_VERSION" jupyter-server-proxy \
@@ -153,7 +154,7 @@ RUN npm install configurable-http-proxy && \
     ln -s /opt/elixier/jupyterhub/bin/jupyterhub /usr/local/bin/jupyterhub && \
     ln -s /opt/elixier/jupyterhub/bin/jupyterhub-singleuser /usr/local/bin/jupyterhub-singleuser
 
-ENV PATH="${PATH}:/opt/apache/spark3/bin:/opt/apache/spark3-python/bin/:/opt/apache/hadoop/bin/" 
+ENV PATH="${PATH}:/opt/apache/spark3/bin:/opt/elixier/spark3-python/bin/:/opt/apache/hadoop/bin/" 
 
 COPY entrypoints/airflow.sh /opt/elixier/airflow/bin/entrypoint.sh
 COPY entrypoints/jupyterhub.sh /opt/elixier/jupyterhub/bin/entrypoint.sh
