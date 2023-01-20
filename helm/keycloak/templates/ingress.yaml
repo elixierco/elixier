@@ -1,0 +1,25 @@
+{{ if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  labels:
+    {{- include "keycloak.labels" . | nindent 4 }}
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
+  {{- with .Values.ingress.annotations }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  name: {{ include "keycloak.fullname" . }}
+spec:
+  rules:
+  - host: keycloak.{{ .Values.ingress.domain }}
+    http:
+      paths:
+      - backend:
+          service:
+            name: {{ include "keycloak.fullname" . }}
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
+{{- end }}
