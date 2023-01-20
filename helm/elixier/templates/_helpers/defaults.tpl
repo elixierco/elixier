@@ -50,4 +50,38 @@
     {{ .Values.s3gw.gw_hostname | default (printf "s3.%s" .Values.ingress.domain) }}
 {{- end -}}
 
+{{- define "elixier.keycloak.url" -}}
+    {{ .Values.keycloak.url | default (printf "http://keycloak.%s" .Values.ingress.domain) }}
+{{- end -}}
 
+{{- define "elixier.keycloak.issuer" -}}
+    {{ printf "%s/realms/%s" (include "elixier.keycloak.url" .) .Values.keycloak.realm }}
+{{- end -}}
+
+{{- define "elixier.keycloak.api_base_url" -}}
+    {{ printf "%s/protocol/openid-connect" (include "elixier.keycloak.issuer" .) }}
+{{- end -}}
+
+{{- define "elixier.keycloak.authorization_endpoint" -}}
+    {{ printf "%s/auth" (include "elixier.keycloak.api_base_url" .) }}
+{{- end -}}
+
+{{- define "elixier.keycloak.token_endpoint" -}}
+    {{ printf "%s/token" (include "elixier.keycloak.api_base_url" .) }}
+{{- end -}}
+
+{{- define "elixier.keycloak.introspection_endpoint" -}}
+    {{ printf "%s/introspect" (include "elixier.keycloak.api_base_url" .) }}
+{{- end -}}
+
+{{- define "elixier.keycloak.userinfo_endpoint" -}}
+    {{ printf "%s/userinfo" (include "elixier.keycloak.api_base_url" .) }}
+{{- end -}}
+
+{{- define "elixier.keycloak.end_session_endpoint" -}}
+    {{ printf "%s/logout" (include "elixier.keycloak.api_base_url" .) }}
+{{- end -}}
+
+{{- define "elixier.keycloak.server_metadata_url" -}}
+    {{ printf "%s/.well-known/openid-configuration" (include "elixier.keycloak.issuer" .) }}
+{{- end -}}

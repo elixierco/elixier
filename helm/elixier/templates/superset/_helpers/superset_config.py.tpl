@@ -130,4 +130,38 @@ WEBDRIVER_CONFIGURATION = {
 
 UPLOAD_FOLDER = '/var/lib/superset/uploads'
 UPLOAD_FOLDER = '/var/lib/superset/'
+
+{{ if .Values.keycloak.enabled }}
+from flask_appbuilder.security.manager import AUTH_OAUTH
+
+AUTH_TYPE = AUTH_OAUTH
+
+from elixier_ss_custom import KeycloakSecurityManager
+
+CUSTOM_SECURITY_MANAGER = KeycloakSecurityManager
+
+AUTH_USER_REGISTRATION = True
+AUTH_USER_REGISTRATION_ROLE = 'Public'
+
+OAUTH_PROVIDERS = [
+    {
+        'name': 'keycloak',
+        'token_key': 'access_token',
+        'icon': 'fa-address-card',
+        'remote_app': {
+            'client_id': '{{ .Values.keycloak.client_id }}',
+            'client_secret': '{{ .Values.keycloak.client_secret }}',
+            'client_kwargs': {
+                'scope': 'openid email profile roles'
+            },
+            'access_token_method': 'POST',
+            'api_base_url': '{{ include "elixier.keycloak.api_base_url" . }}/',
+            'access_token_url': '{{ include "elixier.keycloak.token_endpoint" . }}',
+            'authorize_url': '{{ include "elixier.keycloak.authorization_endpoint" . }}',
+            'server_metadata_url': '{{ include "elixier.keycloak.server_metadata_url" . }}'
+        },
+    }
+]
+{{ end }}
+
 {{- end }}
