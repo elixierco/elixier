@@ -115,5 +115,21 @@ c.KubeSpawner.modify_pod_hook = modify_pod
 profiles_json = """{{- toJson .Values.jupyterhub.profiles -}}"""
 c.KubeSpawner.profile_list = json.loads(profiles_json)
 {{- end }}
+
+{{- if .Values.keycloak.enabled }}
+from oauthenticator.generic import GenericOAuthenticator
+c.JupyterHub.authenticator_class = GenericOAuthenticator
+
+c.GenericOAuthenticator.client_id = '{{ .Values.keycloak.client_id }}'
+c.GenericOAuthenticator.client_secret = '{{ .Values.keycloak.client_secret }}'
+c.GenericOAuthenticator.token_url = '{{ include "elixier.keycloak.token_endpoint" . }}'
+c.GenericOAuthenticator.userdata_url = '{{ include "elixier.keycloak.userinfo_endpoint" . }}'
+c.GenericOAuthenticator.authorize_url = '{{ include "elixier.keycloak.authorization_endpoint" . }}'
+c.GenericOAuthenticator.userdata_params = {'state': 'state'}
+c.GenericOAuthenticator.username_key = 'preferred_username'
+c.GenericOAuthenticator.login_service = 'Keycloak'
+c.GenericOAuthenticator.scope = ['openid', 'profile']
+
+{{- end }}
 {{- end }}
 

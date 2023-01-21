@@ -140,7 +140,7 @@ RUN /usr/bin/python${PYTHON_VERSION} -m venv /opt/elixier/jupyterhub/ && \
     jupyterlab-geojson jupyterlab-katex  jupyterlab-mathjax3 jupyterlab-vega2 \
     jupyterlab-vega3 jupyterlab_widgets sudospawner keycloakauthenticator \
     jupyterhub-nativeauthenticator jupyterhub-kubespawner \
-    psycopg2-binary pymssql oracledb && \
+    psycopg2-binary pymssql oracledb oauthenticator && \
     mkdir /opt/elixier/jupyterhub/share/jupyter/kernels/pyspark/ && \
     mkdir /workdir/ && \
     /opt/elixier/spark3-python/bin/pip install matplotlib \
