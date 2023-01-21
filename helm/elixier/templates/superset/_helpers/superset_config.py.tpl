@@ -134,6 +134,13 @@ UPLOAD_FOLDER = '/var/lib/superset/'
 {{ if .Values.keycloak.enabled }}
 from flask_appbuilder.security.manager import AUTH_OAUTH
 
+AUTH_ROLES_SYNC_AT_LOGIN = True
+AUTH_ROLES_MAPPING = {
+  "superset_admin": ["Admin"],
+  "superset_alpha": ["Alpha"],
+  "superset_gamma": ["Gamma"],
+}
+
 AUTH_TYPE = AUTH_OAUTH
 
 from elixier_ss_custom import KeycloakSecurityManager
@@ -142,6 +149,7 @@ CUSTOM_SECURITY_MANAGER = KeycloakSecurityManager
 
 AUTH_USER_REGISTRATION = True
 AUTH_USER_REGISTRATION_ROLE = 'Public'
+PUBLIC_ROLE_LIKE = "Gamma"
 
 OAUTH_PROVIDERS = [
     {

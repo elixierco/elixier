@@ -35,18 +35,8 @@ class KeycloakSecurityManager(SupersetSecurityManager):
                 'email' : me['email'],
                 'first_name': me['given_name'],
                 'last_name': me['family_name'],
-                'roles': me['roles'],
+                'role_keys': me['roles'],
                 'is_active': True,
             }
 
-    def auth_user_oauth(self, userinfo):
-        user = super(KeycloakSecurityManager, self).auth_user_oauth(userinfo)
-        roles = [self.find_role(x.replace('{{ .Values.keycloak.superset_role_prefix | default "superset" }}-', '').capitalize()) for x in userinfo['roles'] if x.startswith('superset')]
-        roles = [x for x in roles if x is not None]
-        if not roles:
-           roles = ['Public']
-        user.roles = roles
-        logger.debug(' Update <User: %s> role to %s', user.username, roles)
-        self.update_user(user)  # update user roles
-        return user
 {{ end }}
