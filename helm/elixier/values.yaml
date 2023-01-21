@@ -85,6 +85,7 @@ s3gwui_image:
   pullPolicy: IfNotPresent
   tag: "0.10.0-2"
 
+
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -248,5 +249,12 @@ kafka:
 
 s3gw:
   pvc_size: 5Gi
+
+keycloak:
+  enabled: false
+  url: http://keycloak.elixier.lan
+  realm: master
+  client_id: elixier
+  client_secret: ''
 
 containerWaitTimeout: 3600s
