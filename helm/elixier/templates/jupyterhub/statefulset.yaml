@@ -46,6 +46,8 @@ spec:
 #            secretName: {{ include "elixier.fullname" . }}-airflow-config
       initContainers:
         {{- include "elixier.wait-db" . | nindent 8 }}   
+        {{- include "elixier.wait-createdb" . | nindent 8 }}
+
       containers:
         - name: {{ .Chart.Name }}
           securityContext:

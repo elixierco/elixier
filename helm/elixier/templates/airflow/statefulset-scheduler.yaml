@@ -37,6 +37,7 @@ spec:
         {{- include "elixier.volumes" . | nindent 8 }}
       initContainers:
         {{- include "elixier.wait-db" . | nindent 8 }}
+        {{- include "elixier.wait-createdb" . | nindent 8 }}
         - name: init
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
