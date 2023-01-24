@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "elixier.fullname" . }}-rangeradmin
+  labels:
+    {{- include "elixier.labels" . | nindent 4 }}
+    component: ranger
+    subcomponent: admin
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "elixier.selectorLabels" . | nindent 6 }}
+      component: ranger
+      subcomponent: admin
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "elixier.selectorLabels" . | nindent 8 }}
+        component: ranger
+        subcomponent: admin
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "elixier.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      volumes:
+        - name: {{ include "elixier.fullname" . }}-ranger-config
+          secret:
+            secretName: {{ include "elixier.fullname" . }}-ranger-config
+        - name: {{ include "elixier.fullname" . }}-ranger-logdir
+          emptyDir: {}
+      initContainers:
+        {{- include "elixier.wait-db" . | nindent 8 }}
+        {{- include "elixier.wait-createdb" . | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.ranger_image.repository }}:{{ .Values.ranger_image.tag }}"
+          imagePullPolicy: {{ .Values.ranger_image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 6080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: {{ include "elixier.fullname" . }}-ranger-config
+              mountPath: /etc/ranger/
+            - name: {{ include "elixier.fullname" . }}-ranger-logdir
+              mountPath: /var/log/ranger/
+          env:
+            - name: RANGER_ADMIN_CONF
+              value: /etc/ranger
+            - name: RANGER_ADMIN_LOG_DIR
+              value: /var/log/ranger/
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

@@ -85,6 +85,11 @@ s3gwui_image:
   pullPolicy: IfNotPresent
   tag: "0.10.0-2"
 
+ranger_image:
+  repository: registry.gitlab.com/abyres/releases/ranger
+  pullPolicy: Always
+  tag: "development"
+
 
 imagePullSecrets: []
 nameOverride: ""
@@ -208,6 +213,7 @@ s3a:
   secret_key: miniopassword
 
 pgsql:
+  root_password: postgres
   pg_version: 14
   pvc_size: 5Gi
 
@@ -249,6 +255,16 @@ kafka:
 
 s3gw:
   pvc_size: 5Gi
+
+ranger:
+  db_root_user: postgres
+  db_root_password: postgres
+  db_type: postgres
+  admin_password: Password123
+  db_password: password
+  db_name: ranger
+  db_user: rangeradmin
+
 
 keycloak:
   enabled: false

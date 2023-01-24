@@ -1,0 +1,26 @@
+{{ if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  labels:
+    {{- include "elixier.labels" . | nindent 4 }}
+    component: ranger
+    subcomponent: admin
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  name: {{ include "elixier.fullname" . }}-rangeradmin
+spec:
+  rules:
+  - host: ranger.{{ .Values.ingress.domain }}
+    http:
+      paths:
+      - backend:
+          service:
+            name: {{ include "elixier.fullname" . }}-ranger
+            port:
+              number: 6080
+        path: /
+        pathType: Prefix
+{{- end }}

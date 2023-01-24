@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "elixier.fullname" . }}-ranger
+  labels:
+    {{- include "elixier.labels" . | nindent 4 }}
+    component: ranger
+    subcomponent: admin
+spec:
+  type: ClusterIP
+  ports:
+    - port: 6080
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "elixier.selectorLabels" . | nindent 4 }}
+    component: ranger
+    subcomponent: admin
+
