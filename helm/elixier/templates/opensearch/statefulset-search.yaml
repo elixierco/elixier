@@ -50,6 +50,9 @@ spec:
             {{- include "elixier.opensearch.env" . | nindent 12 }}
           ports:
             - name: http
+              containerPort: 9200
+              protocol: TCP
+            - name: binary
               containerPort: 9300
               protocol: TCP
           livenessProbe:

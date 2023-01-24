@@ -17,6 +17,8 @@
   value: {{ include "elixier.opensearch.nodes" . }}
 - name: cluster.initial_cluster_manager_nodes
   value: {{ include "elixier.opensearch.nodes" . }}
+- name: DISABLE_SECURITY_PLUGIN
+  value: "true"
 - name: OPENSEARCH_JAVA_OPTS
   value: '-Xms{{ .Values.opensearch.heap_size | default "512m" }} -Xmx{{ .Values.opensearch.heap_size | default  "512m" }}'
 {{- end }}

@@ -20,7 +20,7 @@ spec:
           service:
             name: {{ include "elixier.fullname" . }}-opensearch
             port:
-              number: 9300
+              number: 9200
         path: /
         pathType: Prefix
 {{- end }}
