@@ -260,6 +260,10 @@ ranger:
   enabled: false
   url: http://ranger.elixier.lan
   opensearch_urls: elixier-security-opensearch
+  opensearch_user: admin
+  opensearch_password: admin
+  opensearch_port: 9200
+  opensearch_proto: http
 
 keycloak:
   enabled: false

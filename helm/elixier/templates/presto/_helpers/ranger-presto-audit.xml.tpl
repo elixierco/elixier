@@ -234,23 +234,23 @@
     </property>
     <property>
         <name>xasecure.audit.destination.elasticsearch.user</name>
-        <value>admin</value>
+        <value>{{ .Values.ranger.opensearch_user }}</value>
     </property>
     <property>
         <name>xasecure.audit.destination.elasticsearch.password</name>
-        <value>admin</value>
+        <value>{{ .Values.ranger.opensearch_password }}</value>
     </property>
     <property>
         <name>xasecure.audit.destination.elasticsearch.index</name>
-        <value>ranger_audit</value>
+        <value>{{ .Values.ranger.opensearch_index | default "ranger_audit" }}</value>
     </property>
     <property>
         <name>xasecure.audit.destination.elasticsearch.port</name>
-        <value>9200</value>
+        <value>{{ .Values.ranger.opensearch_port | default "9200" }}</value>
     </property>
     <property>
         <name>xasecure.audit.destination.elasticsearch.protocol</name>
-        <value>http</value>
+        <value>{{ .Values.ranger.opensearch_proto | default "http" }}</value>
     </property>
     <property>
         <name>xasecure.audit.destination.amazon_cloudwatch</name>
