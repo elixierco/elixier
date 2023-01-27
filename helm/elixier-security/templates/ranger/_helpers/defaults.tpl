@@ -1,4 +1,4 @@
-{{- define "elixier.ranger.db_flavor" -}}
+{{- define "elixier-security.ranger.db_flavor" -}}
     {{- if eq .Values.ranger.db_type "postgres" -}}
         POSTGRES
     {{- else if eq .Values.ranger.db_type "mysql" -}}
@@ -12,7 +12,7 @@
     {{- end -}}
 {{- end -}}
 
-{{- define "elixier.ranger.db_connector_jar" -}}
+{{- define "elixier-security.ranger.db_connector_jar" -}}
     {{- if eq .Values.ranger.db_type "postgres" -}}
         /usr/share/java/postgresql.jar
     {{- else if eq .Values.ranger.db_type "mysql" -}}
@@ -26,10 +26,10 @@
     {{- end -}}
 {{- end -}}
 
-{{- define "elixier.ranger.opensearch_urls" -}}
-    {{ .Values.ranger.opensearch_urls | default (printf "%s-opensearch" (include "elixier.fullname" .)) }}
+{{- define "elixier-security.ranger.opensearch_urls" -}}
+    {{ .Values.ranger.opensearch_urls | default (printf "%s-opensearch" (include "elixier-security.fullname" .)) }}
 {{- end -}}
 
-{{- define "elixier.ranger.db_host" -}}
-    {{ .Values.ranger.db_host | default (printf "%s-db" (include "elixier.fullname" .)) }}
+{{- define "elixier-security.ranger.db_host" -}}
+    {{ .Values.ranger.db_host | default (printf "%s-db" (include "elixier-security.fullname" .)) }}
 {{- end -}}

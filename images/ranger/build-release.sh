@@ -5,4 +5,4 @@ here=`realpath $here`
 
 cd $here
 
-podman build -f Containerfile-pkgbuild -v $here/cache:/root/.m2 -v $here/release:/output/
+podman build -t ranger-build -f Containerfile-pkgbuild -v $here/cache:/root/.m2 -v $here/release:/output/

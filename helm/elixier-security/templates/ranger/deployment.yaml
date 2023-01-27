@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "elixier.fullname" . }}-rangeradmin
+  name: {{ include "elixier-security.fullname" . }}-rangeradmin
   labels:
-    {{- include "elixier.labels" . | nindent 4 }}
+    {{- include "elixier-security.labels" . | nindent 4 }}
     component: ranger
     subcomponent: admin
 spec:
@@ -12,7 +12,7 @@ spec:
   {{- end }}
   selector:
     matchLabels:
-      {{- include "elixier.selectorLabels" . | nindent 6 }}
+      {{- include "elixier-security.selectorLabels" . | nindent 6 }}
       component: ranger
       subcomponent: admin
   template:
@@ -22,7 +22,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "elixier.selectorLabels" . | nindent 8 }}
+        {{- include "elixier-security.selectorLabels" . | nindent 8 }}
         component: ranger
         subcomponent: admin
     spec:
@@ -30,18 +30,19 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "elixier.serviceAccountName" . }}
+      serviceAccountName: {{ include "elixier-security.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       volumes:
-        - name: {{ include "elixier.fullname" . }}-ranger-config
+        - name: {{ include "elixier-security.fullname" . }}-ranger-config
           secret:
-            secretName: {{ include "elixier.fullname" . }}-ranger-config
-        - name: {{ include "elixier.fullname" . }}-ranger-logdir
+            secretName: {{ include "elixier-security.fullname" . }}-ranger-config
+        - name: {{ include "elixier-security.fullname" . }}-ranger-logdir
           emptyDir: {}
       initContainers:
-        {{- include "elixier.wait-db" . | nindent 8 }}
-        {{- include "elixier.wait-createdb" . | nindent 8 }}
+        {{- include "elixier-security.wait-db" . | nindent 8 }}
+        {{- include "elixier-security.wait-createdb" . | nindent 8 }}
+        {{- include "elixier-security.wait-osearch" . | nindent 8 }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -63,9 +64,9 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
-            - name: {{ include "elixier.fullname" . }}-ranger-config
+            - name: {{ include "elixier-security.fullname" . }}-ranger-config
               mountPath: /etc/ranger/
-            - name: {{ include "elixier.fullname" . }}-ranger-logdir
+            - name: {{ include "elixier-security.fullname" . }}-ranger-logdir
               mountPath: /var/log/ranger/
           env:
             - name: RANGER_ADMIN_CONF

@@ -63,29 +63,9 @@ spec:
             - name: config
               mountPath: "/opt/presto/etc/config.properties"
               subPath: resmgr-config.properties
-            - name: jvm-config
-              mountPath: "/opt/presto/etc/jvm.config"
-              subPath: jvm.config
-            - name: data
-              mountPath: "/data"
-            - name: var
-              mountPath: "/opt/presto/var"
-            - name: catalog
-              mountPath: "/opt/presto/etc/catalog"
+            {{ include "elixier.presto.volume-mounts" . | nindent 12 }}
       volumes:
-        - name: config
-          secret:
-            secretName: {{ include "elixier.fullname" . }}-presto-cfg
-        - name: jvm-config
-          secret:
-            secretName: {{ include "elixier.fullname" . }}-presto-cfg
-        - name: data
-          emptyDir: {}
-        - name: var
-          emptyDir: {}
-        - name: catalog
-          secret:
-            secretName: {{ include "elixier.fullname" . }}-presto-catalogs
+        {{ include "elixier.presto.volumes" . | nindent 8 }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

@@ -1,0 +1,117 @@
+# Default values for elixier-security.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+keycloak_image:
+  repository: quay.io/keycloak/keycloak
+  pullPolicy: IfNotPresent
+  tag: "20.0.3"
+
+pgsql_image:
+  repository: registry.gitlab.com/abyres/releases/pgsql-citus
+  pullPolicy: Always
+  tag: "pgsql14-1.0.2-6"
+
+opensearch_image:
+  repository: registry.gitlab.com/abyres/releases/opensearch
+  pullPolicy: IfNotPresent
+  tag: "2.4.1-2"
+
+ranger_image:
+  repository: registry.gitlab.com/abyres/releases/ranger
+  pullPolicy: Always
+  tag: "development"
+
+kubectl_image:
+  repository: bitnami/kubectl
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "latest"
+
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  domain: elixier.lan
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+containerWaitTimeout: 3600s
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+pgsql:
+  root_password: postgres
+  pg_version: 14
+  pvc_size: 5Gi
+
+opensearch:
+  env: {}
+  replicas: 1
+
+ranger:
+  enabled: false
+  db_root_user: postgres
+  db_root_password: postgres
+  db_type: postgres
+  admin_password: Password123
+  db_password: password
+  db_name: ranger
+  db_user: rangeradmin
+
+keycloak:
+  pvc_size: 500Mi

@@ -1,0 +1,25 @@
+{{ if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  labels:
+    {{- include "elixier-security.labels" . | nindent 4 }}-keycloak
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
+  {{- with .Values.ingress.annotations }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  name: {{ include "elixier-security.fullname" . }}-keycloak
+spec:
+  rules:
+  - host: keycloak.{{ .Values.ingress.domain }}
+    http:
+      paths:
+      - backend:
+          service:
+            name: {{ include "elixier-security.fullname" . }}-keycloak
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
+{{- end }}

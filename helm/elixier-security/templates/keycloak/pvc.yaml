@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ include "elixier.fullname" . }}-s3-datadir
+  name: {{ include "elixier-security.fullname" . }}-keycloak-data
   annotations:
     helm.sh/resource-policy: keep
 spec:
@@ -13,5 +13,5 @@ spec:
     - {{ .Values.storageAccessMode | default "ReadWriteMany" }}
   resources:
     requests:
-      storage: {{ .Values.s3gw.pvc_size | required "s3gw.pvc_size is required" }}
+      storage: {{ .Values.keycloak.pvc_size | required "pvc_size is required" }}
 

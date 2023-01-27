@@ -37,8 +37,8 @@ mc_image:
 
 presto_image:
   repository: registry.gitlab.com/abyres/releases/presto
-  pullPolicy: IfNotPresent
-  tag: "0.277-3"
+  pullPolicy: Always
+  tag: "development"
 
 redis_image:
   repository: registry.gitlab.com/abyres/releases/redis
@@ -257,14 +257,9 @@ s3gw:
   pvc_size: 5Gi
 
 ranger:
-  db_root_user: postgres
-  db_root_password: postgres
-  db_type: postgres
-  admin_password: Password123
-  db_password: password
-  db_name: ranger
-  db_user: rangeradmin
-
+  enabled: false
+  url: http://ranger.elixier.lan
+  opensearch_urls: elixier-security-opensearch
 
 keycloak:
   enabled: false

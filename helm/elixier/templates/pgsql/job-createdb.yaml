@@ -13,12 +13,12 @@ spec:
       serviceAccountName: {{ include "elixier.serviceAccountName" . }}
       initContainers:
         {{- include "elixier.wait-db" . | nindent 8 }}
-      containers:
         - name: set-root-password
           image: "{{ .Values.kubectl_image.repository }}:{{ .Values.kubectl_image.tag }}"
           imagePullPolicy: {{ .Values.kubectl_image.pullPolicy }}
           args: ["exec", "-ti", '{{ include "elixier.fullname" . }}-db-0', "--",
                  "psql", "-c", "ALTER USER postgres PASSWORD '{{ .Values.pgsql.root_password }}';"]
+      containers:
         - name: createdb-metastore
           image: "{{ .Values.kubectl_image.repository }}:{{ .Values.kubectl_image.tag }}"
           imagePullPolicy: {{ .Values.kubectl_image.pullPolicy }}
@@ -43,17 +43,5 @@ spec:
           args: ["exec", "-ti", '{{ include "elixier.fullname" . }}-db-0', "--",
                  "createdb_with_user.sh", "-d", "{{ .Values.jupyterhub.db_name }}", 
                  "-u", "{{ .Values.jupyterhub.db_user }}", "-p", "{{ .Values.jupyterhub.db_password }}"]
-        - name: createdb-ranger
-          image: "{{ .Values.kubectl_image.repository }}:{{ .Values.kubectl_image.tag }}"
-          imagePullPolicy: {{ .Values.kubectl_image.pullPolicy }}
-          args: ["exec", "-ti", '{{ include "elixier.fullname" . }}-db-0', "--",
-                 "createdb_with_user.sh", "-d", "{{ .Values.ranger.db_name }}", 
-                 "-u", "{{ .Values.ranger.db_user }}", "-p", "{{ .Values.ranger.db_password }}"]
-
-
-
-
-
-
       restartPolicy: Never
   backoffLimit: 10

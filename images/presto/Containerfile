@@ -1,19 +1,41 @@
 FROM registry.gitlab.com/abyres/releases/centos8:latest
 
-RUN dnf install -y python3 java-1.8.0-openjdk-headless
+ENV JAVA_VERSION=1.8.0 RANGER_VERSION=2.3.0 PRESTO_VERSION=0.278.1
 
-# https://repo1.maven.org/maven2/com/facebook/presto/presto-server/0.277/presto-server-0.277.tar.gz
-ADD presto-server-0.277.tar.gz /opt/
-ADD https://repo1.maven.org/maven2/com/facebook/presto/presto-cli/0.277/presto-cli-0.277-executable.jar /usr/local/bin/presto
-RUN mv /opt/presto-server-0.277 /opt/presto/ && \
-    chmod a+rx /usr/local/bin/presto
+COPY dnf.conf /etc/dnf/dnf.conf
+
+RUN dnf install -y python3 java-${JAVA_VERSION}-openjdk-headless apache-commons-lang3 && \
+    dnf clean all
+
+ENV JAVA_HOME=/usr/lib/jvm/jre-${JAVA_VERSION}/
+
+ADD packages/presto-server-${PRESTO_VERSION}.tar.gz /opt/
+COPY packages/presto-cli-${PRESTO_VERSION}-executable.jar /usr/local/bin/presto
+RUN mkdir -p /etc/presto /var/log/presto /opt/presto-server-${PRESTO_VERSION}/var && \
+    ln -s /var/log/presto /opt/presto-server-${PRESTO_VERSION}/var && \
+    ln -s /etc/presto /opt/presto-server-${PRESTO_VERSION}/etc && \
+    ln -s /opt/presto-server-${PRESTO_VERSION} /opt/presto && \
+    chmod a+rx /usr/local/bin/presto 
+
+ADD packages/ranger-${RANGER_VERSION}-presto-plugin.tar.gz /opt/
+
+RUN /usr/sbin/groupadd -r presto --gid 1000 && \
+     /usr/sbin/useradd -r -g presto --uid 1000 \
+     -m -d /home/presto \
+     -s /sbin/nologin presto && \
+    cp /usr/share/java/apache-commons-lang3.jar /usr/lib/jvm/jre-${JAVA_VERSION}/lib/ 
+
+ADD packages/commons*.jar /usr/lib/jvm/jre-${JAVA_VERSION}/lib/
+
+WORKDIR /opt/ranger-${RANGER_VERSION}-presto-plugin
+ADD install.properties /opt/ranger-${RANGER_VERSION}-presto-plugin/install.properties
+RUN mkdir -p /opt/presto/etc/ && ./enable-presto-plugin.sh 
+
 ADD entrypoint.sh /opt/presto/entrypoint.sh
 
-RUN /usr/sbin/groupadd -r user --gid 1000 && \
-     /usr/sbin/useradd -r -g user --uid 1000 \
-     -m -d /home/user \
-     -s /sbin/nologin user && \
-     mkdir /opt/presto/etc/ && \
-     chown user:user /opt/presto/etc/
+RUN mkdir -p /opt/presto/var && chown presto:presto -R /opt/presto/var /var/log/presto/ /etc/presto/ && \
+    chown presto:presto /opt/presto-server-${PRESTO_VERSION}
 
+RUN ln -sf /etc/presto /opt/presto/plugin/ranger/ranger-presto-plugin-impl/conf
+WORKDIR /opt/presto
 ENTRYPOINT ["/opt/presto/entrypoint.sh"]

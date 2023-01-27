@@ -1,0 +1,94 @@
+{{- include "require" . -}}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "elixier-security.fullname" . }}-osearch-m
+  labels:
+    {{- include "elixier-security.labels" . | nindent 4 }}
+    component: opensearch
+    subcomponent: master
+spec:
+  replicas: {{ .Values.opensearch.replicas }}
+  serviceName: {{ include "elixier-security.fullname" . }}-osearch-m
+  selector:
+    matchLabels:
+      {{- include "elixier-security.selectorLabels" . | nindent 6 }}
+      component: opensearch
+      subcomponent: master
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "elixier-security.selectorLabels" . | nindent 8 }}
+        component: opensearch
+        subcomponent: master
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "elixier-security.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      volumes:
+        {{- include "elixier-security.opensearch.volumes" . | nindent 8 }}
+
+      containers:
+        - name: main
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.opensearch_image.repository }}:{{ .Values.opensearch_image.tag }}"
+          imagePullPolicy: {{ .Values.opensearch_image.pullPolicy }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            {{- include "elixier-security.opensearch.volume-mounts" . | nindent 12 }}
+          env:
+            {{- include "elixier-security.opensearch.env" . | nindent 12 }}
+          ports:
+            - name: http
+              containerPort: 9200
+              protocol: TCP
+            - name: binary
+              containerPort: 9300
+              protocol: TCP
+          livenessProbe:
+            tcpSocket:
+              port: 9300
+            initialDelaySeconds: 15
+            periodSeconds: 30
+          readinessProbe:
+            tcpSocket:
+              port: 9300
+            initialDelaySeconds: 5
+            periodSeconds: 15
+      terminationGracePeriodSeconds: {{ .Values.opensearch.termination_grace_period | default "120" }}
+
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ include "elixier-security.fullname" . }}-opensearch-datadir
+      spec:
+        accessModes:
+          - {{ .Values.storageAccessMode | default "ReadWriteMany" }}
+        {{ if .Values.storageClass -}}
+        storageClassName: {{ quote .Values.storageClass }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.opensearch.instance_storage | default "1Gi" }}
+

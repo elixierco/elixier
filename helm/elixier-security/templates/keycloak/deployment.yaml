@@ -1,21 +1,18 @@
-{{- include "require" . -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "elixier.fullname" . }}-s3gw-ui
+  name: {{ include "elixier-security.fullname" . }}-keycloak
   labels:
-    {{- include "elixier.labels" . | nindent 4 }}
-    component: s3gw
-    subcomponent: ui
+    {{- include "elixier-security.labels" . | nindent 4 }}
+    component: keycloak
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.web_instances }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "elixier.selectorLabels" . | nindent 6 }}
-      component: s3gw
-      subcomponent: ui
+      {{- include "elixier-security.selectorLabels" . | nindent 6 }}
+      component: keycloak
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -23,56 +20,55 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "elixier.selectorLabels" . | nindent 8 }}
-        component: s3gw
-        subcomponent: ui
+        {{- include "elixier-security.selectorLabels" . | nindent 8 }}
+        component: keycloak
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "elixier.serviceAccountName" . }}
+      serviceAccountName: {{ include "elixier-security.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       volumes:
-        {{- include "elixier.s3gw.volumes" . | nindent 8 }}
+        - name: {{ include "elixier-security.fullname" . }}-datadir
+          persistentVolumeClaim:
+            claimName: {{ include "elixier-security.fullname" . }}-keycloak-data
+
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.s3gwui_image.repository }}:{{ .Values.s3gwui_image.tag }}"
-          imagePullPolicy: {{ .Values.core_image.pullPolicy }}
+          image: "{{ .Values.keycloak_image.repository }}:{{ .Values.keycloak_image.tag }}"
+          imagePullPolicy: {{ .Values.keycloak_image.pullPolicy }}
+          args: ["start-dev"]
           ports:
             - name: http
               containerPort: 8080
               protocol: TCP
+            - name: https
+              containerPort: 8443
+              protocol: TCP
           livenessProbe:
             httpGet:
-              path: /
+              path: /realms/master
               port: http
           readinessProbe:
             httpGet:
-              path: /
+              path: /realms/master
               port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           env:
-            - name: RGW_SERVICE_URL
-              value: http://{{ include "elixier.s3gw.gw_hostname" . }}
-            - name: RGW_DEFAULT_USER_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "elixier.fullname" . }}-secrets
-                  key: s3a_access_key
-            - name: RGW_DEFAULT_USER_SECRET_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "elixier.fullname" . }}-secrets
-                  key: s3a_secret_key
-            - name: RGW_DEFAULT_USER_ID
+            - name: KEYCLOAK_ADMIN
               value: admin
-
-
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              value: admin
+            - name: KC_PROXY
+              value: edge
+          volumeMounts:
+            - name: {{ include "elixier-security.fullname" . }}-datadir
+              mountPath: "/opt/keycloak/data"
 
       {{- with .Values.nodeSelector }}
       nodeSelector:

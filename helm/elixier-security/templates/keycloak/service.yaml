@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "elixier-security.fullname" . }}-keycloak
+  labels:
+    {{- include "elixier-security.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+    - port: 443
+      targetPort: http
+      protocol: TCP
+      name: https
+  selector:
+    {{- include "elixier-security.selectorLabels" . | nindent 4 }}
+    component: keycloak

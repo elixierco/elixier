@@ -1,0 +1,29 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "elixier-security.fullname" . }}-pgsql-createdb
+  labels:
+    {{- include "elixier-security.selectorLabels" . | nindent 4 }}
+    component: database
+    subcomponent: createdb
+spec:
+  completions: 1
+  template:
+    spec:
+      serviceAccountName: {{ include "elixier-security.serviceAccountName" . }}
+      initContainers:
+        {{- include "elixier-security.wait-db" . | nindent 8 }}
+      containers:
+        - name: set-root-password
+          image: "{{ .Values.kubectl_image.repository }}:{{ .Values.kubectl_image.tag }}"
+          imagePullPolicy: {{ .Values.kubectl_image.pullPolicy }}
+          args: ["exec", "-ti", '{{ include "elixier-security.fullname" . }}-db-0', "--",
+                 "psql", "-c", "ALTER USER postgres PASSWORD '{{ .Values.pgsql.root_password }}';"]
+        - name: createdb-ranger
+          image: "{{ .Values.kubectl_image.repository }}:{{ .Values.kubectl_image.tag }}"
+          imagePullPolicy: {{ .Values.kubectl_image.pullPolicy }}
+          args: ["exec", "-ti", '{{ include "elixier-security.fullname" . }}-db-0', "--",
+                 "createdb_with_user.sh", "-d", "{{ .Values.ranger.db_name }}", 
+                 "-u", "{{ .Values.ranger.db_user }}", "-p", "{{ .Values.ranger.db_password }}"]
+      restartPolicy: Never
+  backoffLimit: 10

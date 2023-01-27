@@ -26,7 +26,7 @@
 PYTHON_COMMAND_INVOKER=python3
 
 #DB_FLAVOR=MYSQL|ORACLE|POSTGRES|MSSQL|SQLA
-DB_FLAVOR={{ include "elixier.ranger.db_flavor" . }}
+DB_FLAVOR={{ include "elixier-security.ranger.db_flavor" . }}
 
 #
 # Location of DB client library (please check the location of the jar file)
@@ -36,7 +36,7 @@ DB_FLAVOR={{ include "elixier.ranger.db_flavor" . }}
 #SQL_CONNECTOR_JAR=/usr/share/java/postgresql.jar
 #SQL_CONNECTOR_JAR=/usr/share/java/sqljdbc4.jar
 #SQL_CONNECTOR_JAR=/opt/sqlanywhere17/java/sajdbc4.jar
-SQL_CONNECTOR_JAR={{ include "elixier.ranger.db_connector_jar" . }}
+SQL_CONNECTOR_JAR={{ include "elixier-security.ranger.db_connector_jar" . }}
 
 
 #
@@ -52,7 +52,7 @@ SQL_CONNECTOR_JAR={{ include "elixier.ranger.db_connector_jar" . }}
 #db_host=host:port/ServiceName  # for DB_FLAVOR=ORACLE                          #for Service example: db_host=localhost:1521/XE
 db_root_user={{ .Values.ranger.db_root_user }}
 db_root_password={{ .Values.ranger.db_root_password }}
-db_host={{ include "elixier.ranger.db_host" . }}
+db_host={{ include "elixier-security.ranger.db_host" . }}
 #SSL config
 db_ssl_enabled=false
 db_ssl_required=false
@@ -94,7 +94,7 @@ keyadmin_password={{ .Values.ranger.admin_password }}
 audit_store=elasticsearch
 
 # * audit_solr_url Elasticsearch Host(s). E.g. 127.0.0.1
-audit_elasticsearch_urls={{ include "elixier.ranger.opensearch_urls" . }}
+audit_elasticsearch_urls={{ include "elixier-security.ranger.opensearch_urls" . }}
 audit_elasticsearch_port={{ .Values.ranger.opensearch_port | default "9200" }}
 audit_elasticsearch_protocol=http
 audit_elasticsearch_user=admin
@@ -236,7 +236,7 @@ hadoop_conf=/etc/hadoop/conf
 #-------- SSO CONFIG - Start ------------------
 #
 sso_enabled=false
-sso_providerurl=https://127.0.0.1:8443/gateway/knoxsso/api/v1/websso
+sso_providerurl=
 sso_publickey=
 
 #
