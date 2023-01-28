@@ -80,12 +80,6 @@ s3gwui_image:
   pullPolicy: IfNotPresent
   tag: "0.10.0-2"
 
-ranger_image:
-  repository: registry.gitlab.com/abyres/releases/ranger
-  pullPolicy: Always
-  tag: "development"
-
-
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
