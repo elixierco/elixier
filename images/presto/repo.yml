@@ -1,4 +1,4 @@
-build: 3
-last_updated: 63f5efd8be9bb7abba58d388e5de7476
+build: 1
+last_updated: b58b9ccb8081165552000981d4a6817d
 repo: registry.gitlab.com/abyres/releases/presto
-tag: 0.277
+tag: 0.278.1
