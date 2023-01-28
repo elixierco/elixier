@@ -4,7 +4,7 @@
 <configuration>
    <property>
       <name>fs.defaultFS</name>
-      <value>s3a://{{ include "elixier.hue.bucket" . }}</value>
+      <value>s3a://{{ include "elixier.spark.bucket" . }}</value>
    </property>
 
   <property>
@@ -23,12 +23,12 @@
  </property>
 
   <property>
-    <name>fs.s3a.bucket.{{ include "elixier.hue.bucket" . }}.access.key</name>
+    <name>fs.s3a.bucket.{{ include "elixier.spark.bucket" . }}.access.key</name>
     <value>{{ .Values.s3a.access_key }}</value>
  </property>
 
   <property>
-    <name>fs.s3a.bucket.{{ include "elixier.hue.bucket" . }}.secret.key</name>
+    <name>fs.s3a.bucket.{{ include "elixier.spark.bucket" . }}.secret.key</name>
     <value>{{ .Values.s3a.secret_key }}</value>
   </property>
 
@@ -51,14 +51,6 @@
       <name>fs.s3a.buffer.dir</name>
       <value>/var/tmp/</value>
     </property>
-    
-  <property>
-      <name>hadoop.proxyuser.hue.hosts</name>
-      <value>*</value>
-  </property>
-  <property>
-      <name>hadoop.proxyuser.hue.groups</name>
-      <value>*</value>
-  </property>
+
 </configuration>
 {{- end }}

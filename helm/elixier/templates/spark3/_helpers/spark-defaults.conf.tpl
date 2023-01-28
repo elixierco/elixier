@@ -2,15 +2,15 @@
 spark.master                     {{ .Values.spark.master | default "k8s://https://kubernetes.default" }}
 spark.kubernetes.namespace       {{ .Values.spark.k8s_namespace | default "default" }}
 spark.history.provider           org.apache.hadoop.fs.s3a.S3AFileSystem
-spark.history.fs.logDirectory    s3a://{{ .Values.spark.bucket | default "warehouse" }}/event_log/
+spark.history.fs.logDirectory    s3a://{{ include "elixier.spark.bucket" . }}/event_log/
 spark.eventLog.enabled           true
-spark.eventLog.dir               s3a://{{ .Values.spark.bucket | default "warehouse" }}/event_log/
+spark.eventLog.dir               s3a://{{ include "elixier.spark.bucket" . }}/event_log/
 spark.dynamicAllocation.enable   true
 spark.dynamicAllocation.shuffleTracking.enabled true
 spark.dynamicAllocation.minExecutors    0
 spark.executor.instances         {{ .Values.spark.executor_instances }}
 
-spark.hadoop.fs.defaultFS        s3a://{{ .Values.spark.bucket | default "warehouse" }}/
+spark.hadoop.fs.defaultFS        s3a://{{ include "elixier.spark.bucket" . }}/
 spark.hadoop.fs.s3a.endpoint     {{ include "elixier.s3a.endpoint" . }}
 spark.hadoop.fs.s3a.access.key   {{ .Values.s3a.access_key }}
 spark.hadoop.fs.s3a.secret.key   {{ .Values.s3a.secret_key }}
@@ -27,7 +27,7 @@ spark.kubernetes.allocation.batch.delay 15s
 
 
 spark.sql.catalogImplementation  hive
-spark.sql.warehouse.dir          s3a://{{ .Values.spark.bucket | default "warehouse" }}/tablespace/
+spark.sql.warehouse.dir          s3a://{{ include "elixier.spark.bucket" . }}/tablespace/
 
 spark.sql.sources.commitProtocolClass org.apache.spark.internal.io.cloud.PathOutputCommitProtocol
 spark.sql.parquet.output.committer.class     org.apache.spark.internal.io.cloud.BindingParquetOutputCommitter

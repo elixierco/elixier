@@ -33,9 +33,5 @@
 - name: {{ include "elixier.fullname" . }}-hadoop-config
   mountPath: "/opt/apache/hadoop/etc/hadoop/core-site.xml"
   subPath: "core-site.xml"
-- name: {{ include "elixier.fullname" . }}-hadoop-config
-  mountPath: "/opt/apache/hadoop/etc/hadoop/httpfs-site.xml"
-  subPath: "httpfs-site.xml"
-
 {{- end }}
 

@@ -55,11 +55,6 @@ gitweb_image:
   pullPolicy: IfNotPresent
   tag: "2.31.1-8"
 
-hue_image:
-  repository: registry.gitlab.com/abyres/releases/hue
-  pullPolicy: Always
-  tag: "development"
-
 superset_image:
   repository: registry.gitlab.com/abyres/releases/superset
   pullPolicy: Always
@@ -234,11 +229,6 @@ git:
   pvc_size: 1Gi
   gitweb_password: password
   gitweb_user: user
-
-hue:
-  db_name: hue
-  db_user: hue
-  db_password: hue
 
 superset:
   db_name: superset
