@@ -1,4 +1,10 @@
-FROM fedora:37 
+FROM fedora:37 as extract
+
+ENV JAVA_VERSION=1.8.0 RANGER_VERSION=2.3.0
+
+ADD release/ranger-${RANGER_VERSION}-admin.tar.gz /opt/
+
+FROM fedora:37 as image
 
 ENV JAVA_VERSION=1.8.0 RANGER_VERSION=2.3.0
 
@@ -8,21 +14,18 @@ RUN dnf install -y python3 java-${JAVA_VERSION}-openjdk-headless \
 
 ENV JAVA_HOME=/usr/lib/jvm/jre-${JAVA_VERSION}/
 
-ADD release/ranger-${RANGER_VERSION}-admin.tar.gz /opt/
-ADD release/ranger-${RANGER_VERSION}-migration-util.tar.gz /opt/
-ADD release/ranger-${RANGER_VERSION}-tagsync.tar.gz /opt/
-ADD release/ranger-${RANGER_VERSION}-usersync.tar.gz /opt/
-
 RUN /usr/sbin/groupadd -r ranger --gid 1000 && \
      /usr/sbin/useradd -r -g ranger --uid 1000 \
      -m -d /home/ranger \
      -s /sbin/nologin ranger
 
-RUN chown ranger:ranger -R /opt/ranger*/
+COPY --chown=ranger:ranger --from=extract /opt/ranger-${RANGER_VERSION}-admin /opt/ranger-${RANGER_VERSION}-admin/
+ADD release/ranger-${RANGER_VERSION}-migration-util.tar.gz /opt/
+ADD release/ranger-${RANGER_VERSION}-tagsync.tar.gz /opt/
+ADD release/ranger-${RANGER_VERSION}-usersync.tar.gz /opt/
+
 
 WORKDIR /opt/ranger-${RANGER_VERSION}-admin/
-ADD fix-setup-esprotocol.patch /opt/
-RUN patch -p 1 -i /opt/fix-setup-esprotocol.patch
 
 ADD entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh && mkdir /var/run/ranger && \

@@ -12,14 +12,11 @@ RUN dnf install -y python3 java-${JAVA_VERSION}-openjdk-headless \
 ENV JAVA_HOME=/usr/lib/jvm/jre-${JAVA_VERSION}/ OPENSSL_CONF=/dev/null \
     MAVEN_OPTS="-Dmaven.artifact.threads=30 -Dmaven.wagon.http.ssl.ignore.validity.dates=true -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true"
 
-ADD packages/apache-ranger-${RANGER_VERSION}.tar.gz /opt/
-ADD ranger-presto-com-facebook.patch /opt/apache-ranger-${RANGER_VERSION}/ranger-presto-com-facebook.patch
+ADD packages/elixier-ranger-${RANGER_VERSION}.tar.gz /opt/
 
-WORKDIR /opt/apache-ranger-${RANGER_VERSION}/
+WORKDIR /opt/ranger-elixier-ranger-${RANGER_VERSION}/
 
-
-RUN patch -p 1 -i ranger-presto-com-facebook.patch && \
-    mkdir -p /output/ && \
+RUN mkdir -p /output/ && \
     mvn clean compile package install && \
     mvn eclipse:eclipse && \
     rm -rf /output/* && \
