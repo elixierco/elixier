@@ -64,6 +64,8 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.uid
+            - name: MC_HOST_objectstore
+              value: '{{ include "elixier.s3a.endpoint_with_identity" . }}'
           ports:
             - name: http
               containerPort: 8000

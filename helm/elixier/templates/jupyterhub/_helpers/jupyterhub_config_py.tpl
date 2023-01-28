@@ -111,10 +111,15 @@ def modify_pod(spawner, pod):
 
 c.KubeSpawner.modify_pod_hook = modify_pod
 
+import yaml
+
 {{- if .Values.jupyterhub.profiles }}
-profiles_json = """{{- toJson .Values.jupyterhub.profiles -}}"""
-c.KubeSpawner.profile_list = json.loads(profiles_json)
+profiles_json = """{{- .Values.jupyterhub.profiles -}}"""
+c.KubeSpawner.profile_list = yaml.safe_load(profiles_json)
 {{- end }}
+
+env_keep = """{{- include "elixier.jupyterhub.env_keep" . -}}"""
+c.KubeSpawner.env_keep = yaml.safe_load(env_keep)
 
 {{- if .Values.keycloak.enabled }}
 from oauthenticator.generic import GenericOAuthenticator

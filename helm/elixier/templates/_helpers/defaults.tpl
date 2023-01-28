@@ -7,11 +7,19 @@
 {{- end -}}
 
 {{- define "elixier.s3a.endpoint" -}}
-    {{ .Values.s3a.endpoint | default (printf "http://%s-minio:9000" (include "elixier.fullname" .)) }}
+    {{ .Values.s3a.endpoint | default (printf "%s://%s" (include "elixier.s3a.protocol" .) (include "elixier.s3a.host" .)) }}
+{{- end -}}
+
+{{- define "elixier.s3a.endpoint_with_identity" -}}
+    {{ .Values.s3a.endpoint_with_identity | default (printf "%s://%s:%s@%s" (include "elixier.s3a.protocol" .) .Values.s3a.access_key .Values.s3a.secret_key (include "elixier.s3a.host" .))}}
 {{- end -}}
 
 {{- define "elixier.s3a.host" -}}
     {{ .Values.s3a.host | default (printf "%s-minio:9000" (include "elixier.fullname" .)) }}
+{{- end -}}
+
+{{- define "elixier.s3a.protocol" -}}
+    {{ .Values.s3a.protocol | default "http" }}
 {{- end -}}
 
 {{- define "elixier.gitweb.baseurl" -}}
@@ -32,6 +40,13 @@
 
 {{- define "elixier.jupyterhub.db_uri" -}}
     {{ .Values.jupyterhub.db_uri | default (printf "postgresql+psycopg2://%s:%s@%s-db/%s" .Values.jupyterhub.db_user .Values.jupyterhub.db_password (include "elixier.fullname" .) .Values.jupyterhub.db_name) }}
+{{- end -}}
+
+{{- define "elixier.jupyterhub.env_keep" -}}
+- MC_HOST_objectstore
+{{- if .Values.jupyterhub.env_keep }}
+{{ toYaml .Values.jupyterhub.env_keep }}
+{{- end }}
 {{- end -}}
 
 {{- define "elixier.superset.db_uri" -}}

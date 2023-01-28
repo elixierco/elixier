@@ -197,9 +197,10 @@ smtp:
 
 
 s3a:
-  endpoint: 
   access_key: minio
   secret_key: miniopassword
+  host:
+  protocol:
 
 pgsql:
   root_password: postgres
