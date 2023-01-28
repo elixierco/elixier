@@ -37,8 +37,8 @@ mc_image:
 
 presto_image:
   repository: registry.gitlab.com/abyres/releases/presto
-  pullPolicy: Always
-  tag: "development"
+  pullPolicy: IfNotPresent
+  tag: "0.278.1-1"
 
 redis_image:
   repository: registry.gitlab.com/abyres/releases/redis
