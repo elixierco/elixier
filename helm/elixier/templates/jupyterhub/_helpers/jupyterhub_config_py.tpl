@@ -54,20 +54,7 @@ c.KubeSpawner.volumes = [
         'secretName': '{{ include "elixier.fullname" . }}-spark-config',
     }
  }, {
-    'name': '{{ include "elixier.fullname" . }}-airflow-config',
-    'secret': {
-        'secretName': '{{ include "elixier.fullname" . }}-airflow-config',
-    }
- }, {
     'name': '{{ include "elixier.fullname" . }}-spark-datadir',
-    'emptyDir': {}
- }, {
-    'name': '{{ include "elixier.fullname" . }}-airflow-datadir',
-    'persistentVolumeClaim': {
-        'claimName': '{{ include "elixier.fullname" . }}-airflow-datadir',
-    }
- },  {
-    'name': '{{ include "elixier.fullname" . }}-airflow-logdir',
     'emptyDir': {}
  }
 ]
@@ -85,15 +72,6 @@ c.KubeSpawner.volume_mounts = [
     }, {
         'name': '{{ include "elixier.fullname" . }}-spark-datadir',
         'mountPath': "/opt/apache/spark3/work-dir",
-    }, {
-        'name': '{{ include "elixier.fullname" . }}-airflow-config',
-        'mountPath': "/etc/airflow/",
-    }, {
-        'name': '{{ include "elixier.fullname" . }}-airflow-datadir',
-        'mountPath': "/var/lib/airflow",
-    }, {
-        'name': '{{ include "elixier.fullname" . }}-airflow-logdir',
-        'mountPath': "/var/log/airflow",
     }
 ]
 

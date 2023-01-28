@@ -38,12 +38,6 @@ spec:
         - name: {{ include "elixier.fullname" . }}-jupyterhub-config
           secret:
             secretName: {{ include "elixier.fullname" . }}-jupyterhub-config
-        - name: {{ include "elixier.fullname" . }}-spark-config
-          secret:
-            secretName: {{ include "elixier.fullname" . }}-spark-config
-#        - name: {{ include "elixier.fullname" . }}-airflow-config
-#          secret:
-#            secretName: {{ include "elixier.fullname" . }}-airflow-config
       initContainers:
         {{- include "elixier.wait-db" . | nindent 8 }}   
         {{- include "elixier.wait-createdb" . | nindent 8 }}
@@ -83,12 +77,6 @@ spec:
           volumeMounts:
             - name: {{ include "elixier.fullname" . }}-jupyterhub-config
               mountPath: "/etc/jupyterhub/"
-            - name: {{ include "elixier.fullname" . }}-spark-config
-              mountPath: "/etc/spark3/"
-            - name: {{ include "elixier.fullname" . }}-spark-config
-              mountPath: "/opt/apache/spark3/conf/"
-#            - name: {{ include "elixier.fullname" . }}-airflow-config
-#              mountPath: "/etc/airflow/"
             - name: {{ include "elixier.fullname" . }}-datadir
               mountPath: "/var/lib/jupyterhub"
             - name: {{ include "elixier.fullname" . }}-datadir
