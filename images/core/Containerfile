@@ -107,7 +107,7 @@ RUN cp /home/user/.ivy2/jars/* /opt/apache/spark3/jars/ && \
 ENV AIRFLOW_VERSION=2.2.5
 
 RUN /usr/bin/python${PYTHON_VERSION} -m venv /opt/elixier/airflow/ && \
-    /opt/elixier/airflow/bin/pip install "apache-airflow[celery,async,postgres,mysql,odbc,apache.druid,apache.spark,apache.webhdfs,rabbitmq,redis,ftp,grpc,http,imap,jdbc,papermill,kerberos,ldap,sftp,sqlite,ssh,amazon,virtualenv]"==${AIRFLOW_VERSION} \
+    /opt/elixier/airflow/bin/pip install "apache-airflow[celery,async,postgres,mysql,odbc,apache.druid,apache.spark,apache.webhdfs,rabbitmq,redis,ftp,grpc,http,imap,jdbc,kerberos,ldap,sftp,sqlite,ssh,amazon,virtualenv]"==${AIRFLOW_VERSION} \
     apache-airflow-providers-amazon \
     apache-airflow-providers-airbyte[http] \
     apache-airflow-providers-alibaba \
@@ -128,7 +128,7 @@ RUN ln -s /opt/elixier/airflow/bin/airflow /usr/local/bin/airflow
 
 # -- install jupyterhub --
 
-ENV JUPYTERHUB_VERSION=2.0.2 \
+ENV JUPYTERHUB_VERSION=3.1.1 \
     JUPYTERLAB_VERSION=3.2.8
 
 ADD packages/mc /usr/local/bin/mc
@@ -140,7 +140,7 @@ RUN /usr/bin/python${PYTHON_VERSION} -m venv /opt/elixier/jupyterhub/ && \
     jupyterlab-geojson jupyterlab-katex  jupyterlab-mathjax3 jupyterlab-vega2 \
     jupyterlab-vega3 jupyterlab_widgets sudospawner keycloakauthenticator \
     jupyterhub-nativeauthenticator jupyterhub-kubespawner \
-    psycopg2-binary pymssql oracledb oauthenticator && \
+    psycopg2-binary pymssql oracledb oauthenticator papermill && \
     mkdir /opt/elixier/jupyterhub/share/jupyter/kernels/pyspark/ && \
     mkdir /workdir/ && \
     /opt/elixier/spark3-python/bin/pip install matplotlib \
@@ -153,12 +153,16 @@ RUN npm install configurable-http-proxy && \
     chmod a+x ./node_modules/configurable-http-proxy/bin/configurable-http-proxy && \
     ln -s /opt/elixier/jupyterhub/node_modules/.bin/configurable-http-proxy /usr/local/bin/configurable-http-proxy && \
     ln -s /opt/elixier/jupyterhub/bin/jupyterhub /usr/local/bin/jupyterhub && \
-    ln -s /opt/elixier/jupyterhub/bin/jupyterhub-singleuser /usr/local/bin/jupyterhub-singleuser
+    ln -s /opt/elixier/jupyterhub/bin/jupyterhub-singleuser /usr/local/bin/jupyterhub-singleuser && \
+    ln -s /opt/elixier/jupyterhub/bin/alembic /usr/local/bin/alembic
 
 ENV PATH="${PATH}:/opt/apache/spark3/bin:/opt/elixier/spark3-python/bin/:/opt/apache/hadoop/bin/" 
 
 COPY entrypoints/airflow.sh /opt/elixier/airflow/bin/entrypoint.sh
 COPY entrypoints/jupyterhub.sh /opt/elixier/jupyterhub/bin/entrypoint.sh
+COPY git-env-cred-helper.sh /usr/local/bin/git-env-cred-helper.sh
+COPY set-airflow-repo.sh /usr/local/bin/set-airflow-repo.sh
+RUN chmod a+rx /usr/local/bin/git-env-cred-helper.sh /usr/local/bin/set-airflow-repo.sh
 
 ADD jupyterhub/pyspark-kernel/* /opt/elixier/jupyterhub/share/jupyter/kernels/pyspark/
 ADD jupyterhub/python-kernel/kernel.json /opt/elixier/jupyterhub/share/jupyter/kernels/python3/kernel.json
@@ -170,6 +174,10 @@ RUN patch -p 8 -i /opt/elixier/jupyterhub/pod_hostname.patch && chmod a+x /opt/e
 
 ADD hadoop-jars/*.jar /opt/apache/hadoop/share/hadoop/common/lib/
 
+ENV PRESTO_VERSION=0.278.1
+COPY packages/presto-cli-${PRESTO_VERSION}-executable.jar /usr/local/bin/presto
+RUN chmod a+rx /usr/local/bin/presto
+
 WORKDIR /workdir/
 
 ENV AIRFLOW_HOME=/etc/airflow/ \
@@ -178,6 +186,8 @@ ENV AIRFLOW_HOME=/etc/airflow/ \
     DEFAULT_ADMIN_PASSWORD="admin" \
     DEFAULT_ADMIN_EMAIL="admin@localhost.local"
 
+ADD python-requirements.txt /opt/elixier/spark3-python/
+RUN /opt/elixier/spark3-python/bin/pip install -r /opt/elixier/spark3-python/python-requirements.txt
 
 ENTRYPOINT ["/opt/apache/spark3/kubernetes/dockerfiles/spark/entrypoint.sh"]
 

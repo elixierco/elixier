@@ -4,6 +4,7 @@ HADOOP_VERSION=3.2.3
 SPARK_VERSION=3.2.0
 NODEJS_VERSION=18.12.1
 AWS_SDK_VERSION=1.12.372
+PRESTO_VERSION=0.278.1
 
 SCRIPT_PATH=`realpath $0`
 HERE=`dirname $SCRIPT_PATH`
@@ -16,6 +17,7 @@ HADOOP_AWS_JAR=hadoop-aws-${HADOOP_VERSION}.jar
 SPARK_PACKAGE=spark-${SPARK_VERSION}-bin-hadoop${HADOOP_MINOR_VERSION}.tgz
 NODEJS_PACKAGE=node-v${NODEJS_VERSION}-linux-x64.tar.gz
 AWS_SDK_JAR=aws-java-sdk-bundle-${AWS_SDK_VERSION}.jar
+PRESTO_CLI_JAR=presto-cli-${PRESTO_VERSION}-executable.jar
 
 download () {
     if [ ! -f "$2" ];then
@@ -42,3 +44,7 @@ download https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/${AWS_
 download https://nodejs.org/dist/v${NODEJS_VERSION}/${NODEJS_PACKAGE} ${PKGDIR}/${NODEJS_PACKAGE}
 
 download https://dl.min.io/client/mc/release/linux-amd64/mc ${PKGDIR}/mc
+
+download https://repo1.maven.org/maven2/com/facebook/presto/presto-cli/${PRESTO_VERSION}/${PRESTO_CLI_JAR} ${PKGDIR}/${PRESTO_CLI_JAR}
+
+
