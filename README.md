@@ -19,7 +19,7 @@ Dependencies
 
 - You need at least 100GB free space, preferably SSD
 
-- At least 8 vCore with 16GB RAM is recommended, or you might face issue where kubernetes unable to allocate resources for the services.
+- At least 16 vCore with 32GB RAM is recommended, or you might face issue where kubernetes unable to allocate resources for the services, or services crashing. 8vCore with 16GB RAM can still work, but do not enable elixier-security, auto scaling and high availability. 
 
 Installation
 --------------
