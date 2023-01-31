@@ -85,7 +85,7 @@ Installation
    ```bash
    export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
    cd elixier/helm/elixier 
-   helm install --set storageClass=longhorn elixier .
+   helm install --set storageClass=longhorn-single elixier .
    ```
 
    To check for deployment status, run  `watch kubectl get pods`. 
