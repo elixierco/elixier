@@ -72,7 +72,15 @@ Installation
    git clone https://github.com/elixierdata/helm elixier
    ```
 
-6. Install
+6. Setup `longhorn-single` storage class for single node installation:
+
+   ```bash
+   kubectl apply -f elixier/k8scomponents/storageclass-longhorn-single.yaml
+   kubectl patch storageclass longhorn -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
+   kubectl patch storageclass longhorn-single -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+   ```
+
+7. Install
 
    ```bash
    export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
@@ -82,7 +90,7 @@ Installation
 
    To check for deployment status, run  `watch kubectl get pods`. 
 
-7. Configure hosts
+8. Configure hosts
 
    Edit your hosts file (`/etc/hosts` in Linux, `C:\Windows\System32\drivers\etc\hosts` in Windows), add the 
    following entry (replace `<ip-address>` with the IP address of the k3s server:
