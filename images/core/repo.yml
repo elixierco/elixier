@@ -1,6 +1,6 @@
-build: 1
-last_updated: 5a6238a0174704ca9cc824615c0bafe2
 repos:
 - target: spark
   url: registry.gitlab.com/abyres/releases/elixier
+- target: toolbox
+  url: registry.gitlab.com/abyres/releases/elixier-toolbox
 tag: 0.0.1

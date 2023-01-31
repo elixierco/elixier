@@ -7,6 +7,7 @@ import sys
 import subprocess
 import semver
 import hashlib
+import datetime
 
 class bcolors:
     HEADER = '\033[95m'
@@ -45,7 +46,6 @@ parser.add_argument('-f','--repofile', default='repo.yml')
 parser.add_argument('-p','--push', default=False, action='store_true')
 parser.add_argument('-c','--containerfile', default=None)
 parser.add_argument('-r','--release', default=False, action='store_true')
-parser.add_argument('-R','--force-release', default=False, action='store_true')
 parser.add_argument('--cmd', required=False, default='docker')
 parser.add_argument('directory')
 
@@ -77,26 +77,19 @@ repo = conf.get('repo', None)
 repos = conf.get('repos', [])
 target = conf.get('target', None)
 tag = str(conf['tag'])
-conf.setdefault('build', 1)
-build = conf['build']
-last_updated = conf.get('last_updated', None)
-current_hash = str(hashlib.md5(open(containerfile,'rb').read()).hexdigest())
-if not last_updated:
-    last_updated = current_hash
-    conf['last_updated'] = last_updated
 
 stag = Tag.parse(tag)
 
-if args.release or args.force_release:
+now = datetime.datetime.now()
+today = now.strftime("%Y%m%d")
+utcnow = datetime.datetime.utcnow()
+build = (utcnow.hour * 60) + utcnow.minute
 
-    if (last_updated != current_hash) or args.force_release:
-        conf['last_updated'] = current_hash
-        build += 1
-        conf['build'] = build
+build = '%s.%s' % (today, build)
 
 def build_image(args, stag, repo_url, target=None):
     tags = []   
-    if args.release or args.force_release:
+    if args.release:
         tags.append('%s:latest' % repo_url)
         if stag.patch is not None:
             tags.append('%s:%s.%s.%s-%s' % (repo_url, stag.major, stag.minor, stag.patch, build))
