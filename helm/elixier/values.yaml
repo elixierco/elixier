@@ -17,7 +17,7 @@ core_image:
 
 pgsql_image:
   repository: registry.gitlab.com/abyres/releases/pgsql-citus
-  pullPolicy: InNotPresent
+  pullPolicy: IfNotPresent
   tag: "pgsql14-1.0.2-6"
 
 hms_image:
