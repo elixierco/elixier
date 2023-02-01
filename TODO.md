@@ -36,3 +36,5 @@ Pending features / capabilities
 - Ranger integration for ACL.
 
 - NiFi helm chart, separate from elixier core to support edge ingestion use-case.
+
+- [Ship Airflow logs to OpenSearchi](https://medium.com/@semih.sezer/how-to-send-airflow-logs-to-elasticsearch-using-filebeat-and-logstash-250c074e7575)
