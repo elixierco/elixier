@@ -37,4 +37,7 @@ Pending features / capabilities
 
 - NiFi helm chart, separate from elixier core to support edge ingestion use-case.
 
-- [Ship Airflow logs to OpenSearchi](https://medium.com/@semih.sezer/how-to-send-airflow-logs-to-elasticsearch-using-filebeat-and-logstash-250c074e7575)
+- [Ship Airflow logs to OpenSearchi](https://medium.com/@semih.sezer/how-to-send-airflow-logs-to-elasticsearch-using-filebeat-and-logstash-250c074e7575
+)
+
+- [Restrict role binding to be limited to namespace](https://travis.media/clusterrolebinding-with-service-account-all-namespaces/#20210904-restrictnamespaces)
