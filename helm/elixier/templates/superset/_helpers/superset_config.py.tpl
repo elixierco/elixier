@@ -172,4 +172,8 @@ OAUTH_PROVIDERS = [
 ]
 {{ end }}
 
+{{ if .Values.superset.mapbox_token }}
+MAPBOX_API_KEY = {{ .Values.superset.mapbox_token | quote }}
+{{ end }}
+
 {{- end }}
