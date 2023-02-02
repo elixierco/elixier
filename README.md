@@ -75,7 +75,7 @@ Installation
 6. Setup `longhorn-single` storage class for single node installation:
 
    ```bash
-   kubectl apply -f elixier/k8scomponents/storageclass-longhorn-single.yaml
+   kubectl apply -f elixier/k8s-components/storageclass-longhorn-single.yaml
    kubectl patch storageclass longhorn -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
    kubectl patch storageclass longhorn-single -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
    ```
