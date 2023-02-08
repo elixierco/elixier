@@ -117,3 +117,9 @@ Accessing Services
 - Presto Connection URI for `default` catalog (presto://presto.elixier.lan:80/default).
 
 - Superset (http://superset.elixier.lan/). Default user: `admin`. Default password: `admin`.
+
+
+Community
+===========
+
+Join our discord server at https://discord.gg/MFTrhZn4jr
