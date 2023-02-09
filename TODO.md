@@ -41,3 +41,5 @@ Pending features / capabilities
 )
 
 - [Restrict role binding to be limited to namespace](https://travis.media/clusterrolebinding-with-service-account-all-namespaces/#20210904-restrictnamespaces)
+
+- Should we use Trino instead? (column masking, row filters)
