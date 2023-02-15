@@ -65,7 +65,7 @@ ADD packages/spark-${SPARK3_VERSION}-bin-hadoop${HADOOP_MINOR_VERSION}.tgz /opt/
 RUN /usr/sbin/groupadd -r user --gid 1000 && \
      /usr/sbin/useradd -r -g user --uid 1000 \
      -m -d /home/user \
-     -s /sbin/nologin user
+     -s /bin/bash user
 
 WORKDIR /opt/apache/
 RUN ln -s ./hadoop-${HADOOP_VERSION} hadoop && \
