@@ -31,10 +31,12 @@ WORKDIR /opt/ranger-${RANGER_VERSION}-presto-plugin
 ADD install.properties /opt/ranger-${RANGER_VERSION}-presto-plugin/install.properties
 RUN mkdir -p /opt/presto/etc/ && ./enable-presto-plugin.sh 
 
+ADD create_catalog_config.py /opt/presto/bin/create_catalog_config.py
 ADD entrypoint.sh /opt/presto/entrypoint.sh
 
 RUN mkdir -p /opt/presto/var && chown presto:presto -R /opt/presto/var /var/log/presto/ /etc/presto/ && \
-    chown presto:presto /opt/presto-server-${PRESTO_VERSION}
+    chown presto:presto /opt/presto-server-${PRESTO_VERSION} && \
+    chmod a+rx /opt/presto/bin/create_catalog_config.py
 
 RUN ln -sf /etc/presto /opt/presto/plugin/ranger/ranger-presto-plugin-impl/conf
 WORKDIR /opt/presto
