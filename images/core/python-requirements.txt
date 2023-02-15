@@ -1,1 +1,2 @@
 faker
+minio==7.1.13
