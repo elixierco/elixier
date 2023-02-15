@@ -13,7 +13,7 @@ kubectl_image:
 core_image:
   repository: registry.gitlab.com/abyres/releases/elixier
   pullPolicy: IfNotPresent
-  tag: "0.0.1-20230131.36"
+  tag: "0.0.1-20230214.911"
 
 pgsql_image:
   repository: registry.gitlab.com/abyres/releases/pgsql-citus
@@ -38,7 +38,7 @@ mc_image:
 presto_image:
   repository: registry.gitlab.com/abyres/releases/presto
   pullPolicy: IfNotPresent
-  tag: "0.278.1-1"
+  tag: "0.278.1-20230213.622"
 
 redis_image:
   repository: registry.gitlab.com/abyres/releases/redis
@@ -191,6 +191,8 @@ s3a:
   secret_key: miniopassword
   host:
   protocol:
+
+presto: {}
 
 pgsql:
   root_password: postgres

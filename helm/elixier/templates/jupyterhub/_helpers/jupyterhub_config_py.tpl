@@ -56,6 +56,11 @@ c.KubeSpawner.volumes = [
  }, {
     'name': '{{ include "elixier.fullname" . }}-spark-datadir',
     'emptyDir': {}
+ }, {
+    'name': '{{ include "elixier.fullname" . }}-presto-catalogs',
+    'persistentVolumeClaim': {
+        'claimName': '{{ include "elixier.fullname" . }}-presto-catalogs'
+    }
  }
 ]
 
@@ -72,6 +77,9 @@ c.KubeSpawner.volume_mounts = [
     }, {
         'name': '{{ include "elixier.fullname" . }}-spark-datadir',
         'mountPath': "/opt/apache/spark3/work-dir",
+    }, {
+        'name': '{{ include "elixier.fullname" . }}-presto-catalogs',
+        'mountPath': "/etc/presto/catalog"
     }
 ]
 

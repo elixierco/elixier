@@ -35,6 +35,7 @@ spec:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       initContainers:
         {{- include "elixier.wait-hms" . | nindent 8 }}
+        {{- include "elixier.wait-presto-initcatalog" . | nindent 8 }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:

@@ -1,0 +1,62 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "elixier.fullname" . }}-presto-initcatalog
+  labels:
+    {{- include "elixier.labels" . | nindent 4 }}
+    component: presto
+    subcomponent: initcatalog
+spec:
+  completions: 1
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "elixier.selectorLabels" . | nindent 8 }}
+        component: presto
+        subcomponent: initcatalog
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "elixier.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        {{- include "elixier.wait-hms" . | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.presto_image.repository }}:{{ .Values.presto_image.tag }}"
+          imagePullPolicy: {{ .Values.presto_image.pullPolicy }}
+          args: ["initcatalog"]
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            {{ include "elixier.presto.volume-mounts" . | nindent 12 }}
+          env:
+            - name: presto.catalog.default.connector.name
+              value: hive-hadoop2
+            - name: presto.catalog.default.hive.metastore.uri
+              value: {{ include "elixier.hive.metastore_uri" . }}
+            - name: presto.catalog.default.hive.s3.path-style-access
+              value: "true"
+            - name: presto.catalog.default.hive.s3.endpoint
+              value: {{ include "elixier.s3a.endpoint" . }}
+            - name: presto.catalog.default.hive.s3.aws-access-key
+              value: {{ .Values.s3a.access_key }}
+            - name: presto.catalog.default.hive.s3.aws-secret-key
+              value: {{ .Values.s3a.secret_key }}
+            - name: presto.catalog.default.hive.non-managed-table-writes-enabled
+              value: "true"
+            - name: presto.catalog.default.hive.storage-format
+              value: parquet
+      volumes:
+        {{ include "elixier.presto.volumes" . | nindent 8 }}
+      restartPolicy: Never
+  backoffLimit: 10

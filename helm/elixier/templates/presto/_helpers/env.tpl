@@ -26,8 +26,8 @@
 - name: var
   emptyDir: {}
 - name: catalog
-  secret:
-    secretName: {{ include "elixier.fullname" . }}-presto-catalogs
+  persistentVolumeClaim:
+    claimName: {{ include "elixier.fullname" . }}-presto-catalogs
 {{- end }}
 
 {{- define "elixier.presto.volume-mounts" }}
