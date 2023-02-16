@@ -297,3 +297,5 @@ unicodecsv==0.14.1
 xlrd==2.0.1
 
 authlib==1.2.0
+
+pymssql==2.2.7
