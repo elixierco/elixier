@@ -156,6 +156,8 @@ spark:
   executor_memory: 2g
   executor_instances: 1
   memory_overhead_factor: 0.4
+  driver_java_options: "-Dcom.amazonaws.sdk.disableCertChecking=true"
+  executor_java_options: "-Dcom.amazonaws.sdk.disableCertChecking=true"
   int96_rebase: CORRECTED
 
 airflow:

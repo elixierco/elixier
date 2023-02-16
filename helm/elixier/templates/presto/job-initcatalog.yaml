@@ -56,6 +56,24 @@ spec:
               value: "true"
             - name: presto.catalog.default.hive.storage-format
               value: parquet
+            - name: presto.catalog.iceberg.connector.name
+              value: iceberg
+            - name: presto.catalog.iceberg.iceberg.catalog.type
+              value: hive
+            - name: presto.catalog.iceberg.hive.metastore.uri
+              value: {{ include "elixier.hive.metastore_uri" . }}
+            - name: presto.catalog.iceberg.hive.s3.path-style-access
+              value: "true"
+            - name: presto.catalog.iceberg.hive.s3.endpoint
+              value: {{ include "elixier.s3a.endpoint" . }}
+            - name: presto.catalog.iceberg.hive.s3.aws-access-key
+              value: {{ .Values.s3a.access_key }}
+            - name: presto.catalog.iceberg.hive.s3.aws-secret-key
+              value: {{ .Values.s3a.secret_key }}
+            - name: presto.catalog.iceberg.hive.non-managed-table-writes-enabled
+              value: "true"
+            - name: presto.catalog.iceberg.hive.storage-format
+              value: parquet
       volumes:
         {{ include "elixier.presto.volumes" . | nindent 8 }}
       restartPolicy: Never
