@@ -68,8 +68,10 @@ Installation
 
    ```bash
    export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
-   cd elixier/helm/elixier 
-   helm install --set storageAccessMode=ReadWriteOnce --set ingress.domain=${IP_ADDRESS}.sslip.io elixier .
+   helm install --set storageAccessMode=ReadWriteOnce \
+                --set ingress.domain=${IP_ADDRESS}.sslip.io \
+                elixier \
+                elixier/helm/elixier
    ```
 
    To check for deployment status, run  `watch kubectl get pods`. 
@@ -77,21 +79,21 @@ Installation
 Accessing Services
 -------------------
 
-- Airflow (http://airflow.elixier.lan/). Default user: `admin`. Default password: `admin`.
+- Airflow (http://airflow.`${IP_ADDRESS}`.sslip.io/). Default user: `admin`. Default password: `admin`.
 
-- Gitweb (http://gitweb.elixier.lan/git/). Default user: `user`. Default password: `password`.
+- Gitweb (http://gitweb.`${IP_ADDRESS}`.sslip.io/git/). Default user: `user`. Default password: `password`.
 
-- Jupyterhub (http://jupyterhub.elixier.lan/). Sign up user `admin` to set default password.
+- Jupyterhub (http://jupyterhup.`${IP_ADDRESS}`.sslip.io/). Sign up user `admin` to set default password.
 
-- Minio S3 API endpoint (http://minio.elixier.lan/). Default user: `minio`. Default password: `miniopassword`.
+- Minio S3 API endpoint (http://minio.`${IP_ADDRESS}`.sslip.io/). Default user: `minio`. Default password: `miniopassword`.
 
-- Minio UI (http://minio-console.elixier.lan/). Default user: `minio`. Default password: `miniopassword`.
+- Minio UI (http://minio-console.`${IP_ADDRESS}`.sslip.io/). Default user: `minio`. Default password: `miniopassword`.
 
-- Presto UI (http://presto.elixier.lan).
+- Presto UI (http://presto.`${IP_ADDRESS}`.sslip.io).
 
-- Presto Connection URI for `default` catalog (presto://presto.elixier.lan:80/default).
+- Presto Connection URI for `default` catalog (presto://presto.`${IP_ADDRESS}`.sslip.io:80/default).
 
-- Superset (http://superset.elixier.lan/). Default user: `admin`. Default password: `admin`.
+- Superset (http://superset.`${IP_ADDRESS}`.sslip.io/). Default user: `admin`. Default password: `admin`.
 
 
 Community
