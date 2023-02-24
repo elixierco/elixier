@@ -58,46 +58,21 @@ Installation
    curl -sfL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | sh -
    ```
 
-4. Install longhorn:
-
-   ```bash
-   kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/master/deploy/longhorn.yaml
-   ```
-
-   To check for deployment status, run `watch kubectl get pods --namespace=longhorn-system`. Wait until all longhorn services are operational.
-
-5. Clone:
+4. Clone:
 
    ```bash
    git clone https://github.com/elixierdata/helm elixier
    ```
 
-6. Setup `longhorn-single` storage class for single node installation:
-
-   ```bash
-   kubectl apply -f elixier/k8s-components/storageclass-longhorn-single.yaml
-   kubectl patch storageclass longhorn -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
-   kubectl patch storageclass longhorn-single -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
-   ```
-
-7. Install
+5. Install Elixier. Please replace `${IP_ADDRESS}` with the main IP address of the server
 
    ```bash
    export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
    cd elixier/helm/elixier 
-   helm install --set storageClass=longhorn-single elixier .
+   helm install --set storageAccessMode=ReadWriteOnce --set ingress.domain=${IP_ADDRESS}.sslip.io elixier .
    ```
 
    To check for deployment status, run  `watch kubectl get pods`. 
-
-8. Configure hosts
-
-   Edit your hosts file (`/etc/hosts` in Linux, `C:\Windows\System32\drivers\etc\hosts` in Windows), add the 
-   following entry (replace `<ip-address>` with the IP address of the k3s server:
-
-   ```
-   <ip-address> airflow.elixier.lan gitweb.elixier.lan jupyterhub.elixier.lan minio.elixier.lan minio-console.elixier.lan presto.elixier.lan superset.elixier.lan 
-   ```
 
 Accessing Services
 -------------------
