@@ -79,21 +79,21 @@ Installation
 Accessing Services
 -------------------
 
-- Airflow (`http://airflow.${IP_ADDRESS}.sslip.io/`). Default user: `admin`. Default password: `admin`.
+- Airflow (`https://airflow.${IP_ADDRESS}.sslip.io/`). Default user: `admin`. Default password: `admin`.
 
-- Gitweb (`http://gitweb.${IP_ADDRESS}.sslip.io/git/`). Default user: `user`. Default password: `password`.
+- Gitweb (`https://gitweb.${IP_ADDRESS}.sslip.io/git/`). Default user: `user`. Default password: `password`.
 
-- Jupyterhub (`http://jupyterhup.${IP_ADDRESS}.sslip.io/`). Sign up user `admin` to set default password.
+- Jupyterhub (`https://jupyterhub.${IP_ADDRESS}.sslip.io/`). Sign up user `admin` to set default password.
 
-- Minio S3 API endpoint (`http://minio.${IP_ADDRESS}.sslip.io/`). Default user: `minio`. Default password: `miniopassword`.
+- Minio S3 API endpoint (`https://minio.${IP_ADDRESS}.sslip.io/`). Default user: `minio`. Default password: `miniopassword`.
 
-- Minio UI (`http://minio-console.${IP_ADDRESS}.sslip.io/`). Default user: `minio`. Default password: `miniopassword`.
+- Minio UI (`https://minio-console.${IP_ADDRESS}.sslip.io/`). Default user: `minio`. Default password: `miniopassword`.
 
-- Presto UI (`http://presto.${IP_ADDRESS}.sslip.io`).
+- Presto UI (`https://presto.${IP_ADDRESS}.sslip.io`).
 
 - Presto Connection URI for `default` catalog (`presto://presto.${IP_ADDRESS}.sslip.io:80/default`).
 
-- Superset (`http://superset.${IP_ADDRESS}.sslip.io/`). Default user: `admin`. Default password: `admin`.
+- Superset (`https://superset.${IP_ADDRESS}.sslip.io/`). Default user: `admin`. Default password: `admin`.
 
 
 Community
