@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "elixier.fullname" . }}-trino-catalogs
+  labels:
+    {{- include "elixier.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/resource-policy: keep
+spec:
+  accessModes:
+    - {{ .Values.storageAccessMode | default "ReadWriteMany" }}
+  {{- if .Values.storageClass }}
+  storageClassName: {{ .Values.storageClass }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.trino.catalog_storage | default "500Mi" }}
+

@@ -1,0 +1,25 @@
+{{ if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  labels:
+    {{- include "elixier.labels" . | nindent 4 }}
+    component: trino
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  name: {{ include "elixier.fullname" . }}-trino
+spec:
+  rules:
+  - host: trino.{{ .Values.ingress.domain }}
+    http:
+      paths:
+      - backend:
+          service:
+            name: {{ include "elixier.fullname" . }}-trino
+            port:
+              number: 8080
+        path: /
+        pathType: Prefix
+{{- end }}
