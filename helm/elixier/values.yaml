@@ -40,6 +40,11 @@ presto_image:
   pullPolicy: IfNotPresent
   tag: "0.278.1-20230213.622"
 
+trino_image:
+  repository: registry.gitlab.com/abyres/releases/trino
+  pullPolicy: IfNotPresent
+  tag: "389-20230225.498"
+
 redis_image:
   repository: registry.gitlab.com/abyres/releases/redis
   pullPolicy: IfNotPresent
@@ -195,6 +200,8 @@ s3a:
   protocol:
 
 presto: {}
+trino: {}
+
 
 pgsql:
   root_password: postgres
