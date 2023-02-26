@@ -2,7 +2,7 @@
 
 FROM fedora:37 AS builder
 
-ENV JAVA_VERSION=1.8.0 RANGER_VERSION=2.3.0
+ENV JAVA_VERSION=11 RANGER_VERSION=2.3.0
 
 RUN dnf install -y python3 java-${JAVA_VERSION}-openjdk-headless \
     maven java-${JAVA_VERSION}-openjdk-devel git tar bzip2 gzip libcloudproviders-devel openssl-devel gcc-c++ && \

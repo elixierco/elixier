@@ -22,4 +22,4 @@ mkdir -p ${PKGDIR}
 
 #download https://dlcdn.apache.org/ranger/${RANGER_VERSION}/${RANGER_PACKAGE} ${PKGDIR}/${RANGER_PACKAGE}
 #https://github.com/elixierdata/ranger/archive/refs/heads/elixier-ranger-2.3.0.tar.gz
-download https://github.com/elixierdata/ranger/archive/refs/heads/${RANGER_PACKAGE} ${PKGDIR}/${RANGER_PACKAGE}
+download https://github.com/elixierco/ranger/archive/refs/heads/${RANGER_PACKAGE} ${PKGDIR}/${RANGER_PACKAGE}

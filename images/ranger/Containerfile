@@ -1,12 +1,12 @@
 FROM fedora:37 as extract
 
-ENV JAVA_VERSION=1.8.0 RANGER_VERSION=2.3.0
+ENV RANGER_VERSION=2.3.0
 
 ADD release/ranger-${RANGER_VERSION}-admin.tar.gz /opt/
 
 FROM fedora:37 as image
 
-ENV JAVA_VERSION=1.8.0 RANGER_VERSION=2.3.0
+ENV JAVA_VERSION=11 RANGER_VERSION=2.3.0
 
 RUN dnf install -y python3 java-${JAVA_VERSION}-openjdk-headless \
     hostname openssl vim-enhanced postgresql-jdbc bc procps-ng patch && \
