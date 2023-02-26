@@ -138,7 +138,7 @@ policymgr_https_keystore_password=
 
 #Add Supported Components list below separated by semi-colon, default value is empty string to support all components
 #Example :  policymgr_supportedcomponents=hive,hbase,hdfs
-policymgr_supportedcomponents=presto,nifi,tag,kafka,elasticsearch,nifi-registry
+policymgr_supportedcomponents=presto,nifi,tag,kafka,elasticsearch,nifi-registry,trino
 
 #
 # ------- PolicyManager CONFIG - END ---------------
