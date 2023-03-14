@@ -177,8 +177,10 @@ RUN patch -p 8 -i /opt/elixier/jupyterhub/pod_hostname.patch && chmod a+x /opt/e
 ADD hadoop-jars/*.jar /opt/apache/hadoop/share/hadoop/common/lib/
 
 ENV PRESTO_VERSION=0.278.1
+ENV TRINO_VERSION=389
 COPY packages/presto-cli-${PRESTO_VERSION}-executable.jar /usr/local/bin/presto
-RUN chmod a+rx /usr/local/bin/presto
+COPY packages/trino-cli-${TRINO_VERSION}-executable.jar /usr/local/bin/trino
+RUN chmod a+rx /usr/local/bin/presto /usr/local/bin/trino
 
 WORKDIR /workdir/
 

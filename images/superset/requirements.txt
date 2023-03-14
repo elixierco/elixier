@@ -299,3 +299,5 @@ xlrd==2.0.1
 authlib==1.2.0
 
 pymssql==2.2.7
+
+trino==0.322.0

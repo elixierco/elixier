@@ -5,6 +5,8 @@ SPARK_VERSION=3.2.0
 NODEJS_VERSION=18.12.1
 AWS_SDK_VERSION=1.12.372
 PRESTO_VERSION=0.278.1
+TRINO_VERSION=389
+OPENVSCODESERVER_VERSION=1.76.1
 
 SCRIPT_PATH=`realpath $0`
 HERE=`dirname $SCRIPT_PATH`
@@ -18,6 +20,8 @@ SPARK_PACKAGE=spark-${SPARK_VERSION}-bin-hadoop${HADOOP_MINOR_VERSION}.tgz
 NODEJS_PACKAGE=node-v${NODEJS_VERSION}-linux-x64.tar.gz
 AWS_SDK_JAR=aws-java-sdk-bundle-${AWS_SDK_VERSION}.jar
 PRESTO_CLI_JAR=presto-cli-${PRESTO_VERSION}-executable.jar
+TRINO_CLI_JAR=trino-cli-${TRINO_VERSION}-executable.jar
+OPENVSCODESERVER_PACKAGE=openvscode-server-v${OPENVSCODESERVER_VERSION}-linux-x64.tar.gz
 
 download () {
     if [ ! -f "$2" ];then
@@ -47,4 +51,6 @@ download https://dl.min.io/client/mc/release/linux-amd64/mc ${PKGDIR}/mc
 
 download https://repo1.maven.org/maven2/com/facebook/presto/presto-cli/${PRESTO_VERSION}/${PRESTO_CLI_JAR} ${PKGDIR}/${PRESTO_CLI_JAR}
 
+download https://repo1.maven.org/maven2/io/trino/trino-cli/${TRINO_VERSION}/${TRINO_CLI_JAR} ${PKGDIR}/${TRINO_CLI_JAR}
 
+download https://github.com/gitpod-io/openvscode-server/releases/download/openvscode-server-v${OPENVSCODESERVER_VERSION}/${OPENVSCODESERVER_PACKAGE} ${PKGDIR}/${OPENVSCODESERVER_PACKAGE}
