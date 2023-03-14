@@ -14,11 +14,21 @@ spec:
       initContainers:
         {{- include "elixier.superset.wait-scheduler" . | nindent 8 }}
       containers:
+        {{ if .Values.presto.enabled -}}
         - name: createconn-presto
           image: "{{ .Values.kubectl_image.repository }}:{{ .Values.kubectl_image.tag }}"
           imagePullPolicy: {{ .Values.kubectl_image.pullPolicy }}
           args: ["exec", "-ti", '{{ include "elixier.fullname" . }}-supers-s-0', "--",
-                 "superset", "set-database-uri", "-d", "Presto", "-u", 
-                 'presto://{{ include "elixier.fullname" . }}-presto:8080/default/default']
+                 "superset", "set-database-uri", "-d", "Presto Hive", "-u", 
+                 'presto://admin@{{ include "elixier.fullname" . }}-presto:8080/hive/default']
+        {{ end }}
+        {{ if .Values.trino.enabled -}}
+        - name: createconn-trino
+          image: "{{ .Values.kubectl_image.repository }}:{{ .Values.kubectl_image.tag }}"
+          imagePullPolicy: {{ .Values.kubectl_image.pullPolicy }}
+          args: ["exec", "-ti", '{{ include "elixier.fullname" . }}-supers-s-0', "--",
+                 "superset", "set-database-uri", "-d", "Trino Hive", "-u", 
+                 'trino://admin@{{ include "elixier.fullname" . }}-trino:8080/hive/default']
+        {{ end }}
       restartPolicy: Never
   backoffLimit: 10

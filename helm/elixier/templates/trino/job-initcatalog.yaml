@@ -40,21 +40,21 @@ spec:
           volumeMounts:
             {{ include "elixier.trino.volume-mounts" . | nindent 12 }}
           env:
-            - name: trino.catalog.default.connector.name
+            - name: trino.catalog.hive.connector.name
               value: hive-hadoop2
-            - name: trino.catalog.default.hive.metastore.uri
+            - name: trino.catalog.hive.hive.metastore.uri
               value: {{ include "elixier.hive.metastore_uri" . }}
-            - name: trino.catalog.default.hive.s3.path-style-access
+            - name: trino.catalog.hive.hive.s3.path-style-access
               value: "true"
-            - name: trino.catalog.default.hive.s3.endpoint
+            - name: trino.catalog.hive.hive.s3.endpoint
               value: {{ include "elixier.s3a.endpoint" . }}
-            - name: trino.catalog.default.hive.s3.aws-access-key
+            - name: trino.catalog.hive.hive.s3.aws-access-key
               value: {{ .Values.s3a.access_key }}
-            - name: trino.catalog.default.hive.s3.aws-secret-key
+            - name: trino.catalog.hive.hive.s3.aws-secret-key
               value: {{ .Values.s3a.secret_key }}
-            - name: trino.catalog.default.hive.non-managed-table-writes-enabled
+            - name: trino.catalog.hive.hive.non-managed-table-writes-enabled
               value: "true"
-            - name: trino.catalog.default.hive.storage-format
+            - name: trino.catalog.hive.hive.storage-format
               value: parquet
             - name: trino.catalog.iceberg.connector.name
               value: iceberg

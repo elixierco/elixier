@@ -56,12 +56,24 @@ c.KubeSpawner.volumes = [
  }, {
     'name': '{{ include "elixier.fullname" . }}-spark-datadir',
     'emptyDir': {}
- }, {
+ }, 
+{{ if .Values.presto.enabled -}}
+ {
     'name': '{{ include "elixier.fullname" . }}-presto-catalogs',
     'persistentVolumeClaim': {
         'claimName': '{{ include "elixier.fullname" . }}-presto-catalogs'
     }
- }
+ },
+{{ end }}
+
+{{ if .Values.trino.enabled -}}
+ {
+    'name': '{{ include "elixier.fullname" . }}-trino-catalogs',
+    'persistentVolumeClaim': {
+        'claimName': '{{ include "elixier.fullname" . }}-trino-catalogs'
+    }
+ },
+{{ end }}
 ]
 
 c.KubeSpawner.volume_mounts = [
@@ -77,10 +89,20 @@ c.KubeSpawner.volume_mounts = [
     }, {
         'name': '{{ include "elixier.fullname" . }}-spark-datadir',
         'mountPath': "/opt/apache/spark3/work-dir",
-    }, {
+    }, 
+{{ if .Values.presto.enabled -}}
+    {
         'name': '{{ include "elixier.fullname" . }}-presto-catalogs',
         'mountPath': "/etc/presto/catalog"
-    }
+    },
+{{- end }}
+{{ if .Values.trino.enabled -}}
+    {
+        'name': '{{ include "elixier.fullname" . }}-trino-catalogs',
+        'mountPath': "/etc/trino/catalog"
+    },
+{{- end }}
+
 ]
 
 c.KubeSpawner.start_timeout = 300

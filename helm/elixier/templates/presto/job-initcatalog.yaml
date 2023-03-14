@@ -1,3 +1,4 @@
+{{ if .Values.presto.enabled -}}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -40,21 +41,21 @@ spec:
           volumeMounts:
             {{ include "elixier.presto.volume-mounts" . | nindent 12 }}
           env:
-            - name: presto.catalog.default.connector.name
+            - name: presto.catalog.hive.connector.name
               value: hive-hadoop2
-            - name: presto.catalog.default.hive.metastore.uri
+            - name: presto.catalog.hive.hive.metastore.uri
               value: {{ include "elixier.hive.metastore_uri" . }}
-            - name: presto.catalog.default.hive.s3.path-style-access
+            - name: presto.catalog.hive.hive.s3.path-style-access
               value: "true"
-            - name: presto.catalog.default.hive.s3.endpoint
+            - name: presto.catalog.hive.hive.s3.endpoint
               value: {{ include "elixier.s3a.endpoint" . }}
-            - name: presto.catalog.default.hive.s3.aws-access-key
+            - name: presto.catalog.hive.hive.s3.aws-access-key
               value: {{ .Values.s3a.access_key }}
-            - name: presto.catalog.default.hive.s3.aws-secret-key
+            - name: presto.catalog.hive.hive.s3.aws-secret-key
               value: {{ .Values.s3a.secret_key }}
-            - name: presto.catalog.default.hive.non-managed-table-writes-enabled
+            - name: presto.catalog.hive.hive.non-managed-table-writes-enabled
               value: "true"
-            - name: presto.catalog.default.hive.storage-format
+            - name: presto.catalog.hive.hive.storage-format
               value: parquet
             - name: presto.catalog.iceberg.connector.name
               value: iceberg
@@ -78,3 +79,4 @@ spec:
         {{ include "elixier.presto.volumes" . | nindent 8 }}
       restartPolicy: Never
   backoffLimit: 10
+{{- end }}

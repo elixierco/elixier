@@ -1,3 +1,4 @@
+{{ if .Values.presto.enabled -}}
 apiVersion: v1
 kind: Service
 metadata:
@@ -17,4 +18,4 @@ spec:
     {{- include "elixier.selectorLabels" . | nindent 4 }}
     component: presto
     subcomponent: resmgr
-
+{{- end }}
