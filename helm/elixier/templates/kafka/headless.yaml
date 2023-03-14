@@ -1,3 +1,4 @@
+{{ if .Values.kafka.enabled -}}
 apiVersion: v1
 kind: Service
 metadata:
@@ -12,4 +13,4 @@ spec:
     {{- include "elixier.selectorLabels" . | nindent 4 }}
     component: kafka
     subcomponent: server
-
+{{ end }}
