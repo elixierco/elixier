@@ -1,0 +1,46 @@
+FROM registry.gitlab.com/abyres/releases/centos8:latest
+
+ENV JAVA_VERSION=11 RANGER_VERSION=2.3.0 TRINO_VERSION=389
+
+COPY dnf.conf /etc/dnf/dnf.conf
+
+RUN dnf install -y python3 java-${JAVA_VERSION}-openjdk-headless less && \
+    dnf clean all
+
+ENV JAVA_HOME=/usr/lib/jvm/jre-${JAVA_VERSION}/
+
+ADD packages/trino-server-${TRINO_VERSION}.tar.gz /opt/
+COPY packages/trino-cli-${TRINO_VERSION}-executable.jar /usr/local/bin/trino
+RUN mkdir -p /etc/trino /var/log/trino /opt/trino-server-${TRINO_VERSION}/var && \
+    ln -s /var/log/trino /opt/trino-server-${TRINO_VERSION}/var && \
+    ln -s /etc/trino /opt/trino-server-${TRINO_VERSION}/etc && \
+    ln -s /opt/trino-server-${TRINO_VERSION} /opt/trino && \
+    chmod a+rx /usr/local/bin/trino 
+
+ADD packages/ranger-${RANGER_VERSION}-trino-plugin.tar.gz /opt/
+
+RUN /usr/sbin/groupadd -r trino --gid 1000 && \
+     /usr/sbin/useradd -r -g trino --uid 1000 \
+     -m -d /home/trino \
+     -s /sbin/nologin trino # && 
+#    cp /usr/share/java/apache-commons-lang3.jar /usr/lib/jvm/jre-${JAVA_VERSION}/lib/ 
+
+# ADD packages/commons*.jar /usr/lib/jvm/jre-${JAVA_VERSION}/lib/
+
+WORKDIR /opt/ranger-${RANGER_VERSION}-trino-plugin
+ADD install.properties /opt/ranger-${RANGER_VERSION}-trino-plugin/install.properties
+RUN mkdir -p /opt/trino/etc/ && \
+    touch /etc/trino/jvm.config && \
+    touch /etc/trino/access-control.properties && \
+    ./enable-trino-plugin.sh 
+
+ADD create_catalog_config.py /opt/trino/bin/create_catalog_config.py
+ADD entrypoint.sh /opt/trino/entrypoint.sh
+
+RUN mkdir -p /opt/trino/var && chown trino:trino -R /opt/trino/var /var/log/trino/ /etc/trino/ && \
+    chown trino:trino /opt/trino-server-${TRINO_VERSION} && \
+    chmod a+rx /opt/trino/bin/create_catalog_config.py
+
+RUN ln -sf /etc/trino /opt/trino/plugin/ranger/ranger-trino-plugin-impl/conf
+WORKDIR /opt/trino
+ENTRYPOINT ["/opt/trino/entrypoint.sh"]
