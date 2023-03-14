@@ -39,7 +39,7 @@ spark.blockManager.port {{ .Values.spark.blockmanager_port | default "2044" }}
 spark.executor.cores {{ .Values.spark.executor_cores }}
 spark.executor.memory {{ .Values.spark.executor_memory }}
 
-spark.kubernetes.executor.podNamePrefix ${env:K8S_POD_NAME}
+spark.kubernetes.executor.podNamePrefix ${env:K8S_EXEC_POD_NAME}
 spark.kubernetes.driver.pod.name    ${env:K8S_POD_NAME}
 spark.kubernetes.memoryOverheadFactor   {{ .Values.spark.memory_overhead_factor }}
 
