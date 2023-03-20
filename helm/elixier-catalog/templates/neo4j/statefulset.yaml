@@ -1,0 +1,103 @@
+{{ if .Values.neo4j.enabled -}}
+{{- include "require" . -}}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "elixier-catalog.fullname" . }}-neo4j
+  labels:
+    {{- include "elixier-catalog.labels" . | nindent 4 }}
+    component: neo4j
+spec:
+  serviceName: {{ include "elixier-catalog.fullname" . }}-neo4j
+  selector:
+    matchLabels:
+      {{- include "elixier-catalog.selectorLabels" . | nindent 6 }}
+      component: neo4j
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "elixier-catalog.selectorLabels" . | nindent 8 }}
+        component: neo4j
+    spec:
+      setHostnameAsFQDN: true
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "elixier-catalog.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      volumes:
+        {{- include "elixier-catalog.neo4j.volumes" . | nindent 8 }}
+
+      containers:
+        - name: main
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.neo4j_image.repository }}:{{ .Values.neo4j_image.tag }}"
+          imagePullPolicy: {{ .Values.neo4j_image.pullPolicy }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            {{- include "elixier-catalog.neo4j.volume-mounts" . | nindent 12 }}
+          args: ['console']
+          ports:
+            - name: http
+              containerPort: 7474
+              protocol: TCP
+            - name: https
+              containerPort: 7473
+              protocol: TCP
+            - name: bolt
+              containerPort: 7687
+              protocol: TCP
+            - name: discovery
+              containerPort: 5000
+              protocol: TCP
+            - name: transaction
+              containerPort: 6000
+              protocol: TCP
+            - name: routing
+              containerPort: 7688
+              protocol: TCP
+            - name: debug
+              containerPort: 5005
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+      terminationGracePeriodSeconds: {{ .Values.neo4j.termination_grace_period | default "300" }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ include "elixier-catalog.fullname" . }}-neo4j-datadir
+      spec:
+        accessModes:
+          - {{ .Values.storageAccessMode | default "ReadWriteMany" }}
+        {{ if .Values.storageClass -}}
+        storageClassName: {{ quote .Values.storageClass }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.neo4j.instance_storage | default "1Gi" }}
+{{- end }}
