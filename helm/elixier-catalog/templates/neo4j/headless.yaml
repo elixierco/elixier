@@ -1,0 +1,14 @@
+{{ if .Values.kafka.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "elixier-catalog.fullname" . }}-neo4j
+  labels:
+    {{- include "elixier-catalog.labels" . | nindent 4 }}
+    component: neo4j
+spec:
+  clusterIP: None
+  selector:
+    {{- include "elixier-catalog.selectorLabels" . | nindent 4 }}
+    component: neo4j
+{{ end }}

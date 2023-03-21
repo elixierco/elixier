@@ -10,6 +10,13 @@ kubectl_image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
 
+
+helm_image:
+  repository: registry.gitlab.com/abyres/releases/helm
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "development"
+
 schemaregistry_image:
   repository: registry.gitlab.com/abyres/releases/schemaregistry
   pullPolicy: Always
@@ -30,6 +37,12 @@ neo4j_image:
   repository: registry.gitlab.com/abyres/releases/neo4j-community
   pullPolicy: Always
   tag: "development"
+
+pgsql_image:
+  repository: registry.gitlab.com/abyres/releases/pgsql-citus
+  pullPolicy: IfNotPresent
+  tag: "pgsql14-1.0.2-6"
+
 
 imagePullSecrets: []
 nameOverride: ""
@@ -109,6 +122,16 @@ kafka:
   enabled: true
   cluster_id: bwx_CqkkQp64WNqQNNC-Qg
   replicas: 1
+
+pgsql: 
+  root_password: postgres
+  pg_version: 14
+  pvc_size: 5Gi
+
+datahub:
+  db_name: datahub
+  db_user: datahub
+  db_password: datahub
 
 nodeSelector: {}
 

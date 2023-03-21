@@ -4,7 +4,7 @@ ENV JAVA_VERSION=11 TINI_VERSION=0.19.0
 
 ADD confluent.repo /etc/yum.repos.d/confluent.repo
 
-RUN dnf install java-${JAVA_VERSION}-openjdk-headless confluent-schema-registry.noarch -y && \
+RUN dnf install python3 java-${JAVA_VERSION}-openjdk-headless confluent-schema-registry.noarch -y && \
     dnf clean all && \
     mkdir -p /opt/apache
 
@@ -14,6 +14,8 @@ RUN install -o root -g root -m 0755 /root/tini /usr/bin/tini
 
 ENV JAVA_HOME=/usr/lib/jvm/jre-${JAVA_VERSION}/
 
+ADD create_config.py /opt/create_config.py
+ADD create_log4j_config.py /opt/create_log4j_config.py
 ADD entrypoint.sh /opt/entrypoint.sh
 
 EXPOSE 8081

@@ -1,0 +1,24 @@
+FROM registry.gitlab.com/abyres/releases/centos8:8-1
+
+ENV KUBECTL_VERSION=1.26.3 HELM_VERSION=3.11.2
+
+ADD https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl /usr/local/bin/kubectl
+
+ADD packages/helm-v${HELM_VERSION}-linux-amd64.tar.gz /opt/
+
+RUN mv /opt/linux-amd64/helm /usr/local/bin/helm && \
+    chmod a+x /usr/local/bin/kubectl /usr/local/bin/helm
+
+RUN dnf install python3 -y && dnf clean all
+
+ADD entrypoint.sh /opt/entrypoint.sh
+
+RUN /usr/sbin/groupadd -r user --gid 1000 && \
+     /usr/sbin/useradd -r -g user --uid 1000 \
+     -m -d /home/user \
+     -s /bin/bash user
+
+WORKDIR /home/user
+USER user
+
+ENTRYPOINT ["/opt/entrypoint.sh"]

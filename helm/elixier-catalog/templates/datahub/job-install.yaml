@@ -1,0 +1,54 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "elixier-catalog.fullname" . }}-datahub-install
+  labels:
+    {{- include "elixier-catalog.labels" . | nindent 4 }}
+    component: datahub
+    subcomponent: installer
+spec:
+  completions: 1
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "elixier-catalog.selectorLabels" . | nindent 8 }}
+        component: datahub
+        subcomponent: installer
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "elixier-catalog.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        {{- include "elixier-catalog.wait-db" . | nindent 8 }}
+        {{- include "elixier-catalog.wait-opensearch" . | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.helm_image.repository }}:{{ .Values.helm_image.tag }}"
+          imagePullPolicy: {{ .Values.helm_image.pullPolicy }}
+          args: ["helm", "install", '{{ include "elixier-catalog.fullname" . }}-datahub', 'datahub/datahub', '-f', '/etc/datahub/values.yaml']
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          env:
+            - name: REPO_URL
+              value: https://helm.datahubproject.io/
+            - name: REPO_NAME
+              value: datahub
+          volumeMounts:
+            - name:  {{ include "elixier-catalog.fullname" . }}-datahub-config
+              mountPath: /etc/datahub/
+      volumes:
+        - name: {{ include "elixier-catalog.fullname" . }}-datahub-config
+          secret:
+            secretName: {{ include "elixier-catalog.fullname" . }}-datahub-config
+      restartPolicy: Never
+  backoffLimit: 10
