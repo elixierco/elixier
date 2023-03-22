@@ -28,6 +28,8 @@ spec:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       initContainers:
         {{- include "elixier-catalog.wait-db" . | nindent 8 }}
+        {{- include "elixier-catalog.wait-kafka" . | nindent 8 }}
+        {{- include "elixier-catalog.wait-neo4j" . | nindent 8 }}
         {{- include "elixier-catalog.wait-opensearch" . | nindent 8 }}
       containers:
         - name: {{ .Chart.Name }}
