@@ -1,6 +1,17 @@
 {{ define "datahub-values" }}
 # vim: set syntax=yaml:
 
+datahub-frontend:
+  service:
+    type: ClusterIP
+  ingress:
+    enabled: true
+    hosts:
+      - host: datahub.{{ .Values.ingress.domain }}
+        paths: 
+          - '/'
+  
+
 mysqlSetupJob:
   enabled: false
 
