@@ -45,6 +45,9 @@ spec:
           volumeMounts:
             {{- include "elixier-catalog.neo4j.volume-mounts" . | nindent 12 }}
           args: ['console']
+          env:
+            - name: NEO4J_INITIAL_PASSWORD
+              value: {{ .Values.neo4j.password }}
           ports:
             - name: http
               containerPort: 7474

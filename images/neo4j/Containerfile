@@ -14,6 +14,11 @@ RUN set -ex && \
     dnf install -y neo4j-$NEO4J_VERSION && \
     dnf clean all
 
+RUN mkdir -p /etc/pki/neo4j
+
+ADD server.key /etc/pki/neo4j/server.key
+ADD server.crt /etc/pki/neo4j/server.crt
+
 ENV NEO4J_CONF=/etc/neo4j NEO4J_HOME=/var/lib/neo4j
 
 ADD entrypoint.sh /opt/entrypoint.sh
