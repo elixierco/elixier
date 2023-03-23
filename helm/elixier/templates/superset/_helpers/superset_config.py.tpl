@@ -8,8 +8,14 @@ import os
 
 FEATURE_FLAGS = {
     'THUMBNAILS': True,
-    'THUMBNAILS_SQLA_LISTENERS': True
+    'THUMBNAILS_SQLA_LISTENERS': True,
+    'ALERT_REPORTS': True,
 }
+
+ALERT_REPORTS_NOTIFICATION_DRY_RUN = False
+
+SCREENSHOT_LOCATE_WAIT = 100
+SCREENSHOT_LOAD_WAIT = 600
 
 SECRET_KEY = os.environ.get('SUPERSET_SECRET_KEY', "{{ .Values.secrets.secret_key }}")
 if os.environ.get('SUPERSET_PREVIOUS_SECRET_KEY', "{{ .Values.secrets.previous_secret_key }}"):
@@ -104,12 +110,13 @@ SMTP_MAIL_FROM = {{ .Values.smtp.from | quote }}
 {{ end }}
 
 PREFERRED_DATABASES = [
-    "Presto",
+    "Trino",
     "PostgreSQL",
     "MySQL",
 ]
 
 WEBDRIVER_BASEURL = 'http://{{ include "elixier.fullname" . }}-superset/'
+WEBDRIVER_BASEURL_USER_FRIENDLY = 'http://superset.{{ .Values.ingress.domain }}'
 WEBDRIVER_TYPE = "chrome"
 WEBDRIVER_OPTION_ARGS = [
     "--headless",
