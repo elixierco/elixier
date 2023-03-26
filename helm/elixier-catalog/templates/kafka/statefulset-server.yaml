@@ -63,12 +63,12 @@ spec:
             tcpSocket:
               port: 9093
             initialDelaySeconds: 30
-            periodSeconds: 300
+            periodSeconds: 10
           readinessProbe:
             tcpSocket:
               port: 9093
             initialDelaySeconds: 30
-            periodSeconds: 300
+            periodSeconds: 10
       terminationGracePeriodSeconds: {{ .Values.kafka.termination_grace_period | default "300" }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
