@@ -85,16 +85,15 @@ spec:
       {{- end }}
       affinity:
         podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 100
-              podAffinityTerm:
-                labelSelector:
-                  matchExpressions:
-                    - key: app.kubernetes.io/name
-                      operator: In
-                      values:
-                        - {{ include "elixier.name" . }}
-                topologyKey: "kubernetes.io/hostname"
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  {{ include "elixier.affinity" . | nindent 18 }}
+                  - key: component
+                    operator: In
+                    values:
+                      - minio
+              topologyKey: topology.kubernetes.io/zone
       {{- with .Values.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}

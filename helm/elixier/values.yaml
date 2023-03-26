@@ -259,4 +259,9 @@ keycloak:
   client_id: elixier
   client_secret: ''
 
+datahub:
+  enabled: false
+  rest_server: http://api.datahub.elixier.lan
+  rest_token:
+
 containerWaitTimeout: 3600s

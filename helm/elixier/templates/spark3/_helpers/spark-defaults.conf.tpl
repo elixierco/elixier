@@ -51,5 +51,13 @@ spark.driver.extraJavaOptions {{ .Values.spark.driver_java_options }}
 spark.executor.extraJavaOptions {{ .Values.spark.executor_java_options }}
 
 spark.sql.parquet.int96RebaseModeInWrite {{ .Values.spark.int96_rebase | default "CORRECTED" }}
+
+{{ if .Values.datahub.enabled }}
+spark.extraListeners                         datahub.spark.DatahubSparkListener
+spark.datahub.rest.server                    {{ .Values.datahub.rest_server }}
+{{ if .Values.datahub.rest_token }}
+spark.datahub.rest.token                     .Values.datahub.rest_token
+{{ end }}
+{{ end }}
 {{- end }}
 
