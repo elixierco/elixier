@@ -61,7 +61,7 @@ Installation
 4. Clone:
 
    ```bash
-   git clone https://github.com/elixierdata/helm elixier
+   git clone https://github.com/elixierdata/elixier elixier
    ```
 
 5. Install Elixier. Please replace `${IP_ADDRESS}` with the main IP address of the server
