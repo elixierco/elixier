@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ include "elixier-catalog.fullname" . }}-datahub-uninstall
+  name: {{ include "elixier-catalog.datahub-name" . }}-uninstall
   labels:
     {{- include "elixier-catalog.labels" . | nindent 4 }}
     component: datahub
@@ -36,7 +36,7 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.helm_image.repository }}:{{ .Values.helm_image.tag }}"
           imagePullPolicy: {{ .Values.helm_image.pullPolicy }}
-          args: ["helm", "uninstall", '{{ include "elixier-catalog.fullname" . }}-datahub']
+          args: ["helm", "uninstall", '{{ include "elixier-catalog.datahub-name" . }}']
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           env:
@@ -51,7 +51,7 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.helm_image.repository }}:{{ .Values.helm_image.tag }}"
           imagePullPolicy: {{ .Values.helm_image.pullPolicy }}
-          args: ["kubectl", "delete", "job", '{{ include "elixier-catalog.fullname" . }}-datahub-elasticsearch-setup-job']
+          args: ["kubectl", "delete", "job", '{{ include "elixier-catalog.datahub-name" . }}-elasticsearch-setup-job']
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           env:
@@ -62,7 +62,7 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.helm_image.repository }}:{{ .Values.helm_image.tag }}"
           imagePullPolicy: {{ .Values.helm_image.pullPolicy }}
-          args: ["kubectl", "delete", "job", '{{ include "elixier-catalog.fullname" . }}-datahub-kafka-setup-job']
+          args: ["kubectl", "delete", "job", '{{ include "elixier-catalog.datahub-name" . }}-kafka-setup-job']
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           env:
@@ -73,7 +73,7 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.helm_image.repository }}:{{ .Values.helm_image.tag }}"
           imagePullPolicy: {{ .Values.helm_image.pullPolicy }}
-          args: ["kubectl", "delete", "job", '{{ include "elixier-catalog.fullname" . }}-datahub-postgresql-setup-job']
+          args: ["kubectl", "delete", "job", '{{ include "elixier-catalog.datahub-name" . }}-postgresql-setup-job']
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           env:
@@ -84,7 +84,7 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.helm_image.repository }}:{{ .Values.helm_image.tag }}"
           imagePullPolicy: {{ .Values.helm_image.pullPolicy }}
-          args: ["kubectl", "delete", "job", '{{ include "elixier-catalog.fullname" . }}-datahub-nocode-migration-job']
+          args: ["kubectl", "delete", "job", '{{ include "elixier-catalog.datahub-name" . }}-nocode-migration-job']
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           env:
@@ -95,7 +95,7 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.helm_image.repository }}:{{ .Values.helm_image.tag }}"
           imagePullPolicy: {{ .Values.helm_image.pullPolicy }}
-          args: ["kubectl", "delete", "job", '{{ include "elixier-catalog.fullname" . }}-datahub-datahub-system-update-job']
+          args: ["kubectl", "delete", "job", '{{ include "elixier-catalog.datahub-name" . }}-datahub-system-update-job']
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           env:

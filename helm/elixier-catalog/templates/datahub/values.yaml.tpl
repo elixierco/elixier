@@ -10,6 +10,16 @@ datahub-frontend:
       - host: datahub.{{ .Values.ingress.domain }}
         paths: 
           - '/'
+
+datahub-gms:
+  service:
+    type: ClusterIP
+  ingress:
+    enabled: true
+    hosts:
+      - host: api.datahub.{{ .Values.ingress.domain }}
+        paths: 
+          - '/'
   
 
 mysqlSetupJob:
@@ -38,7 +48,7 @@ global:
     uri: bolt://{{ include "elixier-catalog.fullname" . }}-neo4j
     username: "neo4j"
     password:
-      secretRef: {{ include "elixier-catalog.fullname" . }}-datahub
+      secretRef: {{ include "elixier-catalog.datahub-name" . }}
       secretKey: neo4j-password
 
   sql:
@@ -50,7 +60,25 @@ global:
       driver: "org.postgresql.Driver"
       username: "{{ .Values.datahub.db_user }}"
       password:
-        secretRef: {{ include "elixier-catalog.fullname" . }}-datahub
+        secretRef: {{ include "elixier-catalog.datahub-name" . }}
         secretKey: db-password
+
+datahub:
+    metadata_service_authentication:
+      enabled: true
+      systemClientSecret:
+        secretRef: '{{ include "elixier-catalog.datahub-name" . }}-auth-secrets'
+        secretKey: "token_service_signing_key"
+      tokenService:
+        signingKey:
+          secretRef: '{{ include "elixier-catalog.datahub-name" . }}-auth-secrets'
+          secretKey: "token_service_signing_key"
+        salt:
+          secretRef: '{{ include "elixier-catalog.datahub-name" . }}-auth-secrets'
+          secretKey: "token_service_salt"
+
+      provisionSecrets:
+        enabled: true
+        autoGenerate: true
 
 {{ end }}

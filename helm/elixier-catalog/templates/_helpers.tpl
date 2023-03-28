@@ -19,6 +19,8 @@ If release name contains chart name it will be used as a full name.
 {{- end }}
 {{- end }}
 
+
+
 {{/*
 Create chart name and version as used by the chart label.
 */}}
@@ -56,3 +58,7 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{- define "elixier-catalog.datahub-name" -}}
+   {{ include "elixier-catalog.fullname" . }}-dhub
+{{- end -}}

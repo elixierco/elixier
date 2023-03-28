@@ -71,10 +71,22 @@ spec:
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.affinity }}
       affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  {{ include "elixier-catalog.affinity" . | nindent 18 }}
+                  - key: component
+                    operator: In
+                    values:
+                      - opensearch
+                  - key: subcomponent
+                    operator: In
+                    values:
+                      - master
+              topologyKey: topology.kubernetes.io/zone
+
       {{- with .Values.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
