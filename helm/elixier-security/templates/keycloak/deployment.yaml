@@ -53,14 +53,14 @@ spec:
             httpGet:
               path: /realms/master
               port: http
-            initialDelaySeconds: 120
-            periodSeconds: 15
+            initialDelaySeconds: 360
+            periodSeconds: 30
           readinessProbe:
             httpGet:
               path: /realms/master
               port: http
-            initialDelaySeconds: 120
-            periodSeconds: 15
+            initialDelaySeconds: 360
+            periodSeconds: 30
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           env:
