@@ -1,0 +1,185 @@
+# Default values for elixier-stream.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+kubectl_image:
+  repository: bitnami/kubectl
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "latest"
+
+kafka_image:
+  repository: registry.gitlab.com/abyres/releases/kafka
+  pullPolicy: IfNotPresent
+  tag: "3.3.1-2"
+
+nifi_image:
+  repository: registry.gitlab.com/abyres/releases/nifi
+  pullPolicy: Always
+  tag: "development"
+
+schemaregistry_image:
+  repository: registry.gitlab.com/abyres/releases/schemaregistry
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "development"
+
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  annotations: {}
+#    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+#    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+  domain: elixier.lan
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+
+nifi:
+  replicas: 1
+  sensitive_props_key: aUErHwNt5wbEqrgHSeXoZeKh5zsgy8AB
+
+kafka:
+  enabled: true
+  cluster_id: bwx_CqkkQp64WNqQNNC-Qg
+  replicas: 1
+
+pki:
+  keystore:
+    password: bb5464ae3b10f100151ea2d73cf28745
+    type: PKCS12
+    data: |
+      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
+  
+  truststore:
+    password: 2bc07a5b2a071d5315acc5f77ddc84f6
+    type: PKCS12
+    data: |
+      MIIE0gIBAzCCBHwGCSqGSIb3DQEHAaCCBG0EggRpMIIEZTCCBGEGCSqGSIb3DQEHBqCCBFIwggRO
+      AgEAMIIERwYJKoZIhvcNAQcBMGYGCSqGSIb3DQEFDTBZMDgGCSqGSIb3DQEFDDArBBQ2tSyAebBe
+      UuOIZ/n4eW8BFE8GnwICJxACASAwDAYIKoZIhvcNAgkFADAdBglghkgBZQMEASoEEM8nRaQe+nfO
+      6Fu+3ifz1k6AggPQ3q4v9l4kPeQsz5pQgmX3zquuOkudG8kz0+vsW4NYcRHpo0bALyX8QsqJfSHl
+      0IA29zA7Np4fzJD7c0hvWBkjtqFA+h/Atbimro4Nsrnu7laLPkk66Szjws8pq8sYJjdE36M281E8
+      /muieBLpynCqxV0eCcF9R/P8kKgsQtE6yipWfJcytQWgE9mhxhmzr0e0DEch5it2kuoK3XJCNJqw
+      XmELTXRGsXaY9wFIFHGfWMEG+XV4MWxbvoo+GaaSU7cmdA+HSekHEkD11fBC994xZIsMpO/4GeRG
+      UON6aDaplchI+diK1JYjOQR0SV8OTEqSArohxNleBzlmPh44NuzHMGjkF2RCu4V10Jwvd2F/2DCY
+      y40osgHpWQaGCro8cEe6/cavrmemVt0DNzwU3FKi36BrllIxe8MMc8795uwHTHiwRLnt4F0liEiS
+      03PPZqyRdEANo+3J15bRTku0fSQnpP0pDB73QjrXSFUmueIupRJQaXWzzdBos/0s9g0GKSJeW1eR
+      v/dfgNM2AvVx1HLL+R0w7yA0cq1BXCMTzBSlhk5HRLMSVEHTVdLHlfOglKhFk9bx/NTu6ImenBkV
+      2ijiaTWIlWcHpJn6kFSmdsRZSrCiBa6NhaQQlt6ia5VYsb1u6x5OKPLTxAPu3jskzJjx+LnGVruU
+      2NgulG08y8sP6KbpNeT4f39qlNBvn2q0jeBNcmgpSCtX7rxJn17It6PWUQdR9tkBjnlkkFI9GOY4
+      3YeajFJ8tl+guYPZIkySxlNdkMp7tQmW2T4rQrCK5wyV3GuLZ5tSUQmbv2v2BIwOqoxaVDfAI5gE
+      Nwt7yGpR5S6GB4y2fVXMhstzptXg+hiaD0F3X6AS10lC5Pdag9PpfQraoOvS5Hd4EWhZRQBNKaFy
+      LDNjo66ssfRNLt3nqZOhlANIwPhlSWVWEYG7w/BESf90zwYzBY4A0Uo54Sw5doMRIzOhrGYdYcU+
+      6PkwxWD5ZM4YksPo7RQFzaARSjWnhSA3Lz/cnrZ1D/KCuEMSGA3cR8cKxNUkXvuxcW1zT4HOb0xt
+      a2dp4Y7ZJE1VNhbNj3xDxT+WAEpAUlpKc/YpGBSEcihTlFuuAD7UN/SFC59XSICkByWxF9STzMvD
+      F7sFpbRcoQd5jt+M0SorRUa5trTHCuaAgzRbOV00m55L5BHIQaJqe1QQSY/opRzZJuWK0Vy9gFdr
+      aNcY8602yy2qFsLbehBt+64YAVEz+xT9x2b5rwHgES9sKSSHpcKYO+6zN3p4ovfxCJb2yVcrMy1l
+      /1+1mlL0Umx3Uz1DSTvcRvG6qDBNMDEwDQYJYIZIAWUDBAIBBQAEIJ9XkNpAzyshaYbuN1BlhwVy
+      4cL2AvvLTqqteRfbdLR2BBQcYfLTyrFTjiFZBBO1z2QDdfUo3gICJxA=
+      
+  key:
+    password: bb5464ae3b10f100151ea2d73cf28745
+

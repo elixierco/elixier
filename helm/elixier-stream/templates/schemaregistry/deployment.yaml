@@ -1,0 +1,93 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "elixier-stream.fullname" . }}-schemareg
+  labels:
+    {{- include "elixier-stream.labels" . | nindent 4 }}
+    component: schemaregistry
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "elixier-stream.selectorLabels" . | nindent 6 }}
+      component: schemaregistry
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "elixier-stream.selectorLabels" . | nindent 8 }}
+        component: schemaregistry
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "elixier-stream.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      volumes:
+        - name: {{ include "elixier-stream.fullname" . }}-schemaregistry-logdir
+          emptyDir: {}
+        - name: {{ include "elixier-stream.fullname" . }}-schemaregistry-configdir
+          emptyDir: {}
+      initContainers:
+        {{- include "elixier-stream.wait-kafka" . | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.schemaregistry_image.repository }}:{{ .Values.schemaregistry_image.tag }}"
+          imagePullPolicy: {{ .Values.schemaregistry_image.pullPolicy }}
+          args: ["start"]
+          ports:
+            - name: http
+              containerPort: 8081
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          env:
+            - name: schemaregistry.listeners
+              value: 'http://0.0.0.0:8081'
+            - name: schemaregistry.kafkastore.bootstrap.servers
+              value: 'PLAINTEXT://{{ include "elixier-stream.fullname" . }}-kafka-s:9092'
+            - name: schemaregistry.kafkastore.topic
+              value: _schemas
+            - name: schemaregistry.debug
+              value: 'false'
+          volumeMounts:
+            - name: {{ include "elixier-stream.fullname" . }}-schemaregistry-configdir
+              mountPath: "/etc/schema-registry/"
+            - name: {{ include "elixier-stream.fullname" . }}-schemaregistry-logdir
+              mountPath: "/var/log/schemaregistry"
+
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

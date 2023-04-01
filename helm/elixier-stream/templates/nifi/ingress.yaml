@@ -1,0 +1,24 @@
+{{ if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  labels:
+    {{- include "elixier-stream.labels" . | nindent 4 }}
+    component: nifi
+    subcomponent: server
+  annotations:
+    ingress.kubernetes.io/protocol: https
+  name: {{ include "elixier-stream.fullname" . }}-nifi
+spec:
+  rules:
+  - host: nifi.{{ .Values.ingress.domain }}
+    http:
+      paths:
+      - backend:
+          service:
+            name: {{ include "elixier-stream.fullname" . }}-nifi
+            port: 
+              name: http
+        path: /
+        pathType: Prefix
+{{- end }}

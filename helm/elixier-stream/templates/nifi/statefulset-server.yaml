@@ -1,0 +1,163 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "elixier-stream.fullname" . }}-nifi
+  labels:
+    {{- include "elixier-stream.labels" . | nindent 4 }}
+    component: nifi
+    subcomponent: server
+spec:
+  replicas: {{ .Values.nifi.replicas }}
+  serviceName: {{ include "elixier-stream.fullname" . }}-nifi
+  podManagementPolicy: Parallel
+  selector:
+    matchLabels:
+      {{- include "elixier-stream.selectorLabels" . | nindent 6 }}
+      component: nifi
+      subcomponent: server
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "elixier-stream.selectorLabels" . | nindent 8 }}
+        component: nifi
+        subcomponent: server
+    spec:
+      setHostnameAsFQDN: true
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "elixier-stream.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: main
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.nifi_image.repository }}:{{ .Values.nifi_image.tag }}"
+          imagePullPolicy: {{ .Values.nifi_image.pullPolicy }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          args: ['run']
+
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: https
+              containerPort: 8443
+              protocol: TCP
+            - name: nifi
+              containerPort: 9088
+              protocol: TCP
+            - name: loadbalancer
+              containerPort: 6342
+              protocol: TCP
+
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+
+            initialDelaySeconds: 30
+            periodSeconds: 10
+
+          volumeMounts:
+            - name: {{ include "elixier-stream.fullname" . }}-nifi-config
+              mountPath: "/etc/nifi/conf"
+            - name: {{ include "elixier-stream.fullname" . }}-pki
+              mountPath: "/etc/nifi/pki"
+            - name: {{ include "elixier-stream.fullname" . }}-nifi-logdir
+              mountPath: "/var/log/nifi"
+            - name: {{ include "elixier-stream.fullname" . }}-nifi-datadir
+              mountPath: "/var/lib/nifi"
+
+          env:
+            - name: nifi.security.keystoreType
+              valueFrom:
+                secretKeyRef: 
+                  name: {{ include "elixier-stream.fullname" . }}-pki-config
+                  key: keystore_type
+            - name: nifi.security.keystorePasswd
+              valueFrom:
+                secretKeyRef: 
+                  name: {{ include "elixier-stream.fullname" . }}-pki-config
+                  key: keystore_password
+            - name: nifi.security.keyPasswd
+              valueFrom:
+                secretKeyRef: 
+                  name: {{ include "elixier-stream.fullname" . }}-pki-config
+                  key: key_password
+            - name: nifi.security.truststoreType
+              valueFrom:
+                secretKeyRef: 
+                  name: {{ include "elixier-stream.fullname" . }}-pki-config
+                  key: truststore_type
+            - name: nifi.security.truststorePasswd
+              valueFrom:
+                secretKeyRef: 
+                  name: {{ include "elixier-stream.fullname" . }}-pki-config
+                  key: truststore_password
+            - name: nifi.sensitive.props.key
+              valueFrom:
+                secretKeyRef: 
+                  name: {{ include "elixier-stream.fullname" . }}-nifi-secrets
+                  key: sensitive_props_key
+
+
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: {{ include "elixier-stream.fullname" . }}-pki
+          secret:
+            secretName: {{ include "elixier-stream.fullname" . }}-pki
+        - name: {{ include "elixier-stream.fullname" . }}-nifi-config
+          secret:
+            secretName: {{ include "elixier-stream.fullname" . }}-nifi-config
+        - name: {{ include "elixier-stream.fullname" . }}-nifi-logdir
+          emptyDir: {}
+       
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  {{ include "elixier-stream.affinity" . | nindent 18 }}
+                  - key: component
+                    operator: In
+                    values:
+                      - nifi
+                  - key: subcomponent
+                    operator: In
+                    values:
+                      - server
+              topologyKey: topology.kubernetes.io/zone
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ include "elixier-stream.fullname" . }}-nifi-datadir
+      spec:
+        accessModes:
+          - {{ .Values.storageAccessMode | default "ReadWriteMany" }}
+        {{ if .Values.storageClass -}}
+        storageClassName: {{ quote .Values.storageClass }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.nifi.instance_storage | default "20Gi" }}
