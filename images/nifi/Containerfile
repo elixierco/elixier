@@ -1,0 +1,46 @@
+FROM registry.gitlab.com/abyres/releases/centos8:latest AS extract
+
+ENV NIFI_VERSION=1.20.0
+ADD packages/nifi-${NIFI_VERSION}-bin.zip /opt/
+WORKDIR /opt
+RUN dnf install unzip -y && unzip nifi-${NIFI_VERSION}-bin.zip && \
+    chown 1000:1000 -R /opt/nifi-${NIFI_VERSION}/
+
+FROM registry.gitlab.com/abyres/releases/centos8:latest as base
+
+ENV JAVA_VERSION=11 RANGER_VERSION=2.3.0 NIFI_VERSION=1.20.0 USER=nifi TINI_VERSION=0.19.0
+
+RUN /usr/sbin/groupadd -r $USER --gid 1000 && \
+     /usr/sbin/useradd -r -g $USER --uid 1000 \
+     -m -d /home/${USER} \
+     -s /sbin/nologin ${USER} 
+
+COPY dnf.conf /etc/dnf/dnf.conf
+
+RUN dnf install -y python3 java-${JAVA_VERSION}-openjdk-headless apache-commons-lang3 && \
+    dnf clean all
+
+ADD https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini /usr/bin/tini
+
+RUN chmod a+rx /usr/bin/tini
+
+ENV JAVA_HOME=/usr/lib/jvm/jre-${JAVA_VERSION}/
+
+COPY --from=extract /opt/nifi-${NIFI_VERSION} /opt/nifi-${NIFI_VERSION}
+
+RUN ls /opt 
+RUN mkdir -p /var/lib/nifi /etc/nifi/conf && \
+    mv /opt/nifi-${NIFI_VERSION}/conf /opt/nifi-${NIFI_VERSION}/conf.default && \
+    mkdir -p /opt/nifi-${NIFI_VERSION}/conf/ /var/log/nifi && \
+    ln -s /opt/nifi-${NIFI_VERSION} /opt/nifi  && \
+    chmod a+rx /opt/nifi-${NIFI_VERSION}/bin/* && \
+    chmod a+rwx /opt/nifi-${NIFI_VERSION}/conf
+
+ENV NIFI_PID_DIR=/tmp NIFI_LOG_DIR=/var/log/nifi NIFI_OVERRIDE_NIFIENV=true
+
+ADD entrypoint.sh /opt/nifi/entrypoint.sh
+ADD create_nifi_properties.py /opt/nifi/create_nifi_properties.py
+ADD create_bootstrap_properties.py /opt/nifi/create_bootstrap_properties.py
+
+WORKDIR /var/lib/nifi
+ENTRYPOINT ["/usr/bin/tini", "/opt/nifi/entrypoint.sh"]
