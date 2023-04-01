@@ -3,4 +3,4 @@ repos:
   url: registry.gitlab.com/abyres/releases/elixier
 - target: toolbox
   url: registry.gitlab.com/abyres/releases/elixier-toolbox
-tag: 0.0.1
+tag: 1.0.3

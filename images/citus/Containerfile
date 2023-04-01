@@ -18,7 +18,7 @@ RUN set -ex && \
     dnf config-manager --set-enabled pgdg14 && \
     dnf config-manager --set-enabled powertools && \
     dnf module disable postgresql -y && \
-    dnf install -y citus102_14 postgresql14-contrib \
+    dnf install -y python3 citus102_14 postgresql14-contrib \
         postgresql14-plpython3 postgresql14-plperl postgresql14-pltcl \
         postgresql14-llvmjit postgis32_14 pgrouting_14 && \
     dnf clean all
@@ -28,6 +28,7 @@ ENV PGDATA=/var/lib/pgsql/
 ADD entrypoint.sh /opt/entrypoint.sh
 ADD createdb_with_user.sh /usr/bin/
 ADD pg_hba.conf /etc/pg_hba.conf
+ADD create_pgsql_conf.py /opt/
 RUN chown postgres:postgres /etc/pg_hba.conf && \
     chmod a+rx /usr/bin/createdb_with_user.sh && \
     chmod +x /opt/entrypoint.sh && \
