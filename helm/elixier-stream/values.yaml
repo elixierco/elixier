@@ -183,3 +183,5 @@ pki:
   key:
     password: bb5464ae3b10f100151ea2d73cf28745
 
+containerWaitTimeout: 3600s
+
