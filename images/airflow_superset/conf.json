@@ -1,0 +1,34 @@
+{
+    "id": 34,
+    "database": {
+        "allow_ctas": false,
+        "allow_cvas": false,
+        "allow_dml": false,
+        "allow_file_upload": false,
+        "allow_multi_schema_metadata_fetch": false,
+        "allow_run_async": false,
+        "backend": "trino",
+        "cache_timeout": null,
+        "configuration_method": "sqlalchemy_form",
+        "database_name": "Trino Hive",
+        "encrypted_extra": null,
+        "expose_in_sqllab": true,
+        "extra": "{\n    \"metadata_params\": {},\n    \"engine_params\": {},\n    \"metadata_cache_timeout\": {},\n    \"schemas_allowed_for_file_upload\": []\n}\n",
+        "force_ctas_schema": null,
+        "id": 1,
+        "impersonate_user": false,
+        "is_managed_externally": false,
+        "parameters": {},
+        "parameters_schema": {},
+        "server_cert": null,
+        "sqlalchemy_uri": "trino://admin@elixier-trino:8080/hive/default"
+    },
+    "sql": "select * from demotable",
+    "schedule": {
+        "dependencies": [],
+        "end_date": "2023-05-03T01:00:00.000Z",
+        "output_table": "mytable",
+        "schedule_interval": "@daily",
+        "start_date": "2023-04-04T01:00:00.000Z"
+    }
+}

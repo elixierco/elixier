@@ -1,0 +1,55 @@
+# vim: set filetype=python:
+
+import datetime
+import pendulum
+from airflow import DAG
+from airflow.operators.python import PythonOperator
+from airflow.decorators import task, dag
+import json
+import sys
+
+@dag(
+    dag_id="superset_saved_query_{{ config['id'] }}",
+    schedule_interval="{{ config['schedule']['schedule_interval'] }}",
+    start_date=pendulum.parse("{{ config['schedule']['start_date'] }}"),
+    end_date=pendulum.parse("{{ config['schedule']['end_date'] }}"),
+    catchup=False,
+    tags=['superset'])
+def superset_saved_query_{{ config['id'] }}():
+   
+    @task()
+    def execute_query():
+        from sqlalchemy import create_engine
+        from sqlalchemy import text
+
+        connect_args = json.loads('{{ config["database"]["parameters"] | tojson }}')
+        db_uri = json.loads('{{ config["database"]["sqlalchemy_uri"] | tojson }}')
+        sql = json.loads('{{ config["sql"] | tojson }}')
+        db_backend = json.loads('{{ config["database"]["backend"] | tojson }}')
+        output_table = json.loads('{{ config["schedule"]["output_table"] | tojson }}')
+
+        engine = create_engine(db_uri,  connect_args=connect_args)
+
+        with engine.connect() as connection:
+            if output_table:
+                if db_backend in ['mysql','oracle','mariadb','postgresql']:
+                    connection.execute(text("drop table if exists :output_table"), output_table=output_table)
+                    connection.execute(text("create table :output_table as (%s)" % sql), output_table=output_table)
+                else:
+                    print("output_table is not supported in backend %s" % db_backend, file=sys.stderr)
+            else:
+                connection.execute(text(sql))
+
+    query = execute_query()
+
+    {% for dep in config['schedule']['dependencies'] %}
+    dependency_{{ dep }} = ExternalTaskSensor(
+            task_id="dependency_{{ dep }}",
+            external_dag_id="{{ dep }}",
+            external_task_id=None,
+    )
+
+    dependency_{{ dep }}() >> query
+    {% endfor %}
+
+dag = superset_saved_query_{{ config['id'] }}()

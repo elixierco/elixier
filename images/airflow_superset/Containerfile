@@ -1,0 +1,26 @@
+FROM fedora:37
+
+ENV TINI_VERSION=0.19.0 \
+    USER=airflow
+
+ADD https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini /usr/bin/tini
+
+RUN /usr/sbin/groupadd -r $USER --gid 1000 && \
+     /usr/sbin/useradd -r -g $USER --uid 1000 \
+     -m -d /home/${USER} \
+     -s /sbin/nologin ${USER}
+
+COPY dnf.conf /etc/dnf/dnf.conf
+
+RUN dnf install python3 python3-requests python3-jinja2 -y && \
+    dnf clean all && chmod a+rx /usr/bin/tini
+
+RUN mkdir -p /opt/airflow_superset/
+COPY entrypoint.sh /opt/entrypoint.sh
+
+COPY airflow_superset.py /opt/airflow_superset/airflow_superset.py
+COPY templates /opt/airflow_superset/templates
+
+RUN chmod a+rx /opt/entrypoint.sh
+
+ENTRYPOINT ["/usr/bin/tini", "/opt/entrypoint.sh"]
