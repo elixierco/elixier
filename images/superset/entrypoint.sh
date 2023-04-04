@@ -23,6 +23,8 @@ elif [ "$1" == "first-init" ];then
         /opt/elixier/superset/bin/superset fab create-admin --username $DEFAULT_ADMIN --firstname $DEFAULT_ADMIN --lastname $DEFAULT_ADMIN --email $DEFAULT_ADMIN_EMAIL --password $DEFAULT_ADMIN_PASSWORD
         /opt/elixier/superset/bin/superset init
         touch /var/lib/superset/initialized
+    else
+        /opt/elixier/superset/bin/superset fab reset-password --username $DEFAULT_ADMIN --password $DEFAULT_ADMIN_PASSWORD
     fi
 else
     "$@"

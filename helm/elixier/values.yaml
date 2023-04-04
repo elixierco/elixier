@@ -70,19 +70,6 @@ opensearch_image:
   pullPolicy: IfNotPresent
   tag: "2.4.1-2"
 
-kafka_image:
-  repository: registry.gitlab.com/abyres/releases/kafka
-  pullPolicy: IfNotPresent
-  tag: "3.3.1-2"
-
-
-nifi_image:
-  repository: registry.gitlab.com/abyres/releases/nifi
-  pullPolicy: Always
-  tag: "development"
-
-
-
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -240,6 +227,9 @@ superset:
   db_name: superset
   db_user: superset
   db_password: superset
+  admin_user: admin
+  admin_password: admin
+  admin_email: admin@localhost.local
 
 opensearch:
   env: {}

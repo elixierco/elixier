@@ -16,7 +16,7 @@ FEATURE_FLAGS = {
     'DASHBOARD_RBAC': True,
     'ENABLE_DND_WITH_CLICK_UX': True,
     'LISTVIEWS_DEFAULT_CARD_VIEW': True,
-    'DASHBOARD_CROSS_FILTERS': True
+    'DASHBOARD_CROSS_FILTERS': True,
 }
 
 ALERT_REPORTS_NOTIFICATION_DRY_RUN = False
@@ -70,7 +70,7 @@ RESULTS_BACKEND = RedisCache(
 
 THUMBNAIL_CACHE_CONFIG = {
     'CACHE_TYPE': 'redis',
-    'CACHE_DEFAULT_TIMEOUT': 60 * 60 * 24,
+    'CACHE_DEFAULT_TIMEOUT': 60 * 60 * 24 * 7,
     'CACHE_KEY_PREFIX': 'superset_thumbnail',
     'CACHE_REDIS_URL': 'redis://{{ include "elixier.fullname" . }}-redis:6379/6',
 }
@@ -191,3 +191,5 @@ MAPBOX_API_KEY = {{ .Values.superset.mapbox_token | quote }}
 {{ end }}
 
 {{- end }}
+
+
