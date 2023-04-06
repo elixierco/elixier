@@ -137,7 +137,8 @@ ADD packages/mc /usr/local/bin/mc
 RUN chmod a+rx /usr/local/bin/mc
 
 RUN /usr/bin/python${PYTHON_VERSION} -m venv /opt/elixier/jupyterhub/ && \
-    /opt/elixier/jupyterhub/bin/pip install "jupyterhub==$JUPYTERHUB_VERSION" "jupyterlab==$JUPYTERLAB_VERSION" jupyter-server-proxy \
+    /opt/elixier/jupyterhub/bin/pip install "jupyterhub==$JUPYTERHUB_VERSION" "jupyterlab==$JUPYTERLAB_VERSION" \
+    jupyter-server-proxy \
     jupyterlab-git jupyterlab_latex jupyterlab-fasta \
     jupyterlab-geojson jupyterlab-katex  jupyterlab-mathjax3 jupyterlab-vega2 \
     jupyterlab-vega3 jupyterlab_widgets sudospawner keycloakauthenticator \
@@ -158,7 +159,7 @@ RUN npm install configurable-http-proxy && \
     ln -s /opt/elixier/jupyterhub/bin/jupyterhub-singleuser /usr/local/bin/jupyterhub-singleuser && \
     ln -s /opt/elixier/jupyterhub/bin/alembic /usr/local/bin/alembic
 
-ENV PATH="${PATH}:/opt/apache/spark3/bin:/opt/elixier/spark3-python/bin/:/opt/apache/hadoop/bin/" 
+
 
 COPY entrypoints/airflow.sh /opt/elixier/airflow/bin/entrypoint.sh
 COPY entrypoints/jupyterhub.sh /opt/elixier/jupyterhub/bin/entrypoint.sh
@@ -182,6 +183,19 @@ COPY packages/presto-cli-${PRESTO_VERSION}-executable.jar /usr/local/bin/presto
 COPY packages/trino-cli-${TRINO_VERSION}-executable.jar /usr/local/bin/trino
 RUN chmod a+rx /usr/local/bin/presto /usr/local/bin/trino
 
+ADD python-requirements.txt /opt/elixier/spark3-python/
+RUN /opt/elixier/spark3-python/bin/pip install -r /opt/elixier/spark3-python/python-requirements.txt
+
+ENV CODESERVER_VERSION=4.11.0
+
+ADD packages/code-server-${CODESERVER_VERSION}-linux-amd64.tar.gz /opt/
+COPY icons/builder.svg /opt/code-server-${CODESERVER_VERSION}-linux-amd64/builder.svg
+RUN ln -s /opt/code-server-${CODESERVER_VERSION}-linux-amd64 /opt/code-server
+
+RUN mkdir -p /etc/jupyter/ 
+ADD jupyter_lab_config.py /etc/jupyter/
+ENV PATH="${PATH}:/opt/apache/spark3/bin:/opt/elixier/spark3-python/bin/:/opt/apache/hadoop/bin/:/opt/openvscode/bin" 
+
 WORKDIR /workdir/
 
 ENV AIRFLOW_HOME=/etc/airflow/ \
@@ -190,8 +204,6 @@ ENV AIRFLOW_HOME=/etc/airflow/ \
     DEFAULT_ADMIN_PASSWORD="admin" \
     DEFAULT_ADMIN_EMAIL="admin@localhost.local"
 
-ADD python-requirements.txt /opt/elixier/spark3-python/
-RUN /opt/elixier/spark3-python/bin/pip install -r /opt/elixier/spark3-python/python-requirements.txt
 
 ENTRYPOINT ["/opt/apache/spark3/kubernetes/dockerfiles/spark/entrypoint.sh"]
 
