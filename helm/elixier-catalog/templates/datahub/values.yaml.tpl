@@ -17,7 +17,20 @@ datahub-frontend:
     tls:
       - hosts:
           - datahub.{{ .Values.ingress.domain }}
-        secretName: {{ include "elixier-catalog.fullname" . }}-fe
+        secretName: {{ include "elixier-catalog.fullname" . }}-fea
+  {{ if .Values.keycloak.enabled }}
+  extraEnvs:
+    - name: AUTH_OIDC_ENABLED
+      value: "true"
+    - name: AUTH_OIDC_CLIENT_ID
+      value: {{ .Values.keycloak.client_id }}
+    - name: AUTH_OIDC_CLIENT_SECRET
+      value: {{ .Values.keycloak.client_secret }}
+    - name: AUTH_OIDC_DISCOVERY_URI
+      value: {{ .Values.keycloak.url }}/realms/{{ .Values.keycloak.realm }}/.well-known/openid-configuration
+    - name: AUTH_OIDC_BASE_URL
+      value: https://datahub.{{ .Values.ingress.domain }}
+  {{- end }}
 
 datahub-gms:
   service:
