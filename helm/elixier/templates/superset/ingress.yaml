@@ -22,4 +22,9 @@ spec:
               number: 80
         path: /
         pathType: Prefix
+  tls:
+    - secretName: {{ include "elixier.fullname" . }}-superset
+      hosts:
+      - superset.{{ .Values.ingress.domain }}
+
 {{- end }}

@@ -22,4 +22,8 @@ spec:
               number: 80
         path: /
         pathType: Prefix
+  tls:
+    - secretName: {{ include "elixier.fullname" . }}-airflow
+      hosts:
+      - airflow.{{ .Values.ingress.domain }}
 {{- end }}

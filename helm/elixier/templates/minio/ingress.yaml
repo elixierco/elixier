@@ -32,4 +32,11 @@ spec:
               number: 9001
         path: /
         pathType: Prefix
+  tls:
+    - secretName: {{ include "elixier.fullname" . }}-minio
+      hosts:
+      - minio.{{ .Values.ingress.domain }}
+    - secretName: {{ include "elixier.fullname" . }}-minio-console
+      hosts:
+      - minio-console.{{ .Values.ingress.domain }}
 {{- end }}

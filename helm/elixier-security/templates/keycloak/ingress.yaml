@@ -22,4 +22,8 @@ spec:
               number: 80
         path: /
         pathType: Prefix
+  tls:
+    - secretName: {{ include "elixier-security.fullname" . }}-keycloak
+      hosts:
+      - keycloak.{{ .Values.ingress.domain }}
 {{- end }}

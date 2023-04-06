@@ -23,5 +23,10 @@ spec:
               number: 8080
         path: /
         pathType: Prefix
+  tls:
+    - secretName: {{ include "elixier.fullname" . }}-presto
+      hosts:
+      - presto.{{ .Values.ingress.domain }}
+
 {{- end }}
 {{- end }}

@@ -22,4 +22,8 @@ spec:
               number: 8000
         path: /
         pathType: Prefix
+  tls:
+    - secretName: {{ include "elixier.fullname" . }}-jupyterhub
+      hosts:
+      - jupyterhub.{{ .Values.ingress.domain }}
 {{- end }}

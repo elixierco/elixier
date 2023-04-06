@@ -56,7 +56,10 @@ c.KubeSpawner.volumes = [
  }, {
     'name': '{{ include "elixier.fullname" . }}-spark-datadir',
     'emptyDir': {}
- }, 
+ }, {
+    'name': '{{ include "elixier.fullname" . }}-jupyter-workdir',
+    'emptyDir': {}
+ },
 {{ if .Values.presto.enabled -}}
  {
     'name': '{{ include "elixier.fullname" . }}-presto-catalogs',
@@ -89,6 +92,9 @@ c.KubeSpawner.volume_mounts = [
     }, {
         'name': '{{ include "elixier.fullname" . }}-spark-datadir',
         'mountPath': "/opt/apache/spark3/work-dir",
+    }, {
+        'name': '{{ include "elixier.fullname" . }}-jupyter-workdir',
+        'mountPath': "/workdir",
     }, 
 {{ if .Values.presto.enabled -}}
     {
@@ -142,6 +148,7 @@ c.GenericOAuthenticator.userdata_params = {'state': 'state'}
 c.GenericOAuthenticator.username_key = 'preferred_username'
 c.GenericOAuthenticator.login_service = 'Keycloak'
 c.GenericOAuthenticator.scope = ['openid', 'profile']
+c.GenericOAuthenticator.oauth_callback_url = 'https://jupyterhub.{{ .Values.ingress.domain }}/hub/oauth_callback'
 
 {{- end }}
 {{- end }}

@@ -23,4 +23,8 @@ spec:
               number: 9200
         path: /
         pathType: Prefix
+  tls:
+    - secretName: {{ include "elixier.fullname" . }}-opensearch
+      hosts:
+      - opensearch.{{ .Values.ingress.domain }}
 {{- end }}

@@ -22,4 +22,8 @@ spec:
               number: 80
         path: /
         pathType: Prefix
+  tls:
+    - secretName: {{ include "elixier.fullname" . }}-gitweb
+      hosts:
+      - gitweb.{{ .Values.ingress.domain }}
 {{- end }}

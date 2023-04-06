@@ -195,6 +195,7 @@ RUN ln -s /opt/code-server-${CODESERVER_VERSION}-linux-amd64 /opt/code-server
 RUN mkdir -p /etc/jupyter/ 
 ADD jupyter_lab_config.py /etc/jupyter/
 ENV PATH="${PATH}:/opt/apache/spark3/bin:/opt/elixier/spark3-python/bin/:/opt/apache/hadoop/bin/:/opt/openvscode/bin" 
+ENV JUPYTER_CONFIG_PATH=/etc/jupyter/
 
 WORKDIR /workdir/
 

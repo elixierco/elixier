@@ -16,10 +16,10 @@ c.ServerProxy.servers = {
 
 c.Application.logging_config = {
     'handlers': {
-        'file': {
+        'labapp': {
             'class': 'logging.FileHandler',
             'level': 'WARN',
-            'filename': '/var/log/jupyter/jupyter.log',
+            'filename': '/workdir/LabApp.log',
         }
     },
     'loggers': {
@@ -27,7 +27,7 @@ c.Application.logging_config = {
             'level': 'WARN',
             # NOTE: if you don't list the default "console"
             # handler here then it will be disabled
-            'handlers': ['console', 'file'],
+            'handlers': ['console', 'labapp'],
         },
     }
 }

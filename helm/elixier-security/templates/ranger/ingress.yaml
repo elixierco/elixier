@@ -23,4 +23,8 @@ spec:
               number: 6080
         path: /
         pathType: Prefix
+  tls:
+    - secretName: {{ include "elixier-security.fullname" . }}-ranger
+      hosts:
+      - ranger.{{ .Values.ingress.domain }}
 {{- end }}
