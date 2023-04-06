@@ -6,20 +6,37 @@ datahub-frontend:
     type: ClusterIP
   ingress:
     enabled: true
+    {{- with .Values.ingress.annotations }}
+    annotations:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
     hosts:
       - host: datahub.{{ .Values.ingress.domain }}
         paths: 
           - '/'
+    tls:
+      - hosts:
+          - datahub.{{ .Values.ingress.domain }}
+        secretName: {{ include "elixier-catalog.fullname" . }}-fe
 
 datahub-gms:
   service:
     type: ClusterIP
   ingress:
     enabled: true
+    {{- with .Values.ingress.annotations }}
+    annotations:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
     hosts:
       - host: api.datahub.{{ .Values.ingress.domain }}
         paths: 
           - '/'
+    tls:
+      - hosts:
+          - api.datahub.{{ .Values.ingress.domain }}
+        secretName: {{ include "elixier-catalog.fullname" . }}-gms
+
   
 
 mysqlSetupJob:
