@@ -18,6 +18,8 @@ spec:
           imagePullPolicy: {{ .Values.kubectl_image.pullPolicy }}
           args: ["exec", "-ti", '{{ include "elixier-catalog.fullname" . }}-db-0', "--",
                  "psql", "-c", "ALTER USER postgres PASSWORD '{{ .Values.pgsql.root_password }}';"]
+          resources:
+            {{- toYaml .Values.initContainers.resources | nindent 12 }}
       containers:
         - name: createdb-datahub
           image: "{{ .Values.kubectl_image.repository }}:{{ .Values.kubectl_image.tag }}"
@@ -25,5 +27,7 @@ spec:
           args: ["exec", "-ti", '{{ include "elixier-catalog.fullname" . }}-db-0', "--",
                  "createdb_with_user.sh", "-d", "{{ .Values.datahub.db_name }}", 
                  "-u", "{{ .Values.datahub.db_user }}", "-p", "{{ .Values.datahub.db_password }}"]
+          resources:
+            {{- toYaml .Values.initContainers.resources | nindent 12 }}
       restartPolicy: Never
   backoffLimit: 10

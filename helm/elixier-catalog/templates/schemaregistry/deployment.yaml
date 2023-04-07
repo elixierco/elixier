@@ -63,7 +63,7 @@ spec:
             periodSeconds: 10
 
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            {{- toYaml .Values.schemaregistry.resources | nindent 12 }}
           env:
             - name: schemaregistry.listeners
               value: 'http://0.0.0.0:8081'

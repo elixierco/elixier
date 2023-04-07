@@ -84,18 +84,6 @@ ingress:
     # kubernetes.io/tls-acme: "true"
   domain: elixier.lan
 
-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
-
 autoscaling:
   enabled: false
   minReplicas: 1
@@ -103,9 +91,25 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
+initContainers:
+  resources:  
+   limits:
+     memory: 64Mi
+   requests: 
+     cpu: 10m 
+     memory: 16Mi
+
+
 opensearch:
   env: {}
   replicas: 1 
+  resources: 
+   limits:
+     memory: 2048Mi
+   requests:
+     cpu: 100m
+     memory: 256Mi
+
 
 neo4j:
   enabled: true
@@ -115,11 +119,33 @@ kafka:
   enabled: true
   cluster_id: bwx_CqkkQp64WNqQNNC-Qg
   replicas: 1
+  resources: 
+   limits:
+     memory: 4096Mi
+   requests:
+     cpu: 200m
+     memory: 1280Mi
+
+schemaregistry:
+  resources: 
+   limits:
+     memory: 1024Mi
+   requests:
+     cpu: 100m
+     memory: 256Mi
+
+
 
 pgsql: 
   root_password: postgres
   pg_version: 14
   pvc_size: 5Gi
+  resources:
+   limits:
+     memory: 2048Mi
+   requests:
+     cpu: 100m
+     memory: 128Mi
 
 datahub:
   db_name: datahub

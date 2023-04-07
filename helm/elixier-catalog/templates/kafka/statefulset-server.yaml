@@ -46,7 +46,7 @@ spec:
           image: "{{ .Values.kafka_image.repository }}:{{ .Values.kafka_image.tag }}"
           imagePullPolicy: {{ .Values.kafka_image.pullPolicy }}
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            {{- toYaml .Values.kafka.resources | nindent 12 }}
           volumeMounts:
             {{- include "elixier-catalog.kafka.volume-mounts" . | nindent 12 }}
           args: ['start']

@@ -43,7 +43,7 @@ spec:
           image: "{{ .Values.opensearch_image.repository }}:{{ .Values.opensearch_image.tag }}"
           imagePullPolicy: {{ .Values.opensearch_image.pullPolicy }}
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            {{- toYaml .Values.opensearch.resources | nindent 12 }}
           volumeMounts:
             {{- include "elixier-catalog.opensearch.volume-mounts" . | nindent 12 }}
           env:
