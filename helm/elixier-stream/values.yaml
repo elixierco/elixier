@@ -17,8 +17,8 @@ kafka_image:
 
 nifi_image:
   repository: registry.gitlab.com/abyres/releases/nifi
-  pullPolicy: Always
-  tag: "development"
+  pullPolicy: IfNotPresent
+  tag: "1.20.0-20230407.78"
 
 schemaregistry_image:
   repository: registry.gitlab.com/abyres/releases/schemaregistry
