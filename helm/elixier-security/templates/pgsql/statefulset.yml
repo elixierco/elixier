@@ -38,7 +38,7 @@ spec:
           imagePullPolicy: {{ .Values.pgsql_image.pullPolicy }}
           args: ["initdb"]
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            {{- toYaml .Values.pgsql.resources | nindent 12 }}
           volumeMounts:
             - name: {{ include "elixier-security.fullname" . }}-db-datadir
               mountPath: {{ include "elixier-security.pgsql.volume_path" . }}
@@ -70,7 +70,7 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 15
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            {{- toYaml .Values.pgsql.resources | nindent 12 }}
           volumeMounts:
             - name: {{ include "elixier-security.fullname" . }}-db-datadir
               mountPath: {{ include "elixier-security.pgsql.volume_path" . }}

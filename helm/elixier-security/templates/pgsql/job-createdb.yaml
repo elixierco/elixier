@@ -19,11 +19,16 @@ spec:
           imagePullPolicy: {{ .Values.kubectl_image.pullPolicy }}
           args: ["exec", "-ti", '{{ include "elixier-security.fullname" . }}-db-0', "--",
                  "psql", "-c", "ALTER USER postgres PASSWORD '{{ .Values.pgsql.root_password }}';"]
+          resources:
+            {{- toYaml .Values.initContainers.resources | nindent 12 }}
+
         - name: createdb-ranger
           image: "{{ .Values.kubectl_image.repository }}:{{ .Values.kubectl_image.tag }}"
           imagePullPolicy: {{ .Values.kubectl_image.pullPolicy }}
           args: ["exec", "-ti", '{{ include "elixier-security.fullname" . }}-db-0', "--",
                  "createdb_with_user.sh", "-d", "{{ .Values.ranger.db_name }}", 
                  "-u", "{{ .Values.ranger.db_user }}", "-p", "{{ .Values.ranger.db_password }}"]
+          resources:
+            {{- toYaml .Values.initContainers.resources | nindent 12 }}
       restartPolicy: Never
   backoffLimit: 10
