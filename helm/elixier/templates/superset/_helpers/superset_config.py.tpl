@@ -3,8 +3,17 @@
 from celery.schedules import crontab
 from flask_caching.backends.rediscache import RedisCache
 from selenium import webdriver
-
+from flask import Flask, redirect
+from flask_appbuilder import expose, IndexView
 import os
+
+class SupersetDashboardIndexView(IndexView):
+    @expose("/")
+    def index(self):
+        return redirect("/dashboard/list/")
+
+FAB_INDEX_VIEW = f"{SupersetDashboardIndexView.__module__}.{SupersetDashboardIndexView.__name__}"
+
 
 FEATURE_FLAGS = {
     'THUMBNAILS': True,
