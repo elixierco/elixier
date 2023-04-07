@@ -91,6 +91,7 @@ affinity: {}
 
 
 nifi:
+  initial_admin_identity: 
   replicas: 1
   sensitive_props_key: aUErHwNt5wbEqrgHSeXoZeKh5zsgy8AB
 
@@ -98,6 +99,9 @@ kafka:
   enabled: true
   cluster_id: bwx_CqkkQp64WNqQNNC-Qg
   replicas: 1
+
+keycloak:
+  enabled: false
 
 pki:
   keystore:

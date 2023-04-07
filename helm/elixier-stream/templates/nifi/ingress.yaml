@@ -7,7 +7,14 @@ metadata:
     component: nifi
     subcomponent: server
   annotations:
+    {{ if .Values.keycloak.enabled }}
     ingress.kubernetes.io/protocol: https
+    raefik.ingress.kubernetes.io/service.serversscheme: https
+    {{ end }}
+  {{- with .Values.ingress.annotations }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+
   name: {{ include "elixier-stream.fullname" . }}-nifi
 spec:
   rules:
@@ -18,7 +25,16 @@ spec:
           service:
             name: {{ include "elixier-stream.fullname" . }}-nifi
             port: 
+              {{ if .Values.keycloak.enabled }}
+              name: https
+              {{ else }}
               name: http
+              {{ end }}
         path: /
         pathType: Prefix
+  tls:
+    - secretName: {{ include "elixier-stream.fullname" . }}-nifi
+      hosts:
+      - nifi.{{ .Values.ingress.domain }}
+
 {{- end }}

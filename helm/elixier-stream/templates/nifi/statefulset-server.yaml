@@ -58,6 +58,19 @@ spec:
               containerPort: 6342
               protocol: TCP
 
+          {{ if .Values.keycloak.enabled }}
+          livenessProbe:
+            tcpSocket:
+              port: https
+            initialDelaySeconds: 30
+            periodSeconds: 10
+
+          readinessProbe:
+            tcpSocket:
+              port: https
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          {{ else }}
           livenessProbe:
             httpGet:
               path: /
@@ -69,9 +82,9 @@ spec:
             httpGet:
               path: /
               port: http
-
             initialDelaySeconds: 30
             periodSeconds: 10
+          {{- end }}
 
           volumeMounts:
             - name: {{ include "elixier-stream.fullname" . }}-nifi-config
@@ -84,6 +97,9 @@ spec:
               mountPath: "/var/lib/nifi"
 
           env:
+            {{ if .Values.keycloak.enabled }}
+            - name: nifi.security.keystore
+              value: /etc/nifi/pki/keystore.p12
             - name: nifi.security.keystoreType
               valueFrom:
                 secretKeyRef: 
@@ -99,6 +115,8 @@ spec:
                 secretKeyRef: 
                   name: {{ include "elixier-stream.fullname" . }}-pki-config
                   key: key_password
+            - name: nifi.security.truststore
+              value: /etc/nifi/pki/truststore.p12
             - name: nifi.security.truststoreType
               valueFrom:
                 secretKeyRef: 
@@ -109,6 +127,26 @@ spec:
                 secretKeyRef: 
                   name: {{ include "elixier-stream.fullname" . }}-pki-config
                   key: truststore_password
+            - name: nifi.remote.input.secure
+              value: 'true'
+            - name: nifi.web.http.port
+              value: ''
+            - name: nifi.web.https.port
+              value: '8443'
+            - name: nifi.web.proxy.host
+              value: nifi.{{ .Values.ingress.domain }}
+            - name: nifi.security.user.login.identity.provider
+              value: ''
+            - name: nifi.security.user.authorizer
+              value: managed-authorizer
+            - name: nifi.security.user.oidc.discovery.url
+              value: {{ .Values.keycloak.url }}/realms/{{ .Values.keycloak.realm }}/.well-known/openid-configuration
+            - name: nifi.security.user.oidc.client.id
+              value: {{ .Values.keycloak.client_id }}
+            - name: nifi.security.user.oidc.client.secret
+              value: {{ .Values.keycloak.client_secret }}
+            {{- end }}
+
             - name: nifi.sensitive.props.key
               valueFrom:
                 secretKeyRef: 
