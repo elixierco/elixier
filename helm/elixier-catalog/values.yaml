@@ -126,6 +126,9 @@ datahub:
   db_user: datahub
   db_password: datahub
 
+keycloak:
+  enabled: false
+
 nodeSelector: {}
 
 tolerations: []
