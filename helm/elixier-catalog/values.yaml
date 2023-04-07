@@ -19,9 +19,9 @@ helm_image:
 
 schemaregistry_image:
   repository: registry.gitlab.com/abyres/releases/schemaregistry
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "development"
+  tag: "7.3-20230407.105"
 
 opensearch_image:
   repository: registry.gitlab.com/abyres/releases/opensearch
