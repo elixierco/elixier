@@ -83,36 +83,33 @@ tolerations: []
 affinity: {}
 
 initContainers:
-  resources: {}
-  # limits:
-  #   cpu: 1000m
-  #   memory: 64Mi
-  # requests:
-  #   cpu: 10m
-  #   memory: 16Mi
+  resources: 
+   limits:
+     memory: 64Mi
+   requests:
+     cpu: 10m
+     memory: 16Mi
 
 pgsql:
   root_password: postgres
   pg_version: 14
   pvc_size: 5Gi
-  resources: {}
-  # limits:
-  #   cpu: 2000m
-  #   memory: 2048Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
+  resources: 
+   limits:
+     memory: 2048Mi
+   requests:
+     cpu: 100m
+     memory: 128Mi
 
 opensearch:
   env: {}
   replicas: 1
-  resources: {}
-  # limits:
-  #   cpu: 2000m
-  #   memory: 2048Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 256Mi
+  resources: 
+   limits:
+     memory: 2048Mi
+   requests:
+     cpu: 100m
+     memory: 256Mi
 
 ranger:
   enabled: false
@@ -123,21 +120,19 @@ ranger:
   db_password: password
   db_name: ranger
   db_user: rangeradmin
-  resources: {}
-  # limits:
-  #   cpu: 2000m
-  #   memory: 2048Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 1024Mi
+  resources: 
+   limits:
+     memory: 2048Mi
+   requests:
+     cpu: 100m
+     memory: 1024Mi
 
 keycloak:
   pvc_size: 500Mi
-  resources: {}
-  # limits:
-  #   cpu: 2000m
-  #   memory: 1024Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 512Mi
+  resources: 
+   limits:
+     memory: 1024Mi
+   requests:
+     cpu: 100m
+     memory: 512Mi
 
