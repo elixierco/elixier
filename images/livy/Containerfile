@@ -14,6 +14,7 @@ ENV JAVA_VERSION=1.8.0 \
     HADOOP_MINOR_VERSION=3.2 \
     SPARK3_VERSION=3.1.3 \
     SPARK3_MINOR_VERSION=3.1 \
+    SPARK3_RELEASENAME=elixier-livy-spark \
     PYTHON_VERSION=3.8 \
     LIVY_VERSION=0.8.0-incubating-SNAPSHOT
 
@@ -27,7 +28,7 @@ RUN mkdir -p /opt/apache/ && mkdir -p /opt/elixier/ && \
     install -o root -g root -m 0755 /root/tini /usr/bin/tini
 
 ADD packages/hadoop-${HADOOP_VERSION}.tar.gz /opt/apache/
-ADD packages/spark-${SPARK3_VERSION}-bin-without-hadoop.tgz /opt/apache/
+ADD release/spark-${SPARK3_VERSION}-bin-${SPARK3_RELEASENAME}.tgz /opt/apache/
 
 
 RUN set -ex && \
@@ -41,6 +42,7 @@ RUN set -ex && \
         bash iputils glibc-langpack-en net-tools \
         nmap bind-utils hostname nss pam wget \
         procps-ng vim-enhanced \
+        python-unversioned-command \
         postgresql-libs postgresql  && \
         dnf clean all
 
@@ -48,7 +50,7 @@ RUN set -ex && \
 
 WORKDIR /opt/apache/
 RUN ln -s ./hadoop-${HADOOP_VERSION} hadoop && \
-    ln -s ./spark-${SPARK3_VERSION}-bin-without-hadoop spark3
+    ln -s ./spark-${SPARK3_VERSION}-bin-${SPARK3_RELEASENAME} spark3
 
 RUN /usr/sbin/groupadd -r user --gid 1000 && \
      /usr/sbin/useradd -r -g user --uid 1000 \
@@ -70,7 +72,7 @@ ENV PYSPARK_PYTHON=/opt/elixier/spark3-python/bin/python \
     SPARK_NO_DAEMONIZE=true \
     SPARK_HOME=/opt/apache/spark3 \
     HADOOP_HOME=/opt/apache/hadoop \
-    HADOOP_CLASSPATH="/opt/apache/hadoop/share/hadoop/tools/lib/*:/opt/apache/hive/lib/*" \
+    HADOOP_CLASSPATH="/opt/apache/hadoop/share/hadoop/tools/lib/*" \
     SPARK_DIST_CLASSPATH="/opt/apache/hadoop//etc/hadoop:/opt/apache/hadoop//share/hadoop/common/lib/*:/opt/apache/hadoop//share/hadoop/common/*:/opt/apache/hadoop//share/hadoop/hdfs:/opt/apache/hadoop//share/hadoop/hdfs/lib/*:/opt/apache/hadoop//share/hadoop/hdfs/*:/opt/apache/hadoop//share/hadoop/mapreduce/lib/*:/opt/apache/hadoop//share/hadoop/mapreduce/*:/opt/apache/hadoop//share/hadoop/yarn:/opt/apache/hadoop//share/hadoop/yarn/lib/*:/opt/apache/hadoop//share/hadoop/yarn/*:/opt/apache/hadoop/share/hadoop/tools/lib/*"
 
 RUN chown -R root:root /opt/apache/spark3/jars/ && chmod a+r -R /opt/apache/spark3/jars/
@@ -102,6 +104,7 @@ ADD create_blacklist.py /opt/
 ADD entrypoint.sh /opt/
 WORKDIR /workdir
 RUN mkdir /etc/livy/ && ln -s /opt/apache/apache-livy-${LIVY_VERSION}-bin /opt/apache/livy && \
-    chmod a+rwx /opt/apache/livy/conf/
+    chmod a+rwx /opt/apache/livy/conf/ && rm -f /opt/apache/livy/rsc-jars/kryo-shaded-*jar && \
+    rm -f /opt/apache/livy/rsc-jars/minlog*.jar && rm -f /opt/apache/livy/rsc-jars/objenesis*.jar
 
 ENTRYPOINT ["/usr/bin/tini","--",  "/opt/apache/spark3/kubernetes/dockerfiles/spark/entrypoint.sh"]

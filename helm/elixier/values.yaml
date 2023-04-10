@@ -67,8 +67,8 @@ superset_image:
 
 livy_image:
   repository: registry.gitlab.com/abyres/releases/livy
-  pullPolicy: Always
-  tag: "development"
+  pullPolicy: IfNotPresent
+  tag: "0.8.0-20230411.1334"
 
 
 imagePullSecrets: []

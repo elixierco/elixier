@@ -81,6 +81,8 @@ spec:
               value: spark://{{ include "elixier.fullname" . }}-livy-spark-m:7077
             - name: livy.file.local-dir-whitelist
               value: /home/user/
+            - name: livy.repl.enable-hive-context
+              value: 'true'
             - name: blacklist.spark.master
               value: ''
             - name: blacklist.spark.deployMode
