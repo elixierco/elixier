@@ -65,6 +65,12 @@ superset_image:
   pullPolicy: IfNotPresent
   tag: "2.0.1-20230407.161"
 
+livy_image:
+  repository: registry.gitlab.com/abyres/releases/livy
+  pullPolicy: Always
+  tag: "development"
+
+
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -171,6 +177,8 @@ airflow:
     targetCPUUtilizationPercentage: 80
   data_storage: 5Gi
 
+livy:
+  enabled: false
 
 smtp:
   enabled: false

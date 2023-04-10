@@ -1,0 +1,107 @@
+FROM fedora:37 as extract
+
+ENV LIVY_VERSION=0.8.0-incubating-SNAPSHOT
+
+ADD packages/apache-livy-${LIVY_VERSION}-bin.zip /opt/
+WORKDIR /opt
+RUN dnf install unzip -y && unzip apache-livy-${LIVY_VERSION}-bin.zip && \
+    chown 1000:1000 -R /opt/apache-livy-${LIVY_VERSION}-bin
+
+FROM fedora:37 as base
+
+ENV JAVA_VERSION=1.8.0 \
+    HADOOP_VERSION=3.2.3 \
+    HADOOP_MINOR_VERSION=3.2 \
+    SPARK3_VERSION=3.1.3 \
+    SPARK3_MINOR_VERSION=3.1 \
+    PYTHON_VERSION=3.8 \
+    LIVY_VERSION=0.8.0-incubating-SNAPSHOT
+
+ENV JAVA_HOME=/usr/lib/jvm/jre-${JAVA_VERSION}/ \
+    TINI_VERSION=0.19.0
+
+ADD dnf.conf /etc/dnf/dnf.conf
+ADD https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini /root/tini
+
+RUN mkdir -p /opt/apache/ && mkdir -p /opt/elixier/ && \
+    install -o root -g root -m 0755 /root/tini /usr/bin/tini
+
+ADD packages/hadoop-${HADOOP_VERSION}.tar.gz /opt/apache/
+ADD packages/spark-${SPARK3_VERSION}-bin-without-hadoop.tgz /opt/apache/
+
+
+RUN set -ex && \
+    dnf install -y \
+        java-${JAVA_VERSION}-openjdk-headless \
+        freetds freetds-libs mariadb-connector-c \
+        passwd git patch /usr/bin/python${PYTHON_VERSION} \
+        "pkgconfig(python-${PYTHON_VERSION})" \
+        perl-interpreter findutils \
+        libffi krb5-libs openldap-clients openldap \
+        bash iputils glibc-langpack-en net-tools \
+        nmap bind-utils hostname nss pam wget \
+        procps-ng vim-enhanced \
+        postgresql-libs postgresql  && \
+        dnf clean all
+
+
+
+WORKDIR /opt/apache/
+RUN ln -s ./hadoop-${HADOOP_VERSION} hadoop && \
+    ln -s ./spark-${SPARK3_VERSION}-bin-without-hadoop spark3
+
+RUN /usr/sbin/groupadd -r user --gid 1000 && \
+     /usr/sbin/useradd -r -g user --uid 1000 \
+     -m -d /home/user \
+     -s /bin/bash user
+
+COPY jars/* /opt/apache/spark3/jars/
+COPY spark-jars/spark-hadoop-cloud_2.12-${HADOOP_VERSION}.jar /opt/apache/spark3/jars/
+
+COPY noop.py /opt/noop.py
+
+ENV HIVE_VERSION=3.1.3 
+ADD packages/apache-hive-${HIVE_VERSION}-bin.tar.gz /opt/apache/
+RUN ln -s /opt/apache/apache-hive-${HIVE_VERSION}-bin /opt/apache/hive
+ENV HIVE_HOME=/opt/apache/hive
+
+ENV PYSPARK_PYTHON=/opt/elixier/spark3-python/bin/python \
+    SPARK_CONF_DIR=/etc/spark3 \
+    SPARK_NO_DAEMONIZE=true \
+    SPARK_HOME=/opt/apache/spark3 \
+    HADOOP_HOME=/opt/apache/hadoop \
+    HADOOP_CLASSPATH="/opt/apache/hadoop/share/hadoop/tools/lib/*:/opt/apache/hive/lib/*" \
+    SPARK_DIST_CLASSPATH="/opt/apache/hadoop//etc/hadoop:/opt/apache/hadoop//share/hadoop/common/lib/*:/opt/apache/hadoop//share/hadoop/common/*:/opt/apache/hadoop//share/hadoop/hdfs:/opt/apache/hadoop//share/hadoop/hdfs/lib/*:/opt/apache/hadoop//share/hadoop/hdfs/*:/opt/apache/hadoop//share/hadoop/mapreduce/lib/*:/opt/apache/hadoop//share/hadoop/mapreduce/*:/opt/apache/hadoop//share/hadoop/yarn:/opt/apache/hadoop//share/hadoop/yarn/lib/*:/opt/apache/hadoop//share/hadoop/yarn/*:/opt/apache/hadoop/share/hadoop/tools/lib/*"
+
+RUN chown -R root:root /opt/apache/spark3/jars/ && chmod a+r -R /opt/apache/spark3/jars/
+ADD hadoop-jars/aws-java-sdk-bundle*.jar /opt/apache/hadoop/share/hadoop/common/lib/
+ADD hadoop-jars/hadoop-aws-${HADOOP_VERSION}.jar /opt/apache/hadoop/share/hadoop/common/lib/
+
+WORKDIR /opt/elixier/
+RUN /usr/bin/python${PYTHON_VERSION} -m venv spark3-python && \
+    ./spark3-python/bin/pip install numpy scikit-learn pandas dask ipykernel findspark
+
+USER user
+
+RUN /opt/apache/spark3/bin/spark-submit \
+    --packages graphframes:graphframes:0.8.2-spark${SPARK3_MINOR_VERSION}-s_2.12,\
+org.apache.iceberg:iceberg-spark-runtime-${SPARK3_MINOR_VERSION}_2.12:0.14.0,\
+io.openlineage:openlineage-spark:0.3.+,\
+io.acryl:datahub-spark-lineage:0.9.0,\
+org.apache.spark:spark-avro_2.12:${SPARK3_VERSION} \
+    /opt/noop.py
+
+USER root
+RUN cp /home/user/.ivy2/jars/* /opt/apache/spark3/jars/ && \
+    rm -rf /home/user/.ivy2/ && mkdir /workdir/
+
+COPY --from=extract /opt/apache-livy-${LIVY_VERSION}-bin /opt/apache/apache-livy-${LIVY_VERSION}-bin
+
+ADD create_config.py /opt/
+ADD create_blacklist.py /opt/
+ADD entrypoint.sh /opt/
+WORKDIR /workdir
+RUN mkdir /etc/livy/ && ln -s /opt/apache/apache-livy-${LIVY_VERSION}-bin /opt/apache/livy && \
+    chmod a+rwx /opt/apache/livy/conf/
+
+ENTRYPOINT ["/usr/bin/tini","--",  "/opt/apache/spark3/kubernetes/dockerfiles/spark/entrypoint.sh"]

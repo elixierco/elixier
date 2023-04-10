@@ -1,0 +1,103 @@
+{{ if .Values.livy.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "elixier.fullname" . }}-livy
+  labels:
+    {{- include "elixier.labels" . | nindent 4 }}
+    component: livy
+    subcomponent: server
+spec:
+  serviceName: {{ include "elixier.fullname" . }}
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "elixier.selectorLabels" . | nindent 6 }}
+      component: livy
+      subcomponent: server
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "elixier.selectorLabels" . | nindent 8 }}
+        component: livy
+        subcomponent: server
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "elixier.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      volumes:
+        {{- include "elixier.volumes" . | nindent 8 }}
+        {{- include "elixier.livy.volumes" . | nindent 8 }}
+      setHostnameAsFQDN: true
+      initContainers:
+        {{- include "elixier.wait-hms" . | nindent 8 }}
+      containers:
+        - name: main
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.livy_image.repository }}:{{ .Values.livy_image.tag }}"
+          imagePullPolicy: {{ .Values.livy_image.pullPolicy }}
+          args: ["/opt/entrypoint.sh", "start"]
+          ports:
+            - name: http
+              containerPort: 8998
+              protocol: TCP
+            - name: livy
+              containerPort: 10000
+              protocol: TCP
+            - name: livy2
+              containerPort: 10001
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          volumeMounts:
+            {{- include "elixier.volume-mounts" . | nindent 12 }}
+            {{- include "elixier.livy.volume-mounts" . | nindent 12 }}
+          env:
+            {{- include "elixier.env" . | nindent 12 }}
+            - name: SPARK_CONF_DIR
+              value: /etc/livy-spark
+            - name: livy.cache-log.size
+              value: '10000'
+            - name: livy.server.recovery.state-store
+              value: file://var/log/livy/
+            - name: livy.server.request-log-retain.days
+              value: '5'
+            - name: livy.spark.master
+              value: spark://{{ include "elixier.fullname" . }}-livy-spark-m:7077
+            - name: livy.file.local-dir-whitelist
+              value: /home/user/
+            - name: blacklist.spark.master
+              value: ''
+            - name: blacklist.spark.deployMode
+              value: ''
+
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

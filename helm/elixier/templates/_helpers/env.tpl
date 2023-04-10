@@ -18,4 +18,6 @@
       key: fernet-key
 - name: CELERY_WORKERS
   value: "2"
+- name: LIVY_LOG_DIR
+  value: /var/log/livy
 {{- end }}

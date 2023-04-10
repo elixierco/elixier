@@ -1,0 +1,31 @@
+{{ if .Values.ingress.enabled }}
+{{ if .Values.livy.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  labels:
+    {{- include "elixier.labels" . | nindent 4 }}
+    component: livy
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  name: {{ include "elixier.fullname" . }}-livy
+spec:
+  rules:
+  - host: livy.{{ .Values.ingress.domain }}
+    http:
+      paths:
+      - backend:
+          service:
+            name: {{ include "elixier.fullname" . }}-livy
+            port:
+              name: http
+        path: /
+        pathType: Prefix
+  tls:
+    - secretName: {{ include "elixier.fullname" . }}-livy
+      hosts:
+      - livy.{{ .Values.ingress.domain }}
+{{- end }}
+{{- end }}

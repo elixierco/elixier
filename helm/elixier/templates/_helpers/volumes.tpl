@@ -12,6 +12,8 @@
     claimName: {{ include "elixier.fullname" . }}-airflow-datadir
 - name: {{ include "elixier.fullname" . }}-airflow-logdir
   emptyDir: {}
+- name: {{ include "elixier.fullname" . }}-livy-logdir
+  emptyDir: {}
 - name: {{ include "elixier.fullname" . }}-hadoop-config
   secret:
     secretName: {{ include "elixier.fullname" . }}-hadoop-config
@@ -30,6 +32,8 @@
   mountPath: "/var/lib/airflow"
 - name: {{ include "elixier.fullname" . }}-airflow-logdir
   mountPath: "/var/log/airflow"
+- name: {{ include "elixier.fullname" . }}-livy-logdir
+  mountPath: "/var/log/livy"
 - name: {{ include "elixier.fullname" . }}-hadoop-config
   mountPath: "/opt/apache/hadoop/etc/hadoop/core-site.xml"
   subPath: "core-site.xml"

@@ -6,6 +6,7 @@ NODEJS_VERSION=18.12.1
 AWS_SDK_VERSION=1.12.372
 PRESTO_VERSION=0.278.1
 TRINO_VERSION=389
+LIVY_VERSION=0.7.1
 CODESERVER_VERSION=4.11.0
 
 SCRIPT_PATH=`realpath $0`
@@ -21,6 +22,7 @@ NODEJS_PACKAGE=node-v${NODEJS_VERSION}-linux-x64.tar.gz
 AWS_SDK_JAR=aws-java-sdk-bundle-${AWS_SDK_VERSION}.jar
 PRESTO_CLI_JAR=presto-cli-${PRESTO_VERSION}-executable.jar
 TRINO_CLI_JAR=trino-cli-${TRINO_VERSION}-executable.jar
+LIVY_PACKAGE=apache-livy-${LIVY_VERSION}-incubating-bin.zip
 CODESERVER_PACKAGE=code-server-${CODESERVER_VERSION}-linux-amd64.tar.gz
 
 download () {
@@ -54,3 +56,5 @@ download https://repo1.maven.org/maven2/com/facebook/presto/presto-cli/${PRESTO_
 download https://repo1.maven.org/maven2/io/trino/trino-cli/${TRINO_VERSION}/${TRINO_CLI_JAR} ${PKGDIR}/${TRINO_CLI_JAR}
 
 download https://github.com/coder/code-server/releases/download/v${CODESERVER_VERSION}/${CODESERVER_PACKAGE} ${PKGDIR}/${CODESERVER_PACKAGE}
+
+download https://dlcdn.apache.org/incubator/livy/${LIVY_VERSION}-incubating/${LIVY_PACKAGE} ${PKGDIR}/${LIVY_PACKAGE}

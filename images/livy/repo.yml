@@ -1,0 +1,3 @@
+build: 1
+repo: registry.gitlab.com/abyres/releases/livy
+tag: 0.8.0
