@@ -198,4 +198,4 @@ spec:
         {{- end }}
         resources:
           requests:
-            storage: {{ .Values.nifi.instance_storage | default "20Gi" }}
+            storage: {{ .Values.nifi.instance_storage | default "5Gi" }}
