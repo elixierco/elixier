@@ -59,6 +59,8 @@ spec:
               value: '1024'
             - name: pgsql.shared_buffers
               value: '512MB'
+            - name: pgsql.password_encryption
+              value: md5
           ports:
             - name: pgsql
               containerPort: 5432

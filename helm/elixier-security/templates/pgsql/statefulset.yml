@@ -55,6 +55,12 @@ spec:
           env:
             - name: PGDATA
               value: {{ include "elixier-security.pgsql.volume_path" . }}/{{ .Values.pgsql.pg_version }}
+            - name: pgsql.password_encryption
+              value: md5
+            - name: pgsql.max_connections
+              value: '1024'
+            - name: pgsql.shared_buffers
+              value: '512MB'
           ports:
             - name: pgsql
               containerPort: 5432
