@@ -25,6 +25,7 @@ c.KubeSpawner.extra_labels = {
     'component': 'jupyterhub',
     'subcomponent': 'notebook'
 }
+c.KubeSpawner.http_timeout = 90
 c.KubeSpawner.dns_name_template = '{name}.{{ include "elixier.fullname" . }}.{namespace}.svc.cluster.local'
 c.KubeSpawner.service_account = '{{ include "elixier.serviceAccountName" . }}'
 c.KubeSpawner.automount_service_account_token = True

@@ -10,7 +10,8 @@ c.ServerProxy.servers = {
             'enabled': True,
             'icon_path': '/opt/code-server/builder.svg',
             'title': 'Web IDE'
-        }
+        },
+        'timeout': 60
     }
 }
 

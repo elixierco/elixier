@@ -2,9 +2,8 @@
 
 FROM fedora:37 AS extract
 
-ENV LIVY_VERSION=0.8.0 JAVA_VERSION=1.8.0
+ENV JAVA_VERSION=1.8.0
 ENV CRAN_MIRROR="https://mirrors.upm.edu.my/CRAN/"
-ENV SPARK_RELEASENAME="elixier-livy-spark"
 
 WORKDIR /opt
 RUN dnf install python3 python3-setuptools python3-pip \
@@ -14,14 +13,28 @@ RUN dnf install python3 python3-setuptools python3-pip \
     bzip2 gzip -y && dnf clean all && \
     Rscript -e "install.packages(\"e1071\", dep = TRUE, repos=\"${CRAN_MIRROR}\")"
 
-ENV LIVY_REV=da246ff30d11705d8f9772950c34c4ae1c82cf09
-RUN git clone https://github.com/apache/incubator-livy.git livy && \
-    cd livy && git checkout $LIVY_REV
-
 ENV SPARK_VERSION=3.1.3 HADOOP_VERSION=3.2.3
+ENV SPARK_RELEASENAME="elixier"
+ENV JAVA_HOME=/usr/lib/jvm/java-${JAVA_VERSION}
+
 RUN git clone https://github.com/apache/spark.git spark && \
     cd spark && git fetch --tags --all && \
-    git checkout tags/v${SPARK_VERSION} -B ${SPARK_VERSION}
+    git checkout tags/v${SPARK_VERSION} -b ${SPARK_VERSION}
+
+WORKDIR /opt/spark
+RUN ./dev/make-distribution.sh --name ${SPARK_RELEASENAME} --pip --r --tgz -Psparkr \
+    -Phive -Phive-thriftserver -Phadoop-cloud -Pyarn \
+    -Pkubernetes -Dhadoop.version=${HADOOP_VERSION} -Dguava.version=20.0 && \
+    mv spark-${SPARK_VERSION}-bin-${SPARK_RELEASENAME}.tgz /output/
+
+WORKDIR /opt/
+ENV LIVY_VERSION=0.8.0 
+ENV LIVY_REV=da246ff30d11705d8f9772950c34c4ae1c82cf09
+
+RUN dnf install patch -y && dnf clean all
+
+RUN git clone https://github.com/apache/incubator-livy.git livy && \
+    cd livy && git checkout $LIVY_REV 
 
 WORKDIR /opt/livy
 RUN mvn clean package -B -V -e \
@@ -31,7 +44,4 @@ RUN mvn clean package -B -V -e \
         -Dmaven.javadoc.skip=true && \
     mv assembly/target/apache-livy-${LIVY_VERSION}-incubating-SNAPSHOT-bin.zip /output/
 
-WORKDIR /opt/spark
-RUN ./dev/make-distribution.sh --name ${SPARK_RELEASENAME} --pip --r --tgz -Psparkr \
-    -Phive -Phive-thriftserver -Pkubernetes -Dhadoop.version=3.2.3 -Dguava.version=20.0 && \
-    mv spark-${SPARK_VERSION}-bin-${SPARK_RELEASENAME}.tgz /output/
+

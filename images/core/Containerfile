@@ -1,6 +1,6 @@
 FROM fedora:37 AS base
 
-LABEL co.elixier.rev="0.0.1-1"
+LABEL co.elixier.rev="1.0.4"
 
 COPY dnf.conf /etc/dnf/dnf.conf
 
@@ -23,7 +23,9 @@ FROM base AS spark
 ENV JAVA_VERSION=1.8.0 \
     HADOOP_VERSION=3.2.3 \
     HADOOP_MINOR_VERSION=3.2 \
-    SPARK3_VERSION=3.2.0 \
+    SPARK3_VERSION=3.1.3 \
+    SPARK3_MINOR_VERSION=3.1 \
+    SPARK3_RELEASENAME=elixier \
     PYTHON_VERSION=3.8
 
 RUN set -ex && \
@@ -58,9 +60,7 @@ RUN mkdir -p /opt/apache/ && mkdir -p /opt/elixier/ && \
 COPY libldap_r.so /usr/lib64/libldap_r.so
 
 ADD packages/hadoop-${HADOOP_VERSION}.tar.gz /opt/apache/
-ADD packages/spark-${SPARK3_VERSION}-bin-hadoop${HADOOP_MINOR_VERSION}.tgz /opt/apache/
-
-
+ADD release/spark-${SPARK3_VERSION}-bin-${SPARK3_RELEASENAME}.tgz /opt/apache/
 
 RUN /usr/sbin/groupadd -r user --gid 1000 && \
      /usr/sbin/useradd -r -g user --uid 1000 \
@@ -69,10 +69,10 @@ RUN /usr/sbin/groupadd -r user --gid 1000 && \
 
 WORKDIR /opt/apache/
 RUN ln -s ./hadoop-${HADOOP_VERSION} hadoop && \
-    ln -s ./spark-${SPARK3_VERSION}-bin-hadoop${HADOOP_MINOR_VERSION} spark3 
+    ln -s ./spark-${SPARK3_VERSION}-bin-${SPARK3_RELEASENAME} spark3 
 
 WORKDIR /opt/elixier/
-RUN /usr/bin/python${PYTHON_VERSION} -m venv spark3-python && \
+RUN /usr/bin/python${PYTHON_VERSION} -m venv --system-site-packages spark3-python && \
     ./spark3-python/bin/pip install numpy scikit-learn pandas dask ipykernel findspark 
 
 COPY jars/* /opt/apache/spark3/jars/
@@ -86,18 +86,16 @@ ENV PYSPARK_PYTHON=/opt/elixier/spark3-python/bin/python \
     HADOOP_HOME=/opt/apache/hadoop \
     SPARK_DIST_CLASSPATH="/opt/apache/hadoop//etc/hadoop:/opt/apache/hadoop//share/hadoop/common/lib/*:/opt/apache/hadoop//share/hadoop/common/*:/opt/apache/hadoop//share/hadoop/hdfs:/opt/apache/hadoop//share/hadoop/hdfs/lib/*:/opt/apache/hadoop//share/hadoop/hdfs/*:/opt/apache/hadoop//share/hadoop/mapreduce/lib/*:/opt/apache/hadoop//share/hadoop/mapreduce/*:/opt/apache/hadoop//share/hadoop/yarn:/opt/apache/hadoop//share/hadoop/yarn/lib/*:/opt/apache/hadoop//share/hadoop/yarn/*:/opt/apache/hadoop/share/hadoop/tools/lib/*"
 
-ADD https://repo1.maven.org/maven2/org/apache/spark/spark-hadoop-cloud_2.12/3.2.0/spark-hadoop-cloud_2.12-3.2.0.jar /opt/apache/spark3/jars/
-ADD https://download.oracle.com/otn-pub/otn_software/jdbc/217/ojdbc8.jar /opt/apache/spark3/jars/
 RUN chown -R root:root /opt/apache/spark3/jars/ && chmod a+r -R /opt/apache/spark3/jars/
 
 USER user
 
 RUN /opt/apache/spark3/bin/spark-submit \
-    --packages graphframes:graphframes:0.8.2-spark3.2-s_2.12,\
-org.apache.iceberg:iceberg-spark-runtime-3.2_2.12:0.14.0,\
+    --packages graphframes:graphframes:0.8.2-spark${SPARK3_MINOR_VERSION}-s_2.12,\
+org.apache.iceberg:iceberg-spark-runtime-${SPARK3_MINOR_VERSION}_2.12:0.14.0,\
 io.openlineage:openlineage-spark:0.3.+,\
 io.acryl:datahub-spark-lineage:0.9.0,\
-org.apache.spark:spark-avro_2.12:3.2.0 \
+org.apache.spark:spark-avro_2.12:${SPARK3_VERSION} \
     /opt/noop.py 
 
 USER root

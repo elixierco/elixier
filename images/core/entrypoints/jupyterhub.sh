@@ -19,9 +19,9 @@ elif [ "$1" == "jupyterhub-singleuser" ];then
     groupadd ${JUPYTERHUB_USER} -g 1000
     useradd ${JUPYTERHUB_USER} -u 1000 -g 1000
     cd /home/${JUPYTERHUB_USER}
+    chown -R ${JUPYTERHUB_USER}:${JUPYTERHUB_USER} /home/${JUPYTERHUB_USER}
+    chmod 0755 /home/${JUPYTERHUB_USER}/
     mkdir -p /home/${JUPYTERHUB_USER}/.config/airflow
-    chown ${JUPYTERHUB_USER}:${JUPYTERHUB_USER} /home/${JUPYTERHUB_USER}/.config/
-    chown -R ${JUPYTERHUB_USER}:${JUPYTERHUB_USER} /home/${JUPYTERHUB_USER}/.config/airflow
     export AIRFLOW_HOME=/home/${JUPYTERHUB_USER}/.config/airflow
     sudo -E -u ${JUPYTERHUB_USER} -- env "PATH=$PATH" "$@"
 else
