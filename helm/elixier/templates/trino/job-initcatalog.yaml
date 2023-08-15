@@ -70,6 +70,18 @@ spec:
               value: {{ .Values.s3a.access_key }}
             - name: trino.catalog.iceberg.hive.s3.aws-secret-key
               value: {{ .Values.s3a.secret_key }}
+            - name: trino.catalog.hive.hive.security
+              value: legacy
+            - name: trino.catalog.hive.hive.allow-drop-table
+              value: "true"
+            - name: trino.catalog.hive.hive.allow-rename-table
+              value: "true"
+            - name: trino.catalog.hive.hive.allow-add-column
+              value: "true"
+            - name: trino.catalog.hive.hive.allow-drop-column
+              value: "true"
+            - name: trino.catalog.hive.hive.allow-rename-column
+              value: "true"
       volumes:
         {{ include "elixier.trino.volumes" . | nindent 8 }}
       restartPolicy: Never

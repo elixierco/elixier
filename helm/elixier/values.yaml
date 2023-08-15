@@ -51,9 +51,9 @@ redis_image:
   tag: "5.0.3-1"
 
 gitsync_image:
-  repository: k8s.gcr.io/git-sync
+  repository: registry.k8s.io/git-sync/git-sync
   pullPolicy: IfNotPresent
-  tag: "v3.0.1"
+  tag: "v3.6.9"
 
 gitweb_image:
   repository: registry.gitlab.com/abyres/releases/gitserver
