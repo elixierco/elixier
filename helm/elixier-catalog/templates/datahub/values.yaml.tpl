@@ -71,6 +71,7 @@ global:
     bootstrap:
       server: {{ include "elixier-catalog.fullname" . }}-kafka-s:9092
     schemaregistry:
+      type: KAFKA
       url: http://{{ include "elixier-catalog.fullname" . }}-schemaregistry:8081
   
   neo4j:
@@ -94,6 +95,9 @@ global:
         secretKey: db-password
 
 datahub:
+
+    version: v0.10.5
+
     metadata_service_authentication:
       enabled: true
       systemClientSecret:
@@ -110,5 +114,9 @@ datahub:
       provisionSecrets:
         enabled: true
         autoGenerate: true
+    
+    managed_ingestion:
+      enabled: true
+      defaultCliVersion: "0.10.5.4"
 
 {{ end }}
