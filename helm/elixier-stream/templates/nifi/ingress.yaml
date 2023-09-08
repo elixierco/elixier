@@ -9,7 +9,8 @@ metadata:
   annotations:
     {{ if .Values.keycloak.enabled }}
     ingress.kubernetes.io/protocol: https
-    raefik.ingress.kubernetes.io/service.serversscheme: https
+    traefik.ingress.kubernetes.io/service.serversscheme: https
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     {{ end }}
   {{- with .Values.ingress.annotations }}
     {{- toYaml . | nindent 4 }}
