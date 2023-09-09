@@ -1,0 +1,116 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "minio.fullname" . }}
+  labels:
+    {{- include "minio.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  serviceName: {{ include "minio.fullname" . }}
+  selector:
+    matchLabels:
+      {{- include "minio.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "minio.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "minio.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: main
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{ if gt (int .Values.replicaCount) 1 -}}
+          args: ["server", "--console-address", ":9001", 'http://{{ include "minio.fullname" . }}-{0...{{ sub .Values.replicaCount 1 }}}.{{ include "minio.fullname" . }}:9000/data0']
+          {{- else -}}
+          args: ["server", "--console-address", ":9001", "/data0"]
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: 9000
+              protocol: TCP
+            - name: console
+              containerPort: 9001
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: console
+          readinessProbe:
+            httpGet:
+              path: /
+              port: console
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: {{ include "minio.fullname" . }}-datadir0
+              mountPath: "/data0"
+          env:
+            - name: MINIO_ROOT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "minio.fullname" . }}-secrets
+                  key: s3a_access_key
+            - name: MINIO_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "minio.fullname" . }}-secrets
+                  key: s3a_secret_key
+            - name: MINIO_BROWSER_REDIRECT_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "minio.fullname" . }}-secrets
+                  key: console_url
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriod | default "120" }}
+
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: helm.sh/chart
+                    operator: In
+                    values: 
+                      - {{ include "minio.chart" . }}
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values:
+                      - {{ include "minio.name" . }}
+                  - key: app.kubernetes.io/instance
+                    operator: In
+                    values:
+                      - {{ .Release.Name }}
+              topologyKey: topology.kubernetes.io/zone
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ include "minio.fullname" . }}-datadir0
+      spec:
+        accessModes:
+          - {{ .Values.storageAccessMode | default "ReadWriteMany" }}
+        {{ if .Values.storageClass -}}
+        storageClassName: {{ quote .Values.storageClass }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.instanceStorage }}
+
