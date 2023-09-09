@@ -34,9 +34,9 @@ spec:
   tls:
     - secretName: {{ include "minio.fullname" . }}
       hosts:
-      - minio.{{ .Values.ingress.domain }}
+        - minio.{{ .Values.global.ingressDomain }}
     - secretName: {{ include "minio.fullname" . }}-console
       hosts:
-      - minio-console.{{ .Values.global.ingressDomain }}
+        - minio-console.{{ .Values.global.ingressDomain }}
 {{- end }}
 
