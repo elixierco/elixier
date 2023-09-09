@@ -1,0 +1,106 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "pgsql.fullname" . }}
+  labels:
+    {{- include "pgsql.selectorLabels" . | nindent 4 }}
+spec:
+  serviceName: {{ include "pgsql.fullname" . }}
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "pgsql.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "pgsql.selectorLabels" . | nindent 8 }}
+    spec:
+      setHostnameAsFQDN: true
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "pgsql.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: init
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args: ["initdb"]
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: {{ include "pgsql.fullname" . }}-datadir
+              mountPath: {{ include "pgsql.volumePath" . }}
+          env:
+            - name: PGDATA
+              value: {{ include "pgsql.volumePath" . }}/{{ .Values.pgVersion }}
+      containers:
+        - name: db
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args: ['start']
+          env:
+            - name: PGDATA
+              value: {{ include "pgsql.volumePath" . }}/{{ .Values.pgVersion }}
+            - name: pgsql.max_connections
+              value: '1024'
+            - name: pgsql.shared_buffers
+              value: '512MB'
+            - name: pgsql.password_encryption
+              value: md5
+          ports:
+            - name: pgsql
+              containerPort: 5432
+              protocol: TCP
+          livenessProbe:
+            tcpSocket:
+              port: 5432
+            initialDelaySeconds: 15
+            periodSeconds: 30
+          readinessProbe:
+            tcpSocket:
+              port: 5432
+            initialDelaySeconds: 5
+            periodSeconds: 15
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: {{ include "pgsql.fullname" . }}-datadir
+              mountPath: {{ include "pgsql.volumePath" . }}
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriod | default "120" }}
+
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ include "pgsql.fullname" . }}-datadir
+      spec:
+        {{ if .Values.storageClass -}}
+        storageClassName: {{ quote .Values.storageClass }}
+        {{- end }}
+        accessModes: 
+          - {{ .Values.storageAccessMode | default "ReadWriteMany" }}
+        resources:
+          requests:
+            storage: {{ .Values.instanceStorage | required "pgsql.instanceStorage is required" }}
+
