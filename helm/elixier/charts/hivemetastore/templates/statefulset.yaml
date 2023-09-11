@@ -1,0 +1,125 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "hivemetastore.fullname" . }}
+  labels:
+    {{- include "hivemetastore.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ include "hivemetastore.fullname" . }}
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "hivemetastore.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "hivemetastore.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "hivemetastore.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      setHostnameAsFQDN: true
+      volumes:
+        - name: {{ include "hivemetastore.fullname" . }}-config
+          secret:
+            secretName: {{ include "hivemetastore.fullname" . }}-config
+        - name: {{ include "hivemetastore.fullname" . }}-datadir
+          emptyDir: {}
+      initContainers:
+        {{ $Values := .Values }}
+        {{ $Release := .Release }}
+        {{- range .Values.waitContainers -}}
+          {{$container := dict "Release" $Release "Values" $Values "Container" . }}
+          {{- include "elixier.waitContainer" $container | nindent 8 }}
+        {{- end }}
+        {{- range .Values.waitJobs -}}
+          {{$container := dict "Release" $Release "Values" $Values "Container" . }}
+          {{- include "elixier.waitJob" $container | nindent 8 }}
+        {{- end }}
+        - name: init
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: DB_TYPE
+              value: {{ .Values.dbType }}
+            - name: HIVE_CONF_DIR
+              value: "/etc/hive"
+            {{- if .Values.global.hadoopClientOpts }}
+            - name: HADOOP_CLIENT_OPTS
+              value: {{ .Values.global.hadoopClientOpts }}
+            {{- end }}
+          args: ["schematool", "-initSchema"]
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: {{ include "hivemetastore.fullname" . }}-config
+              mountPath: "/etc/hive/"
+            - name: {{ include "hivemetastore.fullname" . }}-datadir
+              mountPath: "/opt/apache/hive/work-dir"
+      containers:
+        - name: hms
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args: ["metastore", "-p", '{{ .Values.global.metastore.port }}']
+          env:
+            - name: HIVE_CONF_DIR
+              value: "/etc/hive"
+          ports:
+            - name: metastore
+              containerPort: {{ .Values.global.metastore.port }}
+              protocol: TCP
+          livenessProbe:
+            tcpSocket:
+              port: {{ .Values.global.metastore.port }}
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          readinessProbe:
+            tcpSocket: 
+              port: {{ .Values.global.metastore.port }}
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          volumeMounts:
+            - name: {{ include "hivemetastore.fullname" . }}-config
+              mountPath: "/etc/hive/"
+            - name: {{ include "hivemetastore.fullname" . }}-datadir
+              mountPath: "/opt/apache/hive/work-dir"
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 10
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/name
+                      operator: In
+                      values:
+                        - {{ include "minio.name" . }}
+                    - key: app.kubernetes.io/instance
+                      operator: In
+                      values:
+                        - {{ .Release.Name }}
+                topologyKey: topology.kubernetes.io/zone
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

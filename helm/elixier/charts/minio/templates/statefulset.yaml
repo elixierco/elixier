@@ -84,10 +84,6 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             - labelSelector:
                 matchExpressions:
-                  - key: helm.sh/chart
-                    operator: In
-                    values: 
-                      - {{ include "minio.chart" . }}
                   - key: app.kubernetes.io/name
                     operator: In
                     values:

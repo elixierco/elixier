@@ -1,0 +1,29 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "pgsql.fullname" . }}-createdb
+  labels:
+    {{- include "pgsql.selectorLabels" . | nindent 4 }}
+    component: createdb
+spec:
+  completions: 1
+  template:
+    spec:
+      serviceAccountName: {{ include "pgsql.serviceAccountName" . }}
+      initContainers:
+        {{ $Values := .Values }}
+        {{ $Release := .Release }}
+        {{$container := dict "Release" $Release "Values" $Values "Container" "db-0" }}
+        {{- include "elixier.waitContainer" $container | nindent 8 }}
+        - name: set-root-password
+          image: "{{ .Values.global.kubectlImage.repository }}:{{ .Values.global.kubectlImage.tag }}"
+          imagePullPolicy: {{ .Values.global.kubectlImage.pullPolicy }}
+          args: ["exec", "-ti", '{{ include "pgsql.fullname" . }}-0', "--",
+                 "psql", "-c", "ALTER USER postgres PASSWORD '{{ .Values.postgresPpassword }}';"]
+      containers:
+        {{- range .Values.createDb -}}
+          {{$container := dict "Release" $Release "Values" $Values "Container" "db-0" "Args" . }}
+          {{- include "pgsql.createDb" $container | nindent 8 }}
+        {{- end }}
+      restartPolicy: Never
+  backoffLimit: 10
