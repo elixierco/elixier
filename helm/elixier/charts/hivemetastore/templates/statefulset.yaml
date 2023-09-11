@@ -113,7 +113,7 @@ spec:
                     - key: app.kubernetes.io/name
                       operator: In
                       values:
-                        - {{ include "minio.name" . }}
+                        - {{ include "hivemetastore.name" . }}
                     - key: app.kubernetes.io/instance
                       operator: In
                       values:

@@ -1,0 +1,79 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "trino.fullname" . }}-initcatalog
+  labels:
+    {{- include "trino.labels" . | nindent 4 }}
+    component: initcatalog
+spec:
+  completions: 1
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "trino.selectorLabels" . | nindent 8 }}
+        component: initcatalog
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "trino.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        {{ $Values := .Values }}
+        {{ $Release := .Release }}
+        {{- range .Values.waitContainers -}}
+          {{$container := dict "Release" $Release "Values" $Values "Container" . }}
+          {{- include "elixier.waitContainer" $container | nindent 8 }}
+        {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args: ["initcatalog"]
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            {{ include "trino.volumeMounts" . | nindent 12 }}
+          env:
+            - name: trino.catalog.hive.connector.name
+              value: hive-hadoop2
+            - name: trino.catalog.hive.hive.metastore.uri
+              value: {{ include "hivemetastore.url" . }}
+            - name: trino.catalog.hive.hive.s3.path-style-access
+              value: "true"
+            - name: trino.catalog.hive.hive.s3.endpoint
+              value: {{ .Values.global.s3a.endpoint }}
+            - name: trino.catalog.hive.hive.s3.aws-access-key
+              value: {{ .Values.global.s3a.accessKey }}
+            - name: trino.catalog.hive.hive.s3.aws-secret-key
+              value: {{ .Values.global.s3a.secretKey }}
+            - name: trino.catalog.hive.hive.non-managed-table-writes-enabled
+              value: "true"
+            - name: trino.catalog.hive.hive.storage-format
+              value: parquet
+            - name: trino.catalog.iceberg.connector.name
+              value: iceberg
+            - name: trino.catalog.iceberg.iceberg.catalog.type
+              value: hive_metastore
+            - name: trino.catalog.iceberg.hive.metastore.uri
+              value: {{ include "hivemetastore.url" . }}
+            - name: trino.catalog.iceberg.hive.s3.path-style-access
+              value: "true"
+            - name: trino.catalog.iceberg.hive.s3.endpoint
+              value: {{ .Values.global.s3a.endpoint }}
+            - name: trino.catalog.iceberg.hive.s3.aws-access-key
+              value: {{ .Values.global.s3a.accessKey }}
+            - name: trino.catalog.iceberg.hive.s3.aws-secret-key
+              value: {{ .Values.global.s3a.secretKey }}
+      volumes:
+        {{ include "trino.volumes" . | nindent 8 }}
+      restartPolicy: Never
+  backoffLimit: 10
