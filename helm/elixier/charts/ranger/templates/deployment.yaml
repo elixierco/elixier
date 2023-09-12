@@ -1,0 +1,96 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ranger.fullname" . }}-web
+  labels:
+    {{- include "ranger.labels" . | nindent 4 }}
+    component: admin
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "ranger.selectorLabels" . | nindent 6 }}
+      component: admin
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "ranger.selectorLabels" . | nindent 8 }}
+        component: admin
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "ranger.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      volumes:
+        - name: {{ include "ranger.fullname" . }}-config
+          secret:
+            secretName: {{ include "ranger.fullname" . }}-config
+        - name: {{ include "ranger.fullname" . }}-logdir
+          emptyDir: {}
+      initContainers:
+        {{ $Values := .Values }}
+        {{ $Release := .Release }}
+        {{- range .Values.waitContainers -}}
+          {{$container := dict "Release" $Release "Values" $Values "Container" . }}
+          {{- include "elixier.waitContainer" $container | nindent 8 }}
+        {{- end }}
+        {{- range .Values.waitJobs -}}
+          {{$container := dict "Release" $Release "Values" $Values "Container" . }}
+          {{- include "elixier.waitJob" $container | nindent 8 }}
+        {{- end }}
+
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 6080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 120
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 120
+            periodSeconds: 30
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: {{ include "ranger.fullname" . }}-config
+              mountPath: /etc/ranger/
+            - name: {{ include "ranger.fullname" . }}-logdir
+              mountPath: /var/log/ranger/
+          env:
+            - name: RANGER_ADMIN_CONF
+              value: /etc/ranger
+            - name: RANGER_ADMIN_LOG_DIR
+              value: /var/log/ranger/
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

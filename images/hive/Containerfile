@@ -5,6 +5,12 @@ RUN set -ex && \
     dnf install -y apache-hadoop apache-hive && \
     dnf clean all
 
+ENV TINI_VERSION=0.19.0
+
+ADD https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini /root/tini
+
+RUN install -o root -g root -m 0755 /root/tini /usr/bin/tini
+
 RUN /usr/sbin/groupadd -r hiveuser --gid 1000 && \
      /usr/sbin/useradd -r -g hiveuser --uid 1000 \
      -s /sbin/nologin hiveuser
@@ -27,4 +33,4 @@ WORKDIR /opt/apache/hive/work-dir
 ADD entrypoint.sh /opt/entrypoint.sh
 RUN chmod a+x /opt/entrypoint.sh
 
-ENTRYPOINT [ "/opt/entrypoint.sh" ]
+ENTRYPOINT ["/usr/bin/tini", "/opt/entrypoint.sh" ]

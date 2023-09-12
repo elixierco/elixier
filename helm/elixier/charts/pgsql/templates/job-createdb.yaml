@@ -19,7 +19,7 @@ spec:
           image: "{{ .Values.global.kubectlImage.repository }}:{{ .Values.global.kubectlImage.tag }}"
           imagePullPolicy: {{ .Values.global.kubectlImage.pullPolicy }}
           args: ["exec", "-ti", '{{ include "pgsql.fullname" . }}-0', "--",
-                 "psql", "-c", "ALTER USER postgres PASSWORD '{{ .Values.postgresPpassword }}';"]
+                 "psql", "-c", "ALTER USER postgres PASSWORD '{{ .Values.postgresPass }}';"]
       containers:
         {{- range .Values.createDb -}}
           {{$container := dict "Release" $Release "Values" $Values "Container" "db-0" "Args" . }}

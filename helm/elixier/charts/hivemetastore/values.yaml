@@ -7,7 +7,7 @@ replicaCount: 1
 image:
   repository: registry.gitlab.com/abyres/releases/hive
   pullPolicy: IfNotPresent
-  tag: "3.1.2-2"
+  tag: "3.1.2-20230912.1435"
 
 imagePullSecrets: []
 nameOverride: ""

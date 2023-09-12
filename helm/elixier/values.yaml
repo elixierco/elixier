@@ -89,10 +89,14 @@ minio:
 pgsql:
   enabled: true
   nameOverride: db
+  postgresPass: postgres
   createDb:
     - dbName: metastore
       dbUser: metastore
       dbPass: metastore
+    - dbName: ranger
+      dbUser: ranger
+      dbPass: ranger
 
 hivemetastore:
   enabled: true
@@ -109,6 +113,21 @@ trino:
   nameOverride: trino
   waitContainers:
     - hms-0
+
+ranger:
+  enabled: true
+  waitContainers:
+    - db-0
+  waitJobs:
+    - db-createdb
+  dbHost: elixier-db
+  dbRootUser: postgres
+  dbRootPass: postgres
+  dbName: ranger
+  dbUser: ranger
+  dbPass: ranger
+  adminPass: Ranger123$
+
 
 global:
   ingressDomain: elixier.lan
