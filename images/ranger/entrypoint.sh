@@ -21,7 +21,7 @@ export RANGER_ADMIN_LOGBACK_CONF_FILE=/opt/ranger-${RANGER_VERSION}-admin/ews/we
 
 bash /opt/ranger-${RANGER_VERSION}-admin/ews/ranger-admin-services.sh start
 
-tail -f /var/log/ranger/catalina.out &
+tail -f /var/log/ranger/ranger-admin-*.log &
 
 set +x
 while true;do sleep 1; done

@@ -36,6 +36,7 @@ spec:
             secretName: {{ include "ranger.fullname" . }}-config
         - name: {{ include "ranger.fullname" . }}-logdir
           emptyDir: {}
+        {{- include "elixier.volumes" . | nindent 8 }}
       initContainers:
         {{ $Values := .Values }}
         {{ $Release := .Release }}
@@ -77,6 +78,7 @@ spec:
               mountPath: /etc/ranger/
             - name: {{ include "ranger.fullname" . }}-logdir
               mountPath: /var/log/ranger/
+            {{- include "elixier.volumeMounts" . | nindent 12 }}
           env:
             - name: RANGER_ADMIN_CONF
               value: /etc/ranger

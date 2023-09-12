@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "opensearch.fullname" . }}
+  labels:
+    {{- include "opensearch.labels" . | nindent 4 }}
+    component: search
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9200
+      targetPort: http
+      protocol: TCP
+      name: http
+    - port: 9300
+      targetPort: binary
+      protocol: TCP
+      name: binary
+  selector:
+    {{- include "opensearch.selectorLabels" . | nindent 4 }}
+    component: master

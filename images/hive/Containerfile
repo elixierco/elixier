@@ -33,4 +33,4 @@ WORKDIR /opt/apache/hive/work-dir
 ADD entrypoint.sh /opt/entrypoint.sh
 RUN chmod a+x /opt/entrypoint.sh
 
-ENTRYPOINT ["/usr/bin/tini", "/opt/entrypoint.sh" ]
+ENTRYPOINT ["/usr/bin/tini", "--", "/opt/entrypoint.sh" ]

@@ -1,17 +1,18 @@
-# Default values for ranger.
+# Default values for opensearch.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
 replicaCount: 1
 
 image:
-  repository: registry.gitlab.com/abyres/releases/ranger
+  repository: registry.gitlab.com/abyres/releases/opensearch
   pullPolicy: IfNotPresent
-  tag: "2.3.0-20230912.659"
+  tag: "2.4.1-2"
+
 
 
 imagePullSecrets: []
-nameOverride: ""
+nameOverride: "osearch"
 fullnameOverride: ""
 
 serviceAccount:
@@ -31,7 +32,6 @@ podSecurityContext:
   fsGroup: 1000
 
 
-
 securityContext: {}
   # capabilities:
   #   drop:
@@ -42,10 +42,23 @@ securityContext: {}
 
 service:
   type: ClusterIP
-  port: 6080
+  port: 80
 
 ingress:
-  enabled: true
+  enabled: false
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
@@ -71,5 +84,3 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
-
-dbType: postgres

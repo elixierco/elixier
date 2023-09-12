@@ -230,7 +230,7 @@
     </property>
     <property>
         <name>xasecure.audit.destination.elasticsearch.urls</name>
-        <value>{{ .Values.global.ranger.opensearch.urls }}</value>
+        <value>{{ .Values.global.ranger.opensearch.urls | default (printf "%s-osearch" .Release.Name) }}</value>
     </property>
     <property>
         <name>xasecure.audit.destination.elasticsearch.user</name>

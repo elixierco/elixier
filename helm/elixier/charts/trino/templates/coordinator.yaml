@@ -37,6 +37,14 @@ spec:
           {{$container := dict "Release" $Release "Values" $Values "Container" . }}
           {{- include "elixier.waitContainer" $container | nindent 8 }}
         {{- end }}
+        {{- range .Values.waitDeployments -}}
+          {{$container := dict "Release" $Release "Values" $Values "Container" . }}
+          {{- include "elixier.waitDeployment" $container | nindent 8 }}
+        {{- end }}
+        {{$rangerConfig := dict "username" "admin" "password" "" "jdbc.driverClassName" "io.trino.jdbc.TrinoDriver" "jdbc.url" (printf "jdbc:trino://%s-trino:8080" .Release.Name)}}
+        {{$rangerArgs := dict "service" (include "trino.fullname" .) "type" "trino" "description" "trino" "config" $rangerConfig }}
+        {{$ranger := dict "Release" $Release "Values" $Values "Args" $rangerArgs }}
+        {{- include "elixier.createRangerSvc" $ranger | nindent 8 }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -63,8 +71,10 @@ spec:
               mountPath: "/opt/trino/etc/config.properties"
               subPath: coordinator-config.properties
             {{ include "trino.volumeMounts" . | nindent 12 }}
+            {{ include "elixier.volumeMounts" . | nindent 12 }}
       volumes:
         {{ include "trino.volumes" . | nindent 8 }}
+        {{ include "elixier.volumes" . | nindent 8 }}
 
       {{- with .Values.nodeSelector }}
       nodeSelector:

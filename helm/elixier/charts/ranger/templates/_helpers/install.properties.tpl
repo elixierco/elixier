@@ -59,12 +59,12 @@ db_ssl_required=false
 db_ssl_verifyServerCertificate=false
 #db_ssl_auth_type=1-way|2-way, where 1-way represents standard one way ssl authentication and 2-way represents mutual ssl authentication
 db_ssl_auth_type=2-way
-javax_net_ssl_keyStore=
-javax_net_ssl_keyStorePassword=
-javax_net_ssl_trustStore=
-javax_net_ssl_trustStorePassword=
-javax_net_ssl_trustStore_type=jks
-javax_net_ssl_keyStore_type=jks
+javax_net_ssl_keyStore=/etc/keystore/keystore
+javax_net_ssl_keyStorePassword={{ .Values.global.keystore.password }}
+javax_net_ssl_trustStore=/etc/keystore/truststore
+javax_net_ssl_trustStorePassword={{ .Values.global.truststore.password }}
+javax_net_ssl_trustStore_type={{ .Values.global.keystore.type }}
+javax_net_ssl_keyStore_type={{ .Values.global.keystore.type }}
 
 # For postgresql db
 db_ssl_certificate_file=
@@ -97,9 +97,9 @@ audit_store=elasticsearch
 audit_elasticsearch_urls={{ .Values.global.ranger.opensearch.urls | default (printf "%s-osearch" .Release.Name)}}
 audit_elasticsearch_port={{ .Values.global.ranger.opensearch.port | default "9200" }}
 audit_elasticsearch_protocol={{ .Values.global.ranger.opensearch.protocol | default "http" }}
-audit_elasticsearch_user=admin
-audit_elasticsearch_password=admin
-audit_elasticsearch_index=ranger_audit
+audit_elasticsearch_user={{ .Values.global.ranger.opensearch.user }}
+audit_elasticsearch_password={{ .Values.global.ranger.opensearch.password }}
+audit_elasticsearch_index={{ .Values.global.ranger.opensearch.index | default "ranger_audit" }}
 audit_elasticsearch_bootstrap_enabled=true
 
 
@@ -130,15 +130,15 @@ audit_cloudwatch_log_stream_prefix=
 # ------- PolicyManager CONFIG ----------------
 #
 
-policymgr_external_url="{{ .Values.external_url | default (printf "http://ranger.%s" .Values.global.ingress_domain) }}"
+policymgr_external_url="{{ .Values.external_url | default (printf "http://ranger.%s" .Values.global.ingressDomain) }}"
 policymgr_http_enabled=true
-policymgr_https_keystore_file=
+policymgr_https_keystore_file=/etc/keystore/keystore
 policymgr_https_keystore_keyalias=rangeradmin
-policymgr_https_keystore_password=
+policymgr_https_keystore_password={{ .Values.global.keystore.password }}
 
 #Add Supported Components list below separated by semi-colon, default value is empty string to support all components
 #Example :  policymgr_supportedcomponents=hive,hbase,hdfs
-policymgr_supportedcomponents=presto,nifi,tag,kafka,elasticsearch,nifi-registry,trino
+policymgr_supportedcomponents=nifi,tag,kafka,elasticsearch,nifi-registry,trino
 
 #
 # ------- PolicyManager CONFIG - END ---------------
@@ -171,10 +171,10 @@ authentication_method=NONE
 remoteLoginEnabled=true
 authServiceHostName=localhost
 authServicePort=5151
-ranger_unixauth_keystore=keystore.jks
-ranger_unixauth_keystore_password=password
-ranger_unixauth_truststore=cacerts
-ranger_unixauth_truststore_password=changeit
+ranger_unixauth_keystore=/etc/keystore/keystore
+ranger_unixauth_keystore_password={{ .Values.global.keystore.password }}
+ranger_unixauth_truststore=/etc/keystore/truststore
+ranger_unixauth_truststore_password={{ .Values.global.truststore.password }}
 
 ####LDAP settings - Required only if have selected LDAP authentication ####
 #

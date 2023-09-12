@@ -6,7 +6,7 @@ ADD release/ranger-${RANGER_VERSION}-admin.tar.gz /opt/
 
 FROM fedora:37 as image
 
-ENV JAVA_VERSION=11 RANGER_VERSION=2.3.0
+ENV JAVA_VERSION=11 RANGER_VERSION=2.3.0 TRINO_VERSION=389
 
 RUN dnf install -y python3 java-${JAVA_VERSION}-openjdk-headless \
     hostname openssl vim-enhanced postgresql-jdbc bc procps-ng patch && \
@@ -23,7 +23,7 @@ COPY --chown=ranger:ranger --from=extract /opt/ranger-${RANGER_VERSION}-admin /o
 ADD release/ranger-${RANGER_VERSION}-migration-util.tar.gz /opt/
 ADD release/ranger-${RANGER_VERSION}-tagsync.tar.gz /opt/
 ADD release/ranger-${RANGER_VERSION}-usersync.tar.gz /opt/
-
+ADD packages/trino-jdbc-${TRINO_VERSION}.jar /opt/ranger-${RANGER_VERSION}-admin/ews/webapp/WEB-INF/classes/ranger-plugins/trino/
 
 WORKDIR /opt/ranger-${RANGER_VERSION}-admin/
 

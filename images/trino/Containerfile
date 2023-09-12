@@ -1,11 +1,15 @@
 FROM registry.gitlab.com/abyres/releases/centos8:latest
 
-ENV JAVA_VERSION=11 RANGER_VERSION=2.3.0 TRINO_VERSION=389
+ENV JAVA_VERSION=11 RANGER_VERSION=2.3.0 TRINO_VERSION=389 TINI_VERSION=0.19.0
 
 COPY dnf.conf /etc/dnf/dnf.conf
 
 RUN dnf install -y python3 java-${JAVA_VERSION}-openjdk-headless less && \
     dnf clean all
+
+ADD https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini /root/tini
+
+RUN install -o root -g root -m 0755 /root/tini /usr/bin/tini
 
 ENV JAVA_HOME=/usr/lib/jvm/jre-${JAVA_VERSION}/
 
@@ -43,4 +47,4 @@ RUN mkdir -p /opt/trino/var && chown trino:trino -R /opt/trino/var /var/log/trin
 
 RUN ln -sf /etc/trino /opt/trino/plugin/ranger/ranger-trino-plugin-impl/conf
 WORKDIR /opt/trino
-ENTRYPOINT ["/opt/trino/entrypoint.sh"]
+ENTRYPOINT ["/usr/bin/tini", "/opt/trino/entrypoint.sh"]

@@ -2,7 +2,7 @@
 <configuration>
   <property>
     <name>ranger.plugin.trino.service.name</name>
-    <value>trino</value>
+    <value>{{ include "trino.fullname" . }}</value>
     <description>
       Name of the Ranger service containing policies for this Trino instance
     </description>
@@ -18,7 +18,7 @@
 
   <property>
     <name>ranger.plugin.trino.policy.rest.url</name>
-    <value>{{ .Values.global.ranger.url }}</value>
+    <value>{{ .Values.global.ranger.url | default (printf "http://%s-ranger:6080" .Release.Name) }}</value>
     <description>
       URL to Ranger Admin
     </description>

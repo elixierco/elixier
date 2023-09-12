@@ -7,7 +7,7 @@ replicaCount: 1
 image:
   repository: registry.gitlab.com/abyres/releases/hive
   pullPolicy: IfNotPresent
-  tag: "3.1.2-20230912.1435"
+  tag: "3.1.2-20230912.41"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -24,8 +24,11 @@ serviceAccount:
 
 podAnnotations: {}
 
-podSecurityContext: {}
-  # fsGroup: 2000
+podSecurityContext: 
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+
 
 securityContext: {}
   # capabilities:
@@ -37,7 +40,7 @@ securityContext: {}
 
 service:
   type: ClusterIP
-  port: 80
+  port: 9083
 
 ingress:
   enabled: false
