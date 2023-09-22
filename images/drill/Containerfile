@@ -1,0 +1,21 @@
+FROM docker.io/apache/drill:1.21.1
+
+USER root
+ENV TINI_VERSION=0.19.0
+
+ADD https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini /root/tini
+
+RUN install -o root -g root -m 0755 /root/tini /usr/bin/tini
+
+RUN /usr/sbin/groupadd -r drill --gid 1000 && \
+     /usr/sbin/useradd -r -g drill --uid 1000 \
+     -m -d /home/drill \
+     -s /sbin/nologin drill # && 
+
+ADD entrypoint.sh /opt/entrypoint.sh
+
+USER drill
+
+EXPOSE 8047 31010 31011 31012
+
+ENTRYPOINT ["/usr/bin/tini",  "/opt/entrypoint.sh"]

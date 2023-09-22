@@ -1,0 +1,26 @@
+FROM registry.gitlab.com/abyres/releases/centos8:8-1
+
+ENV ZOOKEEPER_VERSION=3.9.0 JAVA_VERSION=1.8.0 TINI_VERSION=0.19.0
+
+RUN dnf install java-${JAVA_VERSION}-openjdk-headless python3 -y && \
+    dnf clean all && \
+    mkdir -p /opt/apache
+
+ADD https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini /root/tini
+
+RUN mkdir -p /opt/apache/ && \
+    install -o root -g root -m 0755 /root/tini /usr/bin/tini
+
+ENV JAVA_HOME=/usr/lib/jvm/jre-${JAVA_VERSION}/
+
+ADD create_zk_config.py /opt/create_zk_config.py
+ADD packages/apache-zookeeper-${ZOOKEEPER_VERSION}-bin.tar.gz /opt/apache
+
+WORKDIR /opt/apache
+
+RUN ln -s apache-zookeeper-${ZOOKEEPER_VERSION}-bin zookeeper && \
+    mkdir -p /zkdata/
+ADD entrypoint.sh /opt/entrypoint.sh
+
+EXPOSE 8080 2181 2888 3888
+ENTRYPOINT ["/usr/bin/tini", "/opt/entrypoint.sh"]
