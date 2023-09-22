@@ -4,9 +4,14 @@ kind: Ingress
 metadata:
   labels:
     {{- include "trino.labels" . | nindent 4 }}
-  {{- with .Values.ingress.annotations }}
+  {{ if or .Values.ingress.annotations .Values.global.clusterIssuer }}
   annotations:
+  {{- end }}
+  {{- with .Values.ingress.annotations }}
     {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{if .Values.global.clusterIssuer }}
+    cert-manager.io/cluster-issuer: {{ .Values.global.clusterIssuer }}
   {{- end }}
   name: {{ include "trino.fullname" . }}
 spec:

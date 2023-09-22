@@ -107,6 +107,10 @@ hivemetastore:
     - s3-0
   waitJobs:
     - db-createdb
+  createBuckets:
+    - warehouse
+    - warehouse/tablespace
+    - warehouse/event_log
 
 trino:
   enabled: true
@@ -143,16 +147,23 @@ global:
     dbUser: metastore
     dbPass: metastore 
   s3a:
-    endpoint: http://elixier-minio:9000
+    endpoint: http://elixier-s3:9000
     accessKey: minio
     secretKey: miniopass
-    warehouseDir: /warehouse/
+    warehouseDir: s3a://warehouse/tablespace
   containerWaitTimeout: 300s
   hadoopClientOpts: -Dcom.amazonaws.sdk.disableCertChecking=true
   kubectlImage:
     repository: bitnami/kubectl
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
+    tag: "latest"
+
+  zkQuorum: elixier-zookeeper-0.elixier-zookeeper:2181
+
+  mcImage:
+    repository: minio/mc
+    pullPolicy: IfNotPresent
     tag: "latest"
 
   ranger:

@@ -6,9 +6,14 @@ metadata:
     {{- include "ranger.labels" . | nindent 4 }}
     component: ranger
     subcomponent: admin
-  {{- with .Values.ingress.annotations }}
+  {{ if or .Values.ingress.annotations .Values.global.clusterIssuer }}
   annotations:
+  {{- end }}
+  {{- with .Values.ingress.annotations }}
     {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{if .Values.global.clusterIssuer }}
+    cert-manager.io/cluster-issuer: {{ .Values.global.clusterIssuer }}
   {{- end }}
   name: {{ include "ranger.fullname" . }}-web
 spec:

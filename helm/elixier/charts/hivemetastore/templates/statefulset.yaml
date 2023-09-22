@@ -46,6 +46,10 @@ spec:
           {{$container := dict "Release" $Release "Values" $Values "Container" . }}
           {{- include "elixier.waitJob" $container | nindent 8 }}
         {{- end }}
+        {{- range $i, $bucket := .Values.createBuckets -}}
+          {{$bucket := dict "Release" $Release "Values" $Values "Bucket" $bucket "BucketId" $i }}
+          {{- include "elixier.createBucket" $bucket | nindent 8 }}
+        {{- end }}
         - name: init
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
@@ -85,12 +89,12 @@ spec:
           livenessProbe:
             tcpSocket:
               port: {{ .Values.global.metastore.port }}
-            initialDelaySeconds: 15
+            initialDelaySeconds: 45
             periodSeconds: 10
           readinessProbe:
             tcpSocket: 
               port: {{ .Values.global.metastore.port }}
-            initialDelaySeconds: 15
+            initialDelaySeconds: 45
             periodSeconds: 10
           volumeMounts:
             - name: {{ include "hivemetastore.fullname" . }}-config

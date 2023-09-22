@@ -138,7 +138,7 @@ policymgr_https_keystore_password={{ .Values.global.keystore.password }}
 
 #Add Supported Components list below separated by semi-colon, default value is empty string to support all components
 #Example :  policymgr_supportedcomponents=hive,hbase,hdfs
-policymgr_supportedcomponents=nifi,tag,kafka,elasticsearch,nifi-registry,trino
+policymgr_supportedcomponents=hive,nifi,tag,kafka,elasticsearch,nifi-registry,trino
 
 #
 # ------- PolicyManager CONFIG - END ---------------
