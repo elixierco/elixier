@@ -7,7 +7,7 @@ replicaCount: 1
 image:
   repository: registry.gitlab.com/abyres/releases/pgsql-citus
   pullPolicy: IfNotPresent
-  tag: "pgsql14-1.0.2-20230406.322"
+  tag: "pgsql14-1.0.2-20231002.910"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -25,9 +25,9 @@ serviceAccount:
 podAnnotations: {}
 
 podSecurityContext: 
-  runAsUser: 1000
-  runAsGroup: 1000
-  fsGroup: 1000
+  runAsUser: 5000
+  runAsGroup: 5000
+  fsGroup: 5000
 
 
 

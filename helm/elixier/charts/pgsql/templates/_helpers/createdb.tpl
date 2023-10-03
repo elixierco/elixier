@@ -5,4 +5,7 @@
   args: ["exec", "-ti", '{{ .Release.Name }}-{{ .Container }}', "--",
          "createdb_with_user.sh", "-d", "{{ .Args.dbName }}", 
          "-u", "{{ .Args.dbUser }}", "-p", "{{ .Args.dbPass }}"]
+  resources:
+    {{- toYaml .Values.global.utilResources | nindent 4 }}
+
 {{- end }}

@@ -20,6 +20,9 @@ spec:
           imagePullPolicy: {{ .Values.global.kubectlImage.pullPolicy }}
           args: ["exec", "-ti", '{{ include "pgsql.fullname" . }}-0', "--",
                  "psql", "-c", "ALTER USER postgres PASSWORD '{{ .Values.postgresPass }}';"]
+          resources:
+            {{- toYaml .Values.global.utilResources | nindent 12 }}
+        
       containers:
         {{- range .Values.createDb -}}
           {{$container := dict "Release" $Release "Values" $Values "Container" "db-0" "Args" . }}

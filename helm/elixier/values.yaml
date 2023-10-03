@@ -82,6 +82,9 @@ tolerations: []
 
 affinity: {}
 
+shell:
+  enabled: false
+
 minio:
   enabled: true
   nameOverride: s3
@@ -97,6 +100,12 @@ pgsql:
     - dbName: ranger
       dbUser: ranger
       dbPass: ranger
+
+drill:
+  enabled: false
+
+zookeeper:
+  enabled: false
 
 hivemetastore:
   enabled: true
@@ -134,6 +143,10 @@ ranger:
   dbUser: ranger
   dbPass: ranger
   adminPass: Ranger123$
+
+lldap:
+  enabled: false
+  ldapAdminPass: admin123$
 
 global:
   ingressDomain: elixier.lan
@@ -256,4 +269,12 @@ global:
       aNcY8602yy2qFsLbehBt+64YAVEz+xT9x2b5rwHgES9sKSSHpcKYO+6zN3p4ovfxCJb2yVcrMy1l
       /1+1mlL0Umx3Uz1DSTvcRvG6qDBNMDEwDQYJYIZIAWUDBAIBBQAEIJ9XkNpAzyshaYbuN1BlhwVy
       4cL2AvvLTqqteRfbdLR2BBQcYfLTyrFTjiFZBBO1z2QDdfUo3gICJxA=
-      
+     
+
+  utilResources:
+    requests:
+      cpu: 100m
+      memory: 100M
+    limits:
+      cpu: 1
+      memory: 1G

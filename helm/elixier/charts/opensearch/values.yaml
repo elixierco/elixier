@@ -7,7 +7,7 @@ replicaCount: 1
 image:
   repository: registry.gitlab.com/abyres/releases/opensearch
   pullPolicy: IfNotPresent
-  tag: "2.4.1-2"
+  tag: "2.4.1-20231003.120"
 
 
 
@@ -27,9 +27,9 @@ serviceAccount:
 podAnnotations: {}
 
 podSecurityContext: 
-  runAsUser: 1000
-  runAsGroup: 1000
-  fsGroup: 1000
+  runAsUser: 5000
+  runAsGroup: 5000
+  fsGroup: 5000
 
 
 securityContext: {}

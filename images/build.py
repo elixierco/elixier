@@ -77,6 +77,7 @@ repo = conf.get('repo', None)
 repos = conf.get('repos', [])
 target = conf.get('target', None)
 tag = str(conf['tag'])
+squash = conf.get('squash', None)
 
 stag = Tag.parse(tag)
 
@@ -108,6 +109,8 @@ def build_image(args, stag, repo_url, target=None):
     
     print(_c('okblue', "+ Building %s" % repo_url))
     cmd = [args.cmd, 'build', '-f', containerfile]
+    if squash:
+        cmd += ['--squash']
     if target:
         cmd += ['--target', target]
     

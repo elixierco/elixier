@@ -1,5 +1,5 @@
 apiVersion: v2
-name: elixier
+name: shell
 description: A Helm chart for Kubernetes
 
 # A chart can be either an 'application' or a 'library' chart.
@@ -21,26 +21,4 @@ version: 0.1.0
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "0.1.0"
-
-dependencies:
-  - name: shell
-    condition: shell.enabled
-  - name: pgsql
-    condition: pgsql.enabled
-  - name: minio
-    condition: minio.enabled
-  - name: lldap
-    condition: lldap.enabled
-  - name: trino
-    condition: trino.enabled
-  - name: drill
-    condition: drill.enabled
-  - name: hivemetastore
-    condition: hivemetastore.enabled
-  - name: opensearch
-    condition: opensearch.enabled
-  - name: zookeeper
-    condition: zookeeper.enabled
-  - name: ranger
-    condition: ranger.enabled
+appVersion: "1.16.0"

@@ -7,7 +7,7 @@ replicaCount: 1
 image:
   repository: registry.gitlab.com/abyres/releases/trino
   pullPolicy: IfNotPresent
-  tag: "389-20230912.19"
+  tag: "389-20231003.128"
 
 imagePullSecrets: []
 nameOverride: ""

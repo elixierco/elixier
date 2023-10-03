@@ -1,7 +1,7 @@
 FROM registry.gitlab.com/abyres/releases/centos8:8-1
 
-RUN /usr/sbin/groupadd -r postgres --gid 1000 && \
-     /usr/sbin/useradd -r -g postgres --uid 1000 \
+RUN /usr/sbin/groupadd -r postgres --gid 5000 && \
+     /usr/sbin/useradd -r -g postgres --uid 5000 \
      -s /sbin/nologin postgres
 
 ENV TINI_VERSION=0.19.0

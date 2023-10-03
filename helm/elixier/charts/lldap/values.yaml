@@ -1,14 +1,14 @@
-# Default values for drill.
+# Default values for lldap.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
 replicaCount: 1
 
 image:
-  repository: registry.gitlab.com/abyres/releases/drill
-  pullPolicy: Always
+  repository: lldap/lldap
+  pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "development"
+  tag: "stable"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -25,10 +25,7 @@ serviceAccount:
 
 podAnnotations: {}
 
-podSecurityContext: 
-  runAsUser: 1000
-  runAsGroup: 1000
-  fsGroup: 1000
+podSecurityContext: {}
 
 
 securityContext: {}
@@ -42,10 +39,6 @@ securityContext: {}
 service:
   type: ClusterIP
   port: 80
-
-drillService:
-  type: NodePort
-  port: 31010
 
 ingress:
   enabled: false
@@ -87,3 +80,9 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+global:
+  jwtSecret: secret
+  baseDN: dc=example,dc=org
+
+  timeZone: Asia/Kuala_Lumpur

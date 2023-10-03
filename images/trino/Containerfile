@@ -1,4 +1,6 @@
 FROM registry.gitlab.com/abyres/releases/centos8:latest
+ARG UID=5000
+ARG GID=5000
 
 ENV JAVA_VERSION=11 RANGER_VERSION=2.3.0 TRINO_VERSION=389 TINI_VERSION=0.19.0
 
@@ -23,8 +25,8 @@ RUN mkdir -p /etc/trino /var/log/trino /opt/trino-server-${TRINO_VERSION}/var &&
 
 ADD packages/ranger-${RANGER_VERSION}-trino-plugin.tar.gz /opt/
 
-RUN /usr/sbin/groupadd -r trino --gid 1000 && \
-     /usr/sbin/useradd -r -g trino --uid 1000 \
+RUN /usr/sbin/groupadd -r trino --gid $GID && \
+     /usr/sbin/useradd -r -g trino --uid $UID \
      -m -d /home/trino \
      -s /sbin/nologin trino # && 
 #    cp /usr/share/java/apache-commons-lang3.jar /usr/lib/jvm/jre-${JAVA_VERSION}/lib/ 
