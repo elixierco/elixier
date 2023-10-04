@@ -55,13 +55,13 @@ spec:
           livenessProbe:
             tcpSocket:
               port: https
-            initialDelaySeconds: 30
+            initialDelaySeconds: 60
             periodSeconds: 10
 
           readinessProbe:
             tcpSocket:
               port: https
-            initialDelaySeconds: 30
+            initialDelaySeconds: 60
             periodSeconds: 10
           
           volumeMounts:
@@ -100,7 +100,7 @@ spec:
             - name: nifi.web.https.port
               value: '8443'
             - name: nifi.web.proxy.host
-              value: nifi.{{ .Values.global.ingressDomain }}
+              value: nifi.{{ .Values.global.ingressDomain }},{{ .Values.proxyHosts | default "" }}
 
             {{ if .Values.global.oidc.enabled }}
             - name: nifi.security.user.login.identity.provider
@@ -108,11 +108,11 @@ spec:
             - name: nifi.security.user.authorizer
               value: managed-authorizer
             - name: nifi.security.user.oidc.discovery.url
-              value: {{ .Values.global.oidc.discovery_url }}
+              value: {{ .Values.global.oidc.discoveryUrl }}
             - name: nifi.security.user.oidc.client.id
-              value: {{ .Values.global.oidc.client_id }}
+              value: {{ .Values.global.oidc.clientId }}
             - name: nifi.security.user.oidc.client.secret
-              value: {{ .Values.global.oidc.client_secret }}
+              value: {{ .Values.global.oidc.clientSecret }}
             {{- end }}
 
             - name: nifi.sensitive.props.key

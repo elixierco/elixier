@@ -86,11 +86,11 @@ shell:
   enabled: false
 
 minio:
-  enabled: true
+  enabled: false
   nameOverride: s3
 
 pgsql:
-  enabled: true
+  enabled: false
   nameOverride: db
   postgresPass: postgres
   createDb:
@@ -108,7 +108,7 @@ zookeeper:
   enabled: false
 
 hivemetastore:
-  enabled: true
+  enabled: false
   nameOverride: hms
   dbType: postgres
   waitContainers:
@@ -122,15 +122,18 @@ hivemetastore:
     - warehouse/event_log
 
 trino:
-  enabled: true
+  enabled: false
   nameOverride: trino
   waitContainers:
     - hms-0
   waitDeployments:
     - ranger-web
 
+trino-web-shim:
+  enabled: false
+
 ranger:
-  enabled: true
+  enabled: false
   waitContainers:
     - db-0
     - osearch-m-0
@@ -143,6 +146,9 @@ ranger:
   dbUser: ranger
   dbPass: ranger
   adminPass: Ranger123$
+
+opensearch:
+  enabled: false
 
 lldap:
   enabled: false
@@ -180,6 +186,7 @@ global:
     tag: "latest"
 
   ranger:
+    url: 
     enabled: true
     adminPass: Ranger123$
     opensearch: 
@@ -192,6 +199,9 @@ global:
 
   oidc:
     enabled: false
+    discoveryUrl: 
+    clientId:
+    clientSecret: 
 
   keystore:
     password: bb5464ae3b10f100151ea2d73cf28745

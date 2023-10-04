@@ -130,7 +130,7 @@ audit_cloudwatch_log_stream_prefix=
 # ------- PolicyManager CONFIG ----------------
 #
 
-policymgr_external_url="{{ .Values.external_url | default (printf "http://ranger.%s" .Values.global.ingressDomain) }}"
+policymgr_external_url="{{ .Values.global.ranger.url | default (printf "http://ranger.%s" .Values.global.ingressDomain) }}"
 policymgr_http_enabled=true
 policymgr_https_keystore_file=/etc/keystore/keystore
 policymgr_https_keystore_keyalias=rangeradmin

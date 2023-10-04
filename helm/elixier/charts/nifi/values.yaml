@@ -8,7 +8,7 @@ image:
   repository: registry.gitlab.com/abyres/releases/nifi
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "1.20.0-20230407.78"
+  tag: "1.20.0-20231004.947"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -56,6 +56,10 @@ ingress:
   #    hosts:
   #      - chart-example.local
 
+istio:
+  enabled: false
+  gateway: istio-system/smi-gateway # ezmeral only?
+
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
@@ -83,3 +87,5 @@ affinity: {}
 
 sensitive_props_key: aUErHwNt5wbEqrgHSeXoZeKh5zsgy8AB
 ssl_key_password: bb5464ae3b10f100151ea2d73cf28745
+proxyHosts: 
+initialAdminIdentity: 

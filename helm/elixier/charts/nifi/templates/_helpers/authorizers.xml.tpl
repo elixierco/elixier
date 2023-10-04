@@ -9,7 +9,7 @@
         <property name="Legacy Authorized Users File"></property>
         <property name="Initial User Identity 1">
         {{- if .Values.global.oidc.enabled -}}
-            {{ .Values.initial_admin_identity | default "" }}
+            {{ .Values.initialAdminIdentity | default "" }}
         {{- end -}}
         </property>
     </userGroupProvider>
@@ -21,7 +21,7 @@
         <property name="Authorizations File">./conf/authorizations.xml</property>
         <property name="Initial Admin Identity">
         {{- if .Values.global.oidc.enabled -}}
-            {{ .Values.initial_admin_identity | default "" }}
+            {{ .Values.initialAdminIdentity | default "" }}
         {{- end -}}
         </property>
         <property name="Legacy Authorized Users File"></property>
