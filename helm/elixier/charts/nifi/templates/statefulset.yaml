@@ -1,0 +1,168 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "nifi.fullname" . }}
+  labels:
+    {{- include "nifi.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicas }}
+  serviceName: {{ include "nifi.fullname" . }}-nifi
+  podManagementPolicy: Parallel
+  selector:
+    matchLabels:
+      {{- include "nifi.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "nifi.selectorLabels" . | nindent 8 }}
+    spec:
+      setHostnameAsFQDN: true
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "nifi.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: main
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          args: ['run']
+
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: https
+              containerPort: 8443
+              protocol: TCP
+            - name: nifi
+              containerPort: 9088
+              protocol: TCP
+            - name: loadbalancer
+              containerPort: 6342
+              protocol: TCP
+
+          livenessProbe:
+            tcpSocket:
+              port: https
+            initialDelaySeconds: 30
+            periodSeconds: 10
+
+          readinessProbe:
+            tcpSocket:
+              port: https
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          
+          volumeMounts:
+            - name: {{ include "nifi.fullname" . }}-config
+              mountPath: "/etc/nifi/conf"
+            - name: {{ .Release.Name }}-keystore
+              mountPath: "/etc/keystore"
+            - name: {{ include "nifi.fullname" . }}-logdir
+              mountPath: "/var/log/nifi"
+            - name: {{ include "nifi.fullname" . }}-datadir
+              mountPath: "/var/lib/nifi"
+
+          env:
+
+            - name: nifi.security.keystore
+              value: /etc/keystore/keystore
+            - name: nifi.security.keystoreType
+              value: {{ .Values.global.keystore.type }}
+            - name: nifi.security.keystorePasswd
+              value: {{ .Values.global.keystore.password }}
+            - name: nifi.security.keyPasswd
+              valueFrom:
+                secretKeyRef: 
+                  name: {{ include "nifi.fullname" . }}-secrets
+                  key: key_password
+            - name: nifi.security.truststore
+              value: /etc/keystore/truststore
+            - name: nifi.security.truststoreType
+              value: {{ .Values.global.keystore.type }}
+            - name: nifi.security.truststorePasswd
+              value: {{ .Values.global.truststore.password }}
+            - name: nifi.remote.input.secure
+              value: 'true'
+            - name: nifi.web.http.port
+              value: ''
+            - name: nifi.web.https.port
+              value: '8443'
+            - name: nifi.web.proxy.host
+              value: nifi.{{ .Values.global.ingressDomain }}
+
+            {{ if .Values.global.oidc.enabled }}
+            - name: nifi.security.user.login.identity.provider
+              value: ''
+            - name: nifi.security.user.authorizer
+              value: managed-authorizer
+            - name: nifi.security.user.oidc.discovery.url
+              value: {{ .Values.global.oidc.discovery_url }}
+            - name: nifi.security.user.oidc.client.id
+              value: {{ .Values.global.oidc.client_id }}
+            - name: nifi.security.user.oidc.client.secret
+              value: {{ .Values.global.oidc.client_secret }}
+            {{- end }}
+
+            - name: nifi.sensitive.props.key
+              valueFrom:
+                secretKeyRef: 
+                  name: {{ include "nifi.fullname" . }}-secrets
+                  key: sensitive_props_key
+
+
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: {{ .Release.Name }}-keystore
+          secret:
+            secretName: {{ .Release.Name }}-keystore
+        - name: {{ include "nifi.fullname" . }}-config
+          configMap:
+            name: {{ include "nifi.fullname" . }}-config
+        - name: {{ include "nifi.fullname" . }}-logdir
+          emptyDir: {}
+       
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values:
+                      - {{ include "nifi.name" . }}
+                  - key: app.kubernetes.io/instance
+                    operator: In
+                    values:
+                      - {{ .Release.Name }}
+              topologyKey: topology.kubernetes.io/zone
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ include "nifi.fullname" . }}-datadir
+      spec:
+        accessModes:
+          - {{ .Values.storageAccessMode | default "ReadWriteMany" }}
+        {{ if .Values.storageClass -}}
+        storageClassName: {{ quote .Values.storageClass }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.instanceStorage | default "5Gi" }}

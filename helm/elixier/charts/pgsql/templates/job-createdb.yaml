@@ -6,8 +6,12 @@ metadata:
     {{- include "pgsql.selectorLabels" . | nindent 4 }}
     component: createdb
 spec:
+
   completions: 1
   template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "false"
     spec:
       serviceAccountName: {{ include "pgsql.serviceAccountName" . }}
       initContainers:

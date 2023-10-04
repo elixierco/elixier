@@ -1,17 +1,21 @@
 FROM registry.gitlab.com/abyres/releases/centos8:latest AS extract
+ARG UID=5000
+ARG GID=5000
 
 ENV NIFI_VERSION=1.20.0
 ADD packages/nifi-${NIFI_VERSION}-bin.zip /opt/
 WORKDIR /opt
 RUN dnf install unzip -y && unzip nifi-${NIFI_VERSION}-bin.zip && \
-    chown 1000:1000 -R /opt/nifi-${NIFI_VERSION}/
+    chown $UID:$GID -R /opt/nifi-${NIFI_VERSION}/
 
 FROM registry.gitlab.com/abyres/releases/centos8:latest as base
+ARG UID=5000
+ARG GID=5000
 
 ENV JAVA_VERSION=11 RANGER_VERSION=2.3.0 NIFI_VERSION=1.20.0 USER=nifi TINI_VERSION=0.19.0
 
-RUN /usr/sbin/groupadd -r $USER --gid 1000 && \
-     /usr/sbin/useradd -r -g $USER --uid 1000 \
+RUN /usr/sbin/groupadd -r $USER --gid $GID && \
+     /usr/sbin/useradd -r -g $USER --uid $UID \
      -m -d /home/${USER} \
      -s /sbin/nologin ${USER} 
 

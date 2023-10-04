@@ -190,6 +190,9 @@ global:
     pullPolicy: IfNotPresent
     tag: "0.1.0-20230912.420"
 
+  oidc:
+    enabled: false
+
   keystore:
     password: bb5464ae3b10f100151ea2d73cf28745
     type: PKCS12
