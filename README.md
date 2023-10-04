@@ -74,7 +74,10 @@ Installation
                 elixier/helm/elixier
    ```
 
-   To check for deployment status, run  `watch kubectl get pods`. 
+   To check for deployment status, run  `watch kubectl get pods`.
+
+   **NOTE:** If you are using sslip.io, do make sure that you manage `/etc/resolv.conf` manually instead of using NetworkManager. NM adds `${IP_ADDRESS}.sslip.io`
+   in search paths in `/etc/resolv.conf` which may cause DNS resolution issues in kubernetes. 
 
 Accessing Services
 -------------------
