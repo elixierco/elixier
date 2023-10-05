@@ -21,7 +21,7 @@ metadata:
   name: {{ include "nifi.fullname" . }}
 spec:
   hosts:
-    - "nifi.{{ .Values.global.ingressDomain }}"
+    - "nifi.ezmeral.lan"
   gateways:
     - {{ .Values.istio.gateway }}
   http:

@@ -57,12 +57,14 @@ spec:
               port: https
             initialDelaySeconds: 60
             periodSeconds: 10
+            failureThreshold: 30
 
           readinessProbe:
             tcpSocket:
               port: https
             initialDelaySeconds: 60
             periodSeconds: 10
+            failureThreshold: 30
           
           volumeMounts:
             - name: {{ include "nifi.fullname" . }}-config
@@ -102,11 +104,17 @@ spec:
             - name: nifi.web.proxy.host
               value: nifi.{{ .Values.global.ingressDomain }},{{ .Values.proxyHosts | default "" }}
 
-            {{ if .Values.global.oidc.enabled }}
+            {{ if .Values.global.ldap.enabled }}
             - name: nifi.security.user.login.identity.provider
-              value: ''
+              value: 'ldap-provider'
             - name: nifi.security.user.authorizer
               value: managed-authorizer
+            {{ else }}
+            - name: nifi.security.user.login.identity.provider
+              value: ''
+            {{ end }}
+
+            {{ if .Values.global.oidc.enabled }}
             - name: nifi.security.user.oidc.discovery.url
               value: {{ .Values.global.oidc.discoveryUrl }}
             - name: nifi.security.user.oidc.client.id

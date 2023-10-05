@@ -10,3 +10,5 @@ data:
 
   authorizers.xml: |
     {{- include "nifi.authorizers" . | nindent 4 }}
+  login-identity-providers.xml: |
+    {{- include "nifi.login-identity-providers" . | nindent 4 }}

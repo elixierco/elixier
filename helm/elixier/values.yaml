@@ -185,6 +185,18 @@ global:
     pullPolicy: IfNotPresent
     tag: "latest"
 
+  ldap:
+    enabled: false
+    url: ldap://10.210.14.70:389
+    bindDN: cn=Manager,dc=ldap,dc=local
+    userBaseDN: ou=People,dc=ldap,dc=local
+    groupBaseDN: ou=Group,dc=ldap,dc=local
+    userObjectClass: inetOrgPerson
+    groupObjectClass: posixGroup
+    bindPassword: ldappasswd
+    usernameAttr: uid
+    groupAttr: memberOf
+
   ranger:
     url: 
     enabled: true

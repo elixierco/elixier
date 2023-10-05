@@ -89,3 +89,5 @@ sensitive_props_key: aUErHwNt5wbEqrgHSeXoZeKh5zsgy8AB
 ssl_key_password: bb5464ae3b10f100151ea2d73cf28745
 proxyHosts: 
 initialAdminIdentity: 
+
+ldapUserFilter: 'uid={0}'
