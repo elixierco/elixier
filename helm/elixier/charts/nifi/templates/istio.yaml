@@ -1,4 +1,4 @@
-{{ if .Values.istio.enabled }}
+{{ if .Values.virtualService.enabled }}
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
@@ -21,13 +21,19 @@ metadata:
   name: {{ include "nifi.fullname" . }}
 spec:
   hosts:
-    - "nifi.ezmeral.lan"
+    - '{{ .Values.virtualService.host | default "*" }}'
   gateways:
-    - {{ .Values.istio.gateway }}
+    - {{ .Values.virtualService.gateway }}
   http:
-  - match:
+  - headers:
+      request:
+        set: 
+          X-ProxyContextPath: '{{ .Values.virtualService.prefix | default (printf "/%s/%s" .Release.Namespace (include "nifi.fullname" .)) }}'
+    match:
       - uri: 
-          prefix: /
+          prefix: '{{ .Values.virtualService.prefix | default (printf "/%s/%s" .Release.Namespace (include "nifi.fullname" .)) }}/'
+    rewrite:
+      uri: /
     route:
       - destination:
           port:

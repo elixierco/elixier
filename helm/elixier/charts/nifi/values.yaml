@@ -56,7 +56,7 @@ ingress:
   #    hosts:
   #      - chart-example.local
 
-istio:
+virtualService:
   enabled: false
   gateway: istio-system/smi-gateway # ezmeral only?
 

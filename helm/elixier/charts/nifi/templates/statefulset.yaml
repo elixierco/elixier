@@ -55,14 +55,14 @@ spec:
           livenessProbe:
             tcpSocket:
               port: https
-            initialDelaySeconds: 60
+            initialDelaySeconds: 30
             periodSeconds: 10
             failureThreshold: 30
 
           readinessProbe:
             tcpSocket:
               port: https
-            initialDelaySeconds: 60
+            initialDelaySeconds: 30
             periodSeconds: 10
             failureThreshold: 30
           
@@ -103,7 +103,8 @@ spec:
               value: '8443'
             - name: nifi.web.proxy.host
               value: nifi.{{ .Values.global.ingressDomain }},{{ .Values.proxyHosts | default "" }}
-
+            - name: nifi.web.proxy.context.path
+              value: '{{ .Values.virtualService.prefix | default (printf "/%s/%s" .Release.Namespace (include "nifi.fullname" .)) }}'
             {{ if .Values.global.ldap.enabled }}
             - name: nifi.security.user.login.identity.provider
               value: 'ldap-provider'

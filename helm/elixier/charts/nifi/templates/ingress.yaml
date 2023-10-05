@@ -14,7 +14,7 @@ metadata:
   name: {{ include "nifi.fullname" . }}
 spec:
   rules:
-  - host: nifi.{{ .Values.global.ingressDomain }}
+  - host: {{ .Values.ingress.host | default (printf "nifi.%s" .Values.global.ingressDomain) }}
     http:
       paths:
       - backend:
@@ -27,6 +27,6 @@ spec:
   tls:
     - secretName: {{ include "nifi.fullname" . }}
       hosts:
-      - nifi.{{ .Values.global.ingressDomain }}
+      - {{ .Values.ingress.host | default (printf "nifi.%s" .Values.global.ingressDomain) }}
 
 {{- end }}
