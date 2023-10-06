@@ -46,5 +46,5 @@ dependencies:
     condition: ranger.enabled
   - name: nifi
     condition: nifi.enabled
-  - name: trino-web-shim
-    condition: trino-web-shim.enabled
+#  - name: trino-web-shim
+#    condition: trino-web-shim.enabled
