@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "schemaregistry.fullname" . }}
+  labels:
+    {{- include "schemaregistry.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "schemaregistry.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "schemaregistry.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "schemaregistry.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      volumes:
+        - name: {{ include "schemaregistry.fullname" . }}-logdir
+          emptyDir: {}
+        - name: {{ include "schemaregistry.fullname" . }}-configdir
+          emptyDir: {}
+      initContainers:
+        {{ $Release := .Release }}
+        {{ $Values := .Values }}
+        {{- range .Values.waitPorts -}}
+          {{$container := dict "Release" $Release "Values" $Values "Args" . }}
+          {{- include "elixier.waitPort" $container | nindent 8 }}
+        {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args: ["start"]
+          ports:
+            - name: http
+              containerPort: 8081
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          env:
+            - name: schemaregistry.listeners
+              value: 'http://0.0.0.0:8081'
+            - name: schemaregistry.kafkastore.bootstrap.servers
+              value: '{{ .Values.bootstrapServers }}'
+            - name: schemaregistry.kafkastore.topic
+              value: _schemas
+            - name: schemaregistry.debug
+              value: 'false'
+          volumeMounts:
+            - name: {{ include "schemaregistry.fullname" . }}-configdir
+              mountPath: "/etc/schema-registry/"
+            - name: {{ include "schemaregistry.fullname" . }}-logdir
+              mountPath: "/var/log/schemaregistry"
+
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
