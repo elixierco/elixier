@@ -1,5 +1,4 @@
 FROM fedora:37 AS base
-
 LABEL co.elixier.rev="1.0.4"
 
 COPY dnf.conf /etc/dnf/dnf.conf
@@ -19,6 +18,9 @@ ENV LC_ALL=en_US.utf8 \
     PYTHONUNBUFFERED=1
 
 FROM base AS spark
+ARG UID=5000
+ARG GID=5000
+
 
 ENV JAVA_VERSION=1.8.0 \
     HADOOP_VERSION=3.2.3 \
@@ -62,8 +64,8 @@ COPY libldap_r.so /usr/lib64/libldap_r.so
 ADD packages/hadoop-${HADOOP_VERSION}.tar.gz /opt/apache/
 ADD release/spark-${SPARK3_VERSION}-bin-${SPARK3_RELEASENAME}.tgz /opt/apache/
 
-RUN /usr/sbin/groupadd -r user --gid 1000 && \
-     /usr/sbin/useradd -r -g user --uid 1000 \
+RUN /usr/sbin/groupadd -r user --gid $GID && \
+     /usr/sbin/useradd -r -g user --uid $UID \
      -m -d /home/user \
      -s /bin/bash user
 

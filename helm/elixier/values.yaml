@@ -101,10 +101,22 @@ pgsql:
       dbUser: ranger
       dbPass: ranger
 
+schemaregistry:
+  enabled: false
+
+nifi:
+  enabled: false
+
+kafka:
+  enabled: false
+
 drill:
   enabled: false
 
 zookeeper:
+  enabled: false
+
+neo4j:
   enabled: false
 
 hivemetastore:
@@ -179,6 +191,11 @@ global:
     tag: "latest"
 
   zkQuorum: elixier-zookeeper-0.elixier-zookeeper:2181
+
+  waitForImage:
+    repository: registry.gitlab.com/abyres/releases/wait_for
+    pullPolicy: IfNotPresent
+    tag: "1.0.0-20231009.1143"
 
   mcImage:
     repository: minio/mc

@@ -93,7 +93,7 @@ global:
         secretRef: {{ include "elixier-catalog.datahub-name" . }}
         secretKey: db-password
 
-datahub:
+  datahub:
     metadata_service_authentication:
       enabled: true
       systemClientSecret:

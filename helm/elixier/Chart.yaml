@@ -26,25 +26,45 @@ appVersion: "0.1.0"
 dependencies:
   - name: shell
     condition: shell.enabled
+    version: 0.1.0
   - name: pgsql
     condition: pgsql.enabled
+    version: 14.0.0
   - name: minio
     condition: minio.enabled
+    version: 0.1.0
   - name: lldap
     condition: lldap.enabled
+    version: 0.1.0
   - name: trino
     condition: trino.enabled
+    version: 0.1.0
   - name: drill
     condition: drill.enabled
+    version: 0.1.0
   - name: hivemetastore
     condition: hivemetastore.enabled
+    version: 0.1.0
   - name: opensearch
     condition: opensearch.enabled
+    version: 0.1.0
   - name: zookeeper
     condition: zookeeper.enabled
+    version: 0.1.0
   - name: ranger
     condition: ranger.enabled
+    version: 0.1.0
   - name: nifi
     condition: nifi.enabled
+    version: 0.1.0
+  - name: schemaregistry
+    condition: schemaregistry.enabled
+    version: 0.1.0
+  - name: kafka
+    condition: kafka.enabled
+    version: 0.1.0
+  - name: neo4j
+    condition: neo4j.enabled
+    version: 0.1.0
 #  - name: trino-web-shim
 #    condition: trino-web-shim.enabled
