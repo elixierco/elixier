@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "neo4j.fullname" . }}-neo4j
+  labels:
+    {{- include "neo4j.labels" . | nindent 4 }}
+spec:
+  clusterIP: None
+  selector:
+    {{- include "neo4j.selectorLabels" . | nindent 4 }}

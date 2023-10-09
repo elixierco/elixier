@@ -1,0 +1,100 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "neo4j.fullname" . }}
+  labels:
+    {{- include "neo4j.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ include "neo4j.fullname" . }}
+  selector:
+    matchLabels:
+      {{- include "neo4j.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "neo4j.selectorLabels" . | nindent 8 }}
+    spec:
+      setHostnameAsFQDN: true
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "neo4j.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      volumes:
+        {{- include "neo4j.volumes" . | nindent 8 }}
+
+      containers:
+        - name: main
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            {{- include "neo4j.volumeMounts" . | nindent 12 }}
+          args: ['console']
+          env:
+            - name: NEO4J_INITIAL_PASSWORD
+              value: {{ .Values.password }}
+          ports:
+            - name: http
+              containerPort: 7474
+              protocol: TCP
+            - name: https
+              containerPort: 7473
+              protocol: TCP
+            - name: bolt
+              containerPort: 7687
+              protocol: TCP
+            - name: discovery
+              containerPort: 5000
+              protocol: TCP
+            - name: transaction
+              containerPort: 6000
+              protocol: TCP
+            - name: routing
+              containerPort: 7688
+              protocol: TCP
+            - name: debug
+              containerPort: 5005
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriod | default "300" }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ include "neo4j.fullname" . }}-datadir
+      spec:
+        accessModes:
+          - {{ .Values.storageAccessMode | default "ReadWriteMany" }}
+        {{ if .Values.storageClass -}}
+        storageClassName: {{ quote .Values.storageClass }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.instanceStorage | default "1Gi" }}
