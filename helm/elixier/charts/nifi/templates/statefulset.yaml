@@ -75,6 +75,7 @@ spec:
               mountPath: "/var/log/nifi"
             - name: {{ include "nifi.fullname" . }}-datadir
               mountPath: "/var/lib/nifi"
+            {{- toYaml .Values.extraVolumeMounts | nindent 12 }}
 
           env:
 
@@ -129,7 +130,7 @@ spec:
                 secretKeyRef: 
                   name: {{ include "nifi.fullname" . }}-secrets
                   key: sensitive_props_key
-
+            {{- toYaml .Values.extraEnvs | nindent 12 }}
 
       {{- with .Values.nodeSelector }}
       nodeSelector:
@@ -144,7 +145,8 @@ spec:
             name: {{ include "nifi.fullname" . }}-config
         - name: {{ include "nifi.fullname" . }}-logdir
           emptyDir: {}
-       
+        {{- toYaml .Values.extraVolumes | nindent 8 }}
+
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
