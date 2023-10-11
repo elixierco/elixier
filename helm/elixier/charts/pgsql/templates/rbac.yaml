@@ -1,14 +1,26 @@
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
+kind: Role
 metadata:
   name: {{ include "pgsql.serviceAccountName" . }}
   labels:
     {{- include "pgsql.labels" . | nindent 4 }}
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: edit
-subjects:
-- kind: ServiceAccount
-  namespace: {{ .Release.Namespace }}
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "pods/log", "pods/exec"]
+    verbs: ["create","get","update", "delete", "path", "list", "watch"]
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
   name: {{ include "pgsql.serviceAccountName" . }}
+  labels:
+    {{- include "pgsql.labels" . | nindent 4 }}
+subjects:
+  - kind: ServiceAccount
+    namespace: {{ .Release.Namespace }}
+    name: {{ include "pgsql.serviceAccountName" . }}
+roleRef:
+  kind: Role
+  name:  {{ include "pgsql.serviceAccountName" . }}
+  apiGroup: rbac.authorization.k8s.io
