@@ -1,0 +1,39 @@
+{{ if .Values.virtualService.enabled }}
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ include "bookstack.fullname" . }}
+spec:
+  hosts:
+    - '{{ .Values.virtualService.host | default "*" }}'
+  gateways:
+    - {{ .Values.virtualService.gateway }}
+  http:
+  - headers:
+      request:
+        set: 
+          X-ProxyContextPath: '{{ .Values.virtualService.prefix | default (printf "/%s/%s" .Release.Namespace (include "bookstack.fullname" .)) }}'
+          X-Forwarded-Prefix: '{{ .Values.virtualService.prefix | default (printf "/%s/%s" .Release.Namespace (include "bookstack.fullname" .)) }}'
+          X-Forwarded-Context: '{{ .Values.virtualService.prefix | default (printf "/%s/%s" .Release.Namespace (include "bookstack.fullname" .)) }}'
+    match:
+      - uri: 
+          prefix: '{{ .Values.virtualService.prefix | default (printf "/%s/%s" .Release.Namespace (include "bookstack.fullname" .)) }}/'
+    rewrite:
+      uri: "/"
+    route:
+      - destination:
+          port:
+            number: 80
+          host: {{ include "bookstack.fullname" . }}
+  - headers:
+      request:
+        set: 
+          X-ProxyContextPath: '{{ .Values.virtualService.prefix | default (printf "/%s/%s" .Release.Namespace (include "bookstack.fullname" .)) }}'
+          X-Forwarded-Prefix: '{{ .Values.virtualService.prefix | default (printf "/%s/%s" .Release.Namespace (include "bookstack.fullname" .)) }}'
+          X-Forwarded-Context: '{{ .Values.virtualService.prefix | default (printf "/%s/%s" .Release.Namespace (include "bookstack.fullname" .)) }}'
+    match:
+      - uri: 
+          exact: '{{ .Values.virtualService.prefix | default (printf "/%s/%s" .Release.Namespace (include "bookstack.fullname" .)) }}'
+    redirect:
+      uri: '{{ .Values.virtualService.prefix | default (printf "/%s/%s" .Release.Namespace (include "bookstack.fullname" .)) }}/'
+{{ end }}
